@@ -15,10 +15,12 @@ import { AnswersSummary } from "@/components/questionnaire/answers-summary";
 import { ChatBox } from "@/components/chat/chat-box";
 import { PageTitle } from "@/components/ui/app-shell";
 import { FileChip } from "@/components/ui/file-chip";
-import { Button, ButtonLink, Pill, StatusPill, cx } from "@/components/ui/primitives";
+import { Button, ButtonLink, Loading, Pill, StatusPill, cx } from "@/components/ui/primitives";
 import { StepDot } from "@/components/ui/progress";
 import { WaitingLabel } from "./case-list";
 import { TopBar } from "./gestor-shell";
+import { useRemoteCase } from "@/lib/api/use-remote";
+import { API_MODE } from "@/lib/auth/config";
 import { alertsOf, triage } from "@/lib/gestor/triage";
 import { ResultPanel } from "./result-panel";
 import { AskButton, TaskPanel, isAsked } from "./task-panel";
@@ -37,6 +39,7 @@ const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isCo
 /** G3 · Ficha del expediente: content in the middle, properties on the right, ↑/↓ to move between cases. */
 export function CaseFile({ id }: { id: string }) {
   const { exps, firm } = useAppState();
+  useRemoteCase(id, true);
   const { t, tr, locale } = useI18n();
   const router = useRouter();
   const order = caseOrder(exps).map((e) => e.id);
@@ -55,7 +58,8 @@ export function CaseFile({ id }: { id: string }) {
   }, [prevId, nextId, router]);
 
   const e = exps[id];
-  const loaded = !!e;
+  // API mode: the inbox only has the summary; wait for the full case (answers, documents, chat).
+  const loaded = !!e && (!e.remote || e.remote.loaded);
   useEffect(() => {
     if (!loaded) return;
     const jump = () => {
@@ -71,6 +75,14 @@ export function CaseFile({ id }: { id: string }) {
       window.removeEventListener("hashchange", jump);
     };
   }, [loaded, id]);
+
+  if (API_MODE && !loaded)
+    return (
+      <>
+        <TopBar crumbs={[{ label: t.list.title, href: "/expedientes" }]} />
+        <div className="px-6 py-10"><Loading /></div>
+      </>
+    );
 
   if (!e)
     return (
@@ -261,10 +273,12 @@ export function CaseFile({ id }: { id: string }) {
                           {x.target.kind === "docs" ? t.file.goDocs : t.file.goAnswer}
                         </ButtonLink>
                         <AskButton exp={e} text={x.text} target={x.target} />
-                        <Button size="sm" variant="ghost" onClick={() => actions.reviewAlert(e.id, x.text.es, x.text, true)}>
-                          <Check size={14} aria-hidden="true" />
-                          {t.file.review}
-                        </Button>
+                        {FEATURES.requestTracking && (
+                          <Button size="sm" variant="ghost" onClick={() => actions.reviewAlert(e.id, x.text.es, x.text, true)}>
+                            <Check size={14} aria-hidden="true" />
+                            {t.file.review}
+                          </Button>
+                        )}
                       </span>
                     </li>
                   );
@@ -297,7 +311,7 @@ export function CaseFile({ id }: { id: string }) {
             </Block>
           )}
 
-          <Block id="peticiones" icon={ClipboardList} title={t.tasks.title} aside={t.tasks.aside(openTasks(e).length, tasksToCheck(e).length)}>
+          <Block id="peticiones" icon={ClipboardList} title={t.tasks.title} aside={FEATURES.requestTracking ? t.tasks.aside(openTasks(e).length, tasksToCheck(e).length) : undefined}>
             <TaskPanel exp={e} />
           </Block>
 

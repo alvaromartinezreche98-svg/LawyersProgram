@@ -9,7 +9,7 @@ import { EXAMPLES, EXAMPLE_FIRM } from "./examples";
 import { PREFILL_SECTIONS, carryOver } from "./years";
 import { answerChanges, bySection, logged, type Activity } from "./activity";
 import { withItemIds } from "@/lib/questionnaire/progress";
-import { LOCAL_DATA } from "@/lib/auth/config";
+import { API_MODE, LOCAL_DATA } from "@/lib/auth/config";
 import { SIMULATED_PAYMENT } from "@/lib/features";
 import { purgeFiles } from "./files";
 import { slotKey } from "./types";
@@ -48,9 +48,12 @@ export interface AppState {
  * Whether the last changes are stored. "saved" is only set once the write
  * succeeded; "failed" keeps the changes in memory until retrySave() works.
  */
-export type SaveState = { status: "idle" | "saving" | "saved" | "failed"; at: string | null };
+export type SaveState = { status: "idle" | "saving" | "saved" | "merged" | "failed"; at: string | null };
 
-const SERVER_STATE: AppState = { ready: false, lang: DEFAULT_LANG, session: null, exps: {}, firm: EXAMPLE_FIRM, save: { status: "idle", at: null }, signedOut: false };
+/** The firm this deployment serves. The API has no firm endpoint yet, so its name comes from the deployment's env; nothing from the demo firm is shown to real users. */
+const API_FIRM: Firm = { ...structuredClone(EXAMPLE_FIRM), name: process.env.NEXT_PUBLIC_FIRM_NAME ?? "", address: "", team: [] };
+
+const SERVER_STATE: AppState = { ready: false, lang: DEFAULT_LANG, session: null, exps: {}, firm: API_MODE ? API_FIRM : EXAMPLE_FIRM, save: { status: "idle", at: null }, signedOut: false };
 let state: AppState = SERVER_STATE;
 const listeners = new Set<() => void>();
 
@@ -73,6 +76,7 @@ function readData(): Record<string, Expediente> {
 }
 
 function readFirm(): Firm {
+  if (API_MODE) return structuredClone(API_FIRM);
   if (!LOCAL_DATA) return structuredClone(EXAMPLE_FIRM);
   try {
     const raw = localStorage.getItem(FIRM_KEY);
@@ -159,6 +163,48 @@ export function useAppState(): AppState {
   return useSyncExternalStore(subscribe, getSnapshot, () => SERVER_STATE);
 }
 
+/* ---------- API mode bridge ---------- */
+
+/** What lib/api/remote.ts does for the actions below in API mode. */
+export interface RemoteHooks {
+  answers(id: string, before: Answers, after: Answers): void;
+  submit(id: string): Promise<void>;
+  status(id: string, status: Status): Promise<void>;
+  message(id: string, text: string, request: boolean): Promise<void>;
+  read(id: string): Promise<void>;
+  note(id: string): void;
+  retry(): void;
+}
+let remote: RemoteHooks | null = null;
+export const setRemoteHooks = (h: RemoteHooks) => {
+  remote = h;
+};
+/** Calls the API in API mode; failures surface through the save state or the next refresh. */
+const viaApi = (f: (r: RemoteHooks) => Promise<void> | void) => {
+  if (!API_MODE || !remote) return false;
+  void Promise.resolve(f(remote)).catch(() => setSave("failed"));
+  return true;
+};
+
+/** Lets lib/api/remote.ts write server data into the store (never saved in the browser). */
+export const remoteStore = {
+  get: () => state,
+  putCases(list: Expediente[]) {
+    state = { ...state, exps: { ...state.exps, ...Object.fromEntries(list.map((e) => [e.id, e])) } };
+    emit();
+  },
+  patchCase(id: string, patch: Partial<Expediente> | ((e: Expediente) => Partial<Expediente>)) {
+    const e = state.exps[id];
+    if (!e) return;
+    const p = typeof patch === "function" ? patch(e) : patch;
+    state = { ...state, exps: { ...state.exps, [id]: { ...e, ...p } } };
+    emit();
+  },
+  setSave(status: SaveState["status"], at?: string) {
+    setSave(status, at ?? state.save.at);
+  },
+};
+
 /* ---------- Actions ---------- */
 
 function patchExp(id: string, patch: Partial<Expediente> | ((e: Expediente) => Partial<Expediente>), touch = true) {
@@ -219,6 +265,7 @@ export const actions = {
 
   /** Tries the last failed save again. */
   retrySave() {
+    if (viaApi((r) => r.retry())) return;
     clearTimeout(saveTimer);
     setSave("saving");
     saveTimer = setTimeout(write, 150);
@@ -242,6 +289,7 @@ export const actions = {
 
   /** Only the client edits answers; the gestoría's "view as client" is read-only. */
   setAnswers(id: string, answers: Answers) {
+    const before = state.exps[id]?.answers;
     patchExp(id, (e) => {
       const ch = answerChanges(e.answers, answers);
       return {
@@ -253,9 +301,11 @@ export const actions = {
         ]),
       };
     });
+    if (before) viaApi((r) => r.answers(id, before, answers));
   },
 
   sendToGestoria(id: string) {
+    if (viaApi((r) => r.submit(id))) return;
     const at = nowIso();
     patchExp(id, (e) => ({
       status: "enviado",
@@ -267,20 +317,23 @@ export const actions = {
 
   /** Gestoría-side change: does not count as client activity, so the case keeps its place in the list. */
   setStatus(id: string, status: Status) {
+    if (viaApi((r) => r.status(id, status))) return;
     patchExp(id, (e) => (e.status === status ? {} : { status, ...logged(e, { by: "gestor", kind: "status", from: e.status, to: status }) }), false);
   },
 
-  sendMessage(id: string, from: Side, text: string) {
-    const msg: ChatMessage = { id: uid("m"), from, text, at: nowIso() };
+  sendMessage(id: string, from: Side, text: string, request = false) {
+    const msg: ChatMessage = { id: uid(API_MODE ? "tmp-" : "m"), from, text, at: nowIso(), ...(request ? { request: true } : {}) };
     patchExp(id, (e) => ({
       chat: [...e.chat, msg],
       ...(from === "cliente" ? { clientSeen: msg.at } : { gestorSeen: msg.at }),
     }));
+    viaApi((r) => r.message(id, text, request));
   },
 
   markSeen(id: string, side: Side) {
     const e = state.exps[id];
     if (!e) return;
+    if (viaApi((r) => r.read(id))) return;
     const other: Side = side === "cliente" ? "gestor" : "cliente";
     const last = e.chat.reduce((acc, m) => (m.from === other && m.at > acc ? m.at : acc), "");
     const key = side === "cliente" ? "clientSeen" : "gestorSeen";
@@ -289,6 +342,7 @@ export const actions = {
 
   setNotes(id: string, notes: string) {
     patchExp(id, { notes }, false);
+    viaApi((r) => r.note(id));
   },
 
   /** C6: the gestoría sends (or replaces) the result for approval. A new result clears any earlier approval. */
@@ -351,6 +405,8 @@ export const actions = {
 
   /** G3: the gestoría asks the client for something; it shows up as a task in the client's Home. */
   askClient(id: string, text: ClientTask["text"], target: ClientTask["target"]) {
+    // The API has no request objects: a request is an information_request message in the chat.
+    if (API_MODE) return actions.sendMessage(id, "gestor", text.es, true);
     const task: ClientTask = { id: uid("t-"), text, target, createdAt: nowIso() };
     patchExp(id, (e) => ({ tasks: [...(e.tasks ?? []), task], ...logged(e, { by: "gestor", kind: "taskAsked", text }) }), false);
   },
@@ -461,13 +517,15 @@ export const actions = {
 export const caseOrder = (exps: Record<string, Expediente>) => Object.values(exps).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
 export const unreadFor =(e: Expediente, side: Side) => {
+  // From the API the count is already for the caller's side.
+  if (e.remote) return e.remote.unread;
   const other: Side = side === "cliente" ? "gestor" : "cliente";
   const seen = side === "cliente" ? e.clientSeen : e.gestorSeen;
   return e.chat.filter((m) => m.from === other && m.at > seen && !(side === "cliente" && m.sys)).length;
 };
 
 /** The client's name as typed in the questionnaire, or "" when missing. */
-export const clientName = (e: Expediente) => (typeof e.answers.nombre === "string" && e.answers.nombre.trim()) || "";
+export const clientName = (e: Expediente) => (typeof e.answers.nombre === "string" && e.answers.nombre.trim()) || e.remote?.displayName || "";
 
 /** Requests the client still has to do. */
 export const openTasks = (e: Expediente) => (e.tasks ?? []).filter((x) => !x.doneAt && !x.closedAt);

@@ -58,6 +58,8 @@ export interface FileRef {
   type: string;
   /** Example files from the demo cases have no stored content. */
   example?: boolean;
+  /** API mode: the case the document belongs to (the file lives on the server). */
+  remote?: string;
 }
 
 export type AnswerValue = string | FileRef[] | Answers[];

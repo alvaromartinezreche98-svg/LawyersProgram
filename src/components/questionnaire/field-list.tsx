@@ -11,6 +11,8 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDayMonth, fmtSize, uid } from "@/lib/format";
 import { FileThumb } from "@/components/ui/file-chip";
 import { StepDot } from "@/components/ui/progress";
+import { API_MODE } from "@/lib/auth/config";
+import { sectionKey, slotPath } from "@/lib/api/mapping";
 import { Pill, cx } from "@/components/ui/primitives";
 
 interface Ctx {
@@ -55,9 +57,9 @@ export function QuestionnaireForm({ fields, answers, onChange, readOnly = false,
  * (design system › QuestionGroup): heading and one sentence of why on the left
  * when the form is wide enough, the questions on the right.
  */
-function FieldList({ fields, scope, path, idBase, itemId = null, depth = 0 }: { fields: Field[]; scope: Answers; path: Path; idBase: string; itemId?: string | null; depth?: number }) {
+function FieldList({ fields, scope, path, idBase, itemId = null, listKey = null, depth = 0 }: { fields: Field[]; scope: Answers; path: Path; idBase: string; itemId?: string | null; listKey?: string | null; depth?: number }) {
   const { tr } = useI18n();
-  const rows = (list: Field[]) => list.map((x) => <FieldRow key={x.id} field={x} scope={scope} path={path} id={`${idBase}-${x.id}`} itemId={itemId} depth={depth} />);
+  const rows = (list: Field[]) => list.map((x) => <FieldRow key={x.id} field={x} scope={scope} path={path} id={`${idBase}-${x.id}`} itemId={itemId} listKey={listKey} depth={depth} />);
   if (!fields.some((x) => x.group)) return rows(fields);
   const parts: { group?: Field["group"]; list: Field[] }[] = [];
   for (const x of fields) {
@@ -85,7 +87,7 @@ const pinnedTasks = (exp: Expediente | undefined, field: string, item: string | 
 const inputCls =
   "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-1 focus:ring-focus disabled:bg-sunk disabled:text-muted max-w-[460px]";
 
-function FieldRow({ field: x, scope, path, id, itemId, depth }: { field: Field; scope: Answers; path: Path; id: string; itemId: string | null; depth: number }) {
+function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field: Field; scope: Answers; path: Path; id: string; itemId: string | null; listKey: string | null; depth: number }) {
   const { set, readOnly, exp, markEmpty } = useForm();
   const [err, setErr] = useState("");
   const pinned = pinnedTasks(exp, x.id, itemId);
@@ -177,7 +179,7 @@ function FieldRow({ field: x, scope, path, id, itemId, depth }: { field: Field; 
       break;
     }
     case "upload":
-      control = <Uploader id={id} files={asFiles(v)} onChange={(files) => set(at, files)} field={x.id} item={itemId} />;
+      control = <Uploader id={id} files={asFiles(v)} onChange={(files) => set(at, files)} field={x.id} item={itemId} listKey={listKey} />;
       break;
     case "repeat":
       control = <Repeater field={x} items={asItems(v)} path={at} id={id} />;
@@ -229,7 +231,7 @@ function FieldRow({ field: x, scope, path, id, itemId, depth }: { field: Field; 
             <ArrowRight size={13} aria-hidden="true" />
             {t.q.because(x.type === "yn" ? (v === "si" ? t.common.yes : t.common.no) : tr(x.choices?.find(([c]) => c === v)?.[1] ?? { es: String(v), en: String(v) }))}
           </span>
-          <FieldList fields={x.kids ?? []} scope={scope} path={path} idBase={id} itemId={itemId} depth={depth + 1} />
+          <FieldList fields={x.kids ?? []} scope={scope} path={path} idBase={id} itemId={itemId} listKey={listKey} depth={depth + 1} />
         </div>
       )}
     </div>
@@ -246,7 +248,7 @@ function Repeater({ field: x, items, path, id }: { field: Field; items: Answers[
         const itemId = typeof it[ITEM_ID] === "string" ? (it[ITEM_ID] as string) : null;
         return (
           <RepeatItem key={itemId ?? i} n={i + 1} itemId={itemId} label={`${item} ${i + 1}`} fields={x.fields ?? []} scope={it} onRemove={readOnly ? undefined : () => set(path, items.filter((_, k) => k !== i))}>
-            <FieldList fields={x.fields ?? []} scope={it} path={[...path, i]} idBase={`${id}-${i}`} itemId={itemId} />
+            <FieldList fields={x.fields ?? []} scope={it} path={[...path, i]} idBase={`${id}-${i}`} itemId={itemId} listKey={x.id} />
           </RepeatItem>
         );
       })}
@@ -295,6 +297,15 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
   );
 }
 
+/** Deletes a stored file: on the API for API files, in this browser otherwise. Example files have nothing stored. */
+function dropFile(f: FileRef) {
+  if (f.example) return;
+  if (f.remote) {
+    const caseId = f.remote;
+    void import("@/lib/api/remote").then((m) => m.removeDocument(caseId, f.id)).catch(() => {});
+  } else deleteFile(f.id).catch(() => {});
+}
+
 /** One file waiting for, or failing, its upload. */
 interface Pending { key: string; file: File; failed?: boolean }
 
@@ -303,7 +314,7 @@ interface Pending { key: string; file: File; failed?: boolean }
  * requirements stated up front, a photo or files, each file's state (uploaded,
  * uploading, failed with a retry), and "No lo tengo todavía" with a note.
  */
-function Uploader({ id, files, onChange, field, item }: { id: string; files: FileRef[]; onChange: (files: FileRef[]) => void; field: string; item: string | null }) {
+function Uploader({ id, files, onChange, field, item, listKey }: { id: string; files: FileRef[]; onChange: (files: FileRef[]) => void; field: string; item: string | null; listKey: string | null }) {
   const { readOnly, notify, exp, section } = useForm();
   const { t } = useI18n();
   const [pending, setPending] = useState<Pending[]>([]);
@@ -323,9 +334,16 @@ function Uploader({ id, files, onChange, field, item }: { id: string; files: Fil
     setPending((p) => [...p, ...batch]);
     const added: FileRef[] = [];
     for (const b of batch) {
-      const ref: FileRef = { id: uid("f-"), name: b.file.name, size: b.file.size, type: typeOf(b.file) };
       try {
-        await putFile(ref.id, b.file);
+        let ref: FileRef;
+        if (API_MODE && exp) {
+          // The API stores the file in its question's slot: section.field, or section.list.field for a repeated item.
+          const { upload } = await import("@/lib/api/remote");
+          ref = await upload(exp.id, slotPath(sectionKey(section ?? ""), field, listKey), item, b.file);
+        } else {
+          ref = { id: uid("f-"), name: b.file.name, size: b.file.size, type: typeOf(b.file) };
+          await putFile(ref.id, b.file);
+        }
         added.push(ref);
         setPending((p) => p.filter((x) => x.key !== b.key));
       } catch {
@@ -356,13 +374,13 @@ function Uploader({ id, files, onChange, field, item }: { id: string; files: Fil
     const [ref] = await store([file]);
     if (!ref) return;
     const old = files[i];
-    if (old && !old.example) deleteFile(old.id).catch(() => {});
+    if (old) dropFile(old);
     onChange(files.map((f, k) => (k === i ? ref : f)));
   }
 
   function remove(i: number) {
     const f = files[i];
-    if (f && !f.example) deleteFile(f.id).catch(() => {});
+    if (f) dropFile(f);
     onChange(files.filter((_, k) => k !== i));
   }
 

@@ -1,6 +1,8 @@
 import { alertsFor, type Alert } from "@/lib/questionnaire/alerts";
 import { FEATURES } from "@/lib/features";
 import { overall } from "@/lib/questionnaire/progress";
+import { SCHEMA } from "@/lib/questionnaire/schema";
+import { L } from "@/lib/i18n";
 import { clientName, openTasks, tasksToCheck, unreadFor } from "@/lib/data/store";
 import { awaitingApproval, resultApproved, type Expediente } from "@/lib/data/types";
 
@@ -9,6 +11,12 @@ export type Reason = "unread" | "missing" | "check" | "toReview" | "toFile" | "a
 
 /** The case's automatic alerts, split into those still to check and those the gestoría marked as reviewed. */
 export function alertsOf(e: Expediente) {
+  // API mode: the server computes the alerts (the inbox has no answers to compute them from). Reviewing is not in the API yet.
+  if (e.remote)
+    return {
+      active: e.remote.alerts.map((x): Alert => ({ level: x.severity, text: L(x.message, x.message, x.message), target: { section: SCHEMA.find((s) => s.id === x.section)?.slug ?? x.section, kind: "answers" } })),
+      reviewed: [] as Alert[],
+    };
   const all = alertsFor(e.answers);
   const done = e.reviewedAlerts ?? {};
   return { active: all.filter((a) => !done[a.text.es]), reviewed: all.filter((a) => done[a.text.es]) };
@@ -53,7 +61,7 @@ export function triage(e: Expediente): Triage {
   const bad = alerts.filter((a) => a.level === "bad").length;
   const warn = alerts.filter((a) => a.level === "warn").length;
   const unread = unreadFor(e, "gestor");
-  const { pct, pending } = overall(e.answers);
+  const { pct, pending } = e.remote && !e.remote.loaded ? { pct: e.remote.progress.percent, pending: e.remote.progress.total - e.remote.progress.answered } : overall(e.answers);
   const reasons: Reason[] = [];
   if (unread) reasons.push("unread");
   if (bad) reasons.push("missing");

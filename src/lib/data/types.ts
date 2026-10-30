@@ -28,6 +28,28 @@ export interface ChatMessage {
   at: string;
   /** System line shown in the user's language instead of `text`. */
   sys?: "sent" | "resent" | "result" | "approved";
+  /** API: the firm's request for missing information (kind information_request). */
+  request?: boolean;
+}
+
+/** What the API adds to a case it served (API mode only). */
+export interface RemoteCase {
+  /** Case version, sent as expected_version on guarded writes. */
+  version: number;
+  definitionVersion: string;
+  clientId: string;
+  /** The client changed answers or documents after the last send. */
+  hasUnsent: boolean;
+  progress: { answered: number; total: number; percent: number };
+  unread: number;
+  issues: number;
+  alerts: { severity: "bad" | "warn" | "info"; section: string; message: string }[];
+  displayName: string;
+  noteVersion: number;
+  /** Sections, documents, messages and the note have been loaded (the list only carries the summary). */
+  loaded: boolean;
+  /** Cursor of the last message read, for polling. */
+  cursor: string | null;
 }
 
 /** One client's Renta case for one tax year. */
@@ -70,6 +92,8 @@ export interface Expediente {
   tasks?: ClientTask[];
   /** Documents the client says they don't have yet, by `slotKey(field, item)`, with an optional note for the gestoría. */
   notYet?: Record<string, { note: string; at: string }>;
+  /** Set when the case comes from the API. */
+  remote?: RemoteCase;
   /** Automatic alerts the gestoría checked, by the alert's Spanish text. */
   reviewedAlerts?: Record<string, { at: string }>;
   /** G3 · Historial: who did what and when, newest last. */

@@ -1,9 +1,13 @@
 "use client";
 
 import { FEATURES } from "@/lib/features";
+import { API_MODE } from "@/lib/auth/config";
+import { api } from "@/lib/api/endpoints";
+import { FROM_API_STATUS } from "@/lib/api/mapping";
+import type { ApiClientItem } from "@/lib/api/types";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { ChevronDown, QrCode as QrIcon, UserPlus } from "lucide-react";
+import { ChevronDown, QrCode as QrIcon, RefreshCw, UserPlus, X } from "lucide-react";
 import { actions, caseOrder, clientName, useAppState } from "@/lib/data/store";
 import type { Expediente } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -11,7 +15,7 @@ import { fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
 import { CopyField } from "@/components/ui/copy-field";
 import { QrCode } from "@/components/ui/qr-code";
-import { Button, ButtonLink, Card, CardTitle, Notice, Pill, StatusPill, cx } from "@/components/ui/primitives";
+import { Button, ButtonLink, Card, CardTitle, Loading, Notice, Pill, StatusPill, cx } from "@/components/ui/primitives";
 import { TopBar } from "./gestor-shell";
 import { inputCls } from "./settings/settings-layout";
 
@@ -22,8 +26,13 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
 export const inviteLink = (origin: string, id: string) => `${origin}/invitacion/${encodeURIComponent(id)}`;
 export const firmLink = (origin: string) => `${origin}/acceso?alta=1`;
 
-/** G4 · Clientes: invite clients by link or QR; each invitation creates their case. */
+/** G4 · Clientes: the API's clients and invitations when connected, the browser demo otherwise. */
 export function Clients() {
+  return API_MODE ? <ApiClients /> : <DemoClients />;
+}
+
+/** Demo: invite clients by link or QR; each invitation creates their case in this browser. */
+function DemoClients() {
   const { exps, firm } = useAppState();
   const { t, locale } = useI18n();
   const [origin, setOrigin] = useState("");
@@ -150,5 +159,179 @@ function ClientRow({ exp: e, i, origin, open, onToggle, locale }: { exp: Expedie
         </div>
       )}
     </li>
+  );
+}
+
+/** The link a client opens to accept their invitation. The code travels in the fragment, so it never reaches a server log. */
+export const apiInviteLink = (origin: string, code: string) => `${origin}/entrar#code=${encodeURIComponent(code)}`;
+
+type Fresh = { clientId: string; name: string; code: string; expiresAt: string };
+const INVITE_TONE = { open: "info", expired: "warn", accepted: "ok", none: "neutral" } as const;
+
+/**
+ * API mode: clients come from /v1/clients. A new client, or a new invitation,
+ * returns the code once; it is shown here as a link and a QR drawn in the
+ * browser (never sent to a QR service) until the page is left.
+ */
+function ApiClients() {
+  const { t, locale } = useI18n();
+  const c = t.clients;
+  const [items, setItems] = useState<ApiClientItem[] | null>(null);
+  const [origin, setOrigin] = useState("");
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [fresh, setFresh] = useState<Fresh | null>(null);
+  const [notice, setNotice] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
+
+  const load = async () => {
+    const all: ApiClientItem[] = [];
+    let cursor: string | undefined;
+    do {
+      const page = await api.clients(cursor);
+      all.push(...page.items);
+      cursor = page.next_cursor ?? undefined;
+    } while (cursor && all.length < 2000);
+    setItems(all.sort((a, b) => b.created_at.localeCompare(a.created_at)));
+  };
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      setOrigin(window.location.origin);
+      load().catch(() => setItems([]));
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const run = async (f: () => Promise<void>) => {
+    setBusy(true);
+    setNotice(null);
+    try {
+      await f();
+      await load();
+    } catch {
+      setNotice({ tone: "bad", text: c.api.failed });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const create = (e: FormEvent) => {
+    e.preventDefault();
+    const n = name.trim();
+    if (!n) return;
+    void run(async () => {
+      const r = await api.createClient(n);
+      setFresh({ clientId: r.client.id, name: r.client.display_name, code: r.invitation.code, expiresAt: r.invitation.expires_at });
+      setNotice({ tone: "ok", text: c.created(n) });
+      setName("");
+    });
+  };
+  const reissue = (x: ApiClientItem) =>
+    run(async () => {
+      const inv = await api.reissueInvitation(x.id);
+      setFresh({ clientId: x.id, name: x.display_name, code: inv.code, expiresAt: inv.expires_at });
+    });
+  const revoke = (x: ApiClientItem) =>
+    run(async () => {
+      await api.revokeInvitation(x.id);
+      if (fresh?.clientId === x.id) setFresh(null);
+      setNotice({ tone: "ok", text: c.api.revoked });
+    });
+
+  const link = fresh && origin ? apiInviteLink(origin, fresh.code) : "";
+
+  return (
+    <>
+      <PageTitle>{t.titles.clients}</PageTitle>
+      <TopBar crumbs={[{ label: c.title }]} />
+      <div className="grid items-start gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div>
+            <h1 className="display-tight text-[clamp(20px,2vw,24px)] font-semibold">{c.title}</h1>
+            <p className="mt-1 max-w-[64ch] text-[14px] text-muted">{c.api.intro}</p>
+          </div>
+          {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
+
+          {items === null ? (
+            <Loading />
+          ) : (
+            <div className="overflow-clip rounded-lg border border-line bg-surface">
+              <div className="hidden grid-cols-[minmax(0,1.4fr)_150px_160px_100px_auto] gap-4 border-b border-line bg-sunk px-4 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase md:grid">
+                <span>{c.cols.client}</span>
+                <span>{c.cols.status}</span>
+                <span>{c.link}</span>
+                <span>{c.cols.invited}</span>
+                <span className="w-[200px]" />
+              </div>
+              {items.length === 0 && <p className="px-4 py-6 text-[14px] text-muted">{c.api.empty}</p>}
+              <ul>
+                {items.map((x, i) => {
+                  const kase = x.cases[0];
+                  const st = kase ? FROM_API_STATUS[kase.status as keyof typeof FROM_API_STATUS] : undefined;
+                  return (
+                    <li key={x.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 md:grid-cols-[minmax(0,1.4fr)_150px_160px_100px_auto]">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className={cx("grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-semibold", AVATAR[i % AVATAR.length])}>{initials(x.display_name)}</span>
+                        {kase ? (
+                          <Link href={`/expedientes/${kase.id}`} className="min-w-0 truncate font-medium hover:underline">{x.display_name}</Link>
+                        ) : (
+                          <span className="min-w-0 truncate font-medium">{x.display_name}</span>
+                        )}
+                      </div>
+                      <span className="justify-self-end md:justify-self-start">{st ? <StatusPill status={st} /> : <Pill>{c.api.noCase}</Pill>}</span>
+                      <span className="flex flex-col gap-0.5">
+                        <Pill tone={INVITE_TONE[x.invitation.status]} className="self-start">{c.api.state[x.invitation.status]}</Pill>
+                        {x.invitation.status === "open" && x.invitation.expires_at && (
+                          <span className="text-[12px] text-muted">{c.api.expires(fmtTime(x.invitation.expires_at, locale))}</span>
+                        )}
+                      </span>
+                      <span className="figures hidden text-[12.5px] text-muted md:block">{fmtTime(x.created_at, locale)}</span>
+                      <span className="col-span-2 flex flex-wrap gap-2 md:col-span-1 md:w-[200px] md:justify-end">
+                        {!x.bound && (
+                          <Button size="sm" onClick={() => void reissue(x)} disabled={busy}>
+                            <RefreshCw size={14} aria-hidden="true" />
+                            {c.api.reissue}
+                          </Button>
+                        )}
+                        {x.invitation.status === "open" && (
+                          <Button size="sm" variant="ghost" onClick={() => void revoke(x)} disabled={busy} aria-label={`${c.api.revoke}: ${x.display_name}`}>
+                            <X size={14} aria-hidden="true" />
+                            <span className="md:sr-only">{c.api.revoke}</span>
+                          </Button>
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <aside className="flex flex-col gap-4 xl:sticky xl:top-[calc(var(--app-header,64px)+1.25rem)]">
+          <Card className="p-5">
+            <CardTitle>{c.invite}</CardTitle>
+            <form onSubmit={create} className="flex flex-col gap-2.5">
+              <label className="sr-only" htmlFor="cl-name">{c.name}</label>
+              <input id="cl-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder={c.name} autoComplete="off" className={inputCls} />
+              <Button type="submit" variant="primary" disabled={busy}>
+                <UserPlus size={16} aria-hidden="true" />
+                {c.create}
+              </Button>
+            </form>
+          </Card>
+
+          {fresh && link && (
+            <Card className="flex flex-col gap-3 p-5">
+              <CardTitle>{fresh.name}</CardTitle>
+              <Notice tone="warn">{c.api.once}</Notice>
+              <QrCode value={link} size={168} downloadName={`invitacion-${initials(fresh.name).toLowerCase()}`} downloadLabel={c.downloadQr} />
+              <CopyField value={link} label={c.link} copyLabel={c.copy} copiedLabel={c.copied} />
+              <p className="text-[12.5px] text-muted">{c.api.expires(fmtTime(fresh.expiresAt, locale))}</p>
+            </Card>
+          )}
+        </aside>
+      </div>
+    </>
   );
 }

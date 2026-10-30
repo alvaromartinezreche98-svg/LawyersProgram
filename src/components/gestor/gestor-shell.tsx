@@ -12,6 +12,7 @@ import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { Badge, Brand, Loading, cx } from "@/components/ui/primitives";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
+import { useRemoteInbox } from "@/lib/api/use-remote";
 
 /** Gestoría panel frame: left sidebar (drawer on mobile) + content panel. */
 export function GestorShell({ children }: { children: ReactNode }) {
@@ -21,6 +22,7 @@ export function GestorShell({ children }: { children: ReactNode }) {
   const allowed = session?.role === "gestoria";
   const signOut = useSignOut();
   useSignInRedirect(allowed);
+  useRemoteInbox(allowed);
   // On a case page the sidebar folds to icons, to give the case more width.
   const compact = /^\/expedientes\/[^/]+$/.test(usePathname());
 

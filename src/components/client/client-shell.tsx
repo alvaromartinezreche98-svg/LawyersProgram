@@ -8,6 +8,8 @@ import type { Expediente } from "@/lib/data/types";
 import { clientName, unreadFor, useAppState } from "@/lib/data/store";
 import { casesOfClient, latestCase } from "@/lib/data/years";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
+import { API_MODE } from "@/lib/auth/config";
+import { useRemoteCase, useRemoteClientCase } from "@/lib/api/use-remote";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { AppShell } from "@/components/ui/app-shell";
 import { Loading } from "@/components/ui/primitives";
@@ -26,7 +28,11 @@ export function ClientShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const signedIn = session?.role === "cliente" ? exps[session.expId] : undefined;
   const exp = signedIn ? latestCase(exps, signedIn) : undefined;
-  useSignInRedirect(!!exp);
+  // API mode: after a reload the session is here before the case; load it (and keep it fresh) instead of signing out.
+  const waiting = API_MODE && session?.role === "cliente" && !exp;
+  useRemoteClientCase(waiting);
+  useRemoteCase(exp?.id, false);
+  useSignInRedirect(!!exp || waiting);
   const path = usePathname();
   const router = useRouter();
   // C1: until the client confirms who they are, the welcome page is the only page.

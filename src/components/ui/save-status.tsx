@@ -22,6 +22,14 @@ export function SaveStatus({ idle, className }: { idle: string; className?: stri
         <button type="button" onClick={actions.retrySave} className="underline underline-offset-2 hover:text-ink">{t.sync.retry}</button>
       </span>
     );
+  // API mode: another session saved this section first; its answers were kept where both changed.
+  if (save.status === "merged")
+    return (
+      <span role="status" className={cx(base, "font-medium text-warn", className)}>
+        <CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />
+        {t.sync.merged}
+      </span>
+    );
   return (
     <span role="status" className={cx(base, "text-muted", className)}>
       {save.status === "saving" ? (

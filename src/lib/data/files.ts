@@ -70,7 +70,9 @@ export function useFileUrl(file: FileRef | null) {
     if (!id) return;
     let alive = true;
     let made: string | null = null;
-    getFile(id)
+    // API files are downloaded with the bearer token; demo files come from IndexedDB.
+    const caseId = file?.remote;
+    (caseId ? import("@/lib/api/endpoints").then((m) => m.api.downloadDocument(caseId, id)) : getFile(id))
       .then((b) => {
         if (!alive || !b) return;
         made = URL.createObjectURL(b);
@@ -81,6 +83,6 @@ export function useFileUrl(file: FileRef | null) {
       alive = false;
       if (made) URL.revokeObjectURL(made);
     };
-  }, [id]);
+  }, [id, file?.remote]);
   return url && url.id === id ? url.url : null;
 }

@@ -95,7 +95,19 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
           return (
             <Fragment key={m.id}>
               {newDay && <DaySep label={dayLabel(m.at)} />}
-              {m.sys ? (
+              {m.request ? (
+                // API mode: an information request from the gestoría, shown as a request card.
+                <div className="my-1.5 flex max-w-[min(90%,520px)] flex-col gap-1.5 self-start rounded-xl border border-copper/40 bg-surface px-3.5 py-2.5 text-[14px]">
+                  <span className="flex items-center justify-between gap-3 text-[12px] font-semibold text-copper-text">
+                    <span className="flex items-center gap-1.5">
+                      <ClipboardList size={14} aria-hidden="true" />
+                      {t.chat.request}
+                    </span>
+                    <span className="font-normal text-muted">{fmtClock(m.at, locale)}</span>
+                  </span>
+                  <p className="break-words whitespace-pre-wrap">{m.text}</p>
+                </div>
+              ) : m.sys ? (
                 <p className="my-1 self-center rounded-full border border-line bg-surface px-3 py-1 text-center text-[12px] text-muted">
                   {t.chat.sys[typeof m.sys === "string" ? m.sys : "sent"]} · {fmtClock(m.at, locale)}
                 </p>

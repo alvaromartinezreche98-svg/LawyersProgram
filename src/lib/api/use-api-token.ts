@@ -6,9 +6,9 @@ import { CLERK_ENABLED } from "@/lib/auth/config";
 
 /**
  * Name of the Clerk JWT template the Go API verifies (Clerk Dashboard → JWT
- * templates). Without it Clerk's default session token is sent.
+ * templates). The API rejects default session tokens; its template is "prerenta-api".
  */
-export const JWT_TEMPLATE = process.env.NEXT_PUBLIC_CLERK_JWT_TEMPLATE || undefined;
+export const JWT_TEMPLATE = process.env.NEXT_PUBLIC_CLERK_JWT_TEMPLATE || "prerenta-api";
 
 function useClerkToken() {
   const { getToken } = useAuth();

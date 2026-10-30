@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Check, Clock, Eye, RotateCcw, Send, X } from "lucide-react";
 import { SCHEMA } from "@/lib/questionnaire/schema";
+import { FEATURES } from "@/lib/features";
 import { actions } from "@/lib/data/store";
 import type { ClientTask, Expediente } from "@/lib/data/types";
 import { L, type Text } from "@/lib/i18n";
@@ -76,7 +77,10 @@ export function TaskPanel({ exp: e }: { exp: Expediente }) {
   const [text, setText] = useState("");
   const [where, setWhere] = useState("");
   const [showClosed, setShowClosed] = useState(false);
-  const all = [...(e.tasks ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  // API mode has no request tracking yet: a request is a chat message of kind information_request, listed here as sent.
+  const all: ClientTask[] = FEATURES.requestTracking
+    ? [...(e.tasks ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    : e.chat.filter((m) => m.request).map((m) => ({ id: m.id, text: L(m.text, m.text, m.text), createdAt: m.at, target: null })).reverse();
   const active = all.filter((x) => !x.closedAt);
   const closed = all.filter((x) => x.closedAt);
   const shown = showClosed ? all : active;
@@ -115,7 +119,7 @@ export function TaskPanel({ exp: e }: { exp: Expediente }) {
                     {x.reply}
                   </p>
                 )}
-                {st !== "closed" && (
+                {st !== "closed" && FEATURES.requestTracking && (
                   <div className="flex flex-wrap gap-2">
                     {st === "done" && (
                       <>
@@ -151,8 +155,8 @@ export function TaskPanel({ exp: e }: { exp: Expediente }) {
       <form onSubmit={submit} className="flex flex-col gap-2 rounded-xl border border-line bg-sunk p-3 sm:flex-row sm:items-center">
         <label className="sr-only" htmlFor={`task-${e.id}`}>{t.tasks.ask}</label>
         <input id={`task-${e.id}`} value={text} onChange={(ev) => setText(ev.target.value)} placeholder={t.tasks.newPh} autoComplete="off" className={cx(inputCls, "min-w-0 flex-1")} />
-        <label className="sr-only" htmlFor={`task-where-${e.id}`}>{t.tasks.where}</label>
-        <select id={`task-where-${e.id}`} value={where} onChange={(ev) => setWhere(ev.target.value)} className={cx(inputCls, "sm:w-[220px]")}>
+        {FEATURES.requestTracking && <label className="sr-only" htmlFor={`task-where-${e.id}`}>{t.tasks.where}</label>}
+        {FEATURES.requestTracking && <select id={`task-where-${e.id}`} value={where} onChange={(ev) => setWhere(ev.target.value)} className={cx(inputCls, "sm:w-[220px]")}>
           <option value="">{t.tasks.general}</option>
           {SCHEMA.map((s) => (
             <optgroup key={s.slug} label={tr(s.short)}>
@@ -160,7 +164,7 @@ export function TaskPanel({ exp: e }: { exp: Expediente }) {
               <option value={`docs:${s.slug}`}>{t.tasks.docsIn(tr(s.short))}</option>
             </optgroup>
           ))}
-        </select>
+        </select>}
         <Button type="submit" variant="primary" disabled={!text.trim()}>
           <Send size={15} aria-hidden="true" />
           {t.tasks.add}
