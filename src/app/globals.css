@@ -1,0 +1,302 @@
+@import "tailwindcss";
+
+/*
+ * PreRenta design system (design-system artifact, 29 Oct 2026): paper, ink and copper.
+ * Warm paper ground, navy ink for actions, text and selection, copper only for
+ * what comes from the gestoría. Every text pair meets WCAG AA in both themes;
+ * borders, icons and the focus ring meet 3:1. The variable names are the
+ * prototype's; the comments give the design-system token each one maps to.
+ */
+:root {
+  color-scheme: light;
+  /* Colour */
+  --bg: #f6f3ec; /* paper */
+  --surface: #ffffff; /* surface */
+  --sunk: #efeae0; /* surface-sunk: follow-ups, table heads, read-only answers */
+  --hover: #f1ede4; /* surface-hover */
+  --chat: #efeae0; /* message thread: surface-sunk; bubbles carry the author */
+  --ink: #1c2530; /* ink */
+  --muted: #56606b; /* ink-muted */
+  --disabled: #8a919a; /* ink-disabled */
+  --line: #e0d9cc; /* line: warm hairline */
+  --line-strong: #857d70; /* line-strong: control borders, 3:1 on every ground */
+  --accent: #1f3a5a; /* brand */
+  --accent-hover: #152b45; /* brand-hover */
+  --accent-ink: #ffffff; /* on-brand */
+  --accent-soft: #e5ecf4; /* brand-soft */
+  --copper: #a8572a; /* copper: the gestoría's voice */
+  --copper-text: #8a4520; /* copper-text */
+  --copper-soft: #f7ebe0; /* copper-soft */
+  --focus: #1d5fd1; /* focus: never confused with selection */
+  --ok: #1e6a44; /* success */
+  --ok-soft: #e2f0e7;
+  --warn: #7f5200; /* warning */
+  --warn-soft: #f8edd5;
+  --bad: #a3222e; /* danger */
+  --bad-soft: #f8e3e4;
+  --info: #285889; /* info */
+  --info-soft: #e3ecf6;
+  --neutral-soft: #ebe7de;
+  /* Footer band: deep navy in both themes, warm white type, a lighter copper that holds AA on navy */
+  --band: #1c3048;
+  --band-ink: #f4f0e8;
+  --band-muted: #b9c2cc;
+  --band-line: rgba(244, 240, 232, 0.16);
+  --band-copper: #e0b48a;
+
+  /* Elevation: shadow-sheet is the one resting elevation; shadow-overlay is for things that float */
+  --shadow: rgba(28, 37, 48, 0.16);
+  --shadow-sheet-c: rgba(28, 37, 48, 0.06);
+  --scrim: rgba(20, 26, 33, 0.6);
+
+  /* Illustration tones (flat, no glass) */
+  --glass-hi: var(--surface);
+  --glass-lo: var(--sunk);
+  --glass-edge: var(--line);
+  --glass-line: var(--line);
+
+  /* Controls: 40 / 32 / 48 (client controls use lg) */
+  --control-h: 2.5rem;
+  --control-h-sm: 2rem;
+  --control-h-lg: 3rem;
+}
+
+/*
+ * Dark theme: kept, but opt-in only (data-theme="dark" on <html>). The site is
+ * always light, whatever the phone's setting, until the dark theme has been
+ * tested with users (design system › Handoff, open question).
+ */
+:root[data-theme="dark"] {
+  --bg: #13171c;
+  --surface: #1b2027;
+  --sunk: #0f1317;
+  --hover: #232933;
+  --chat: #0f1317;
+  --ink: #ebe7df;
+  --muted: #a9b1bb;
+  --disabled: #6a727c;
+  --line: #2c333c;
+  --line-strong: #78818c;
+  --accent: #9cbde6;
+  --accent-hover: #b9d1ef;
+  --accent-ink: #0e1a29;
+  --accent-soft: #1c2a3b;
+  --copper: #d9925c;
+  --copper-text: #e3a676;
+  --copper-soft: #2c2017;
+  --focus: #86b4ff;
+  --ok: #78cfa0;
+  --ok-soft: #15291f;
+  --warn: #e9bb62;
+  --warn-soft: #2d2410;
+  --bad: #f39197;
+  --bad-soft: #351a1c;
+  --info: #8dbbe8;
+  --info-soft: #172637;
+  --neutral-soft: #262c34;
+  --band: #0e1620;
+  --band-line: rgba(244, 240, 232, 0.12);
+  --shadow: rgba(0, 0, 0, 0.65);
+  --shadow-sheet-c: rgba(0, 0, 0, 0.4);
+  --scrim: rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunk: var(--sunk);
+  --color-hover: var(--hover);
+  --color-disabled: var(--disabled);
+  --color-focus: var(--focus);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-chat: var(--chat);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-copper: var(--copper);
+  --color-copper-text: var(--copper-text);
+  --color-copper-soft: var(--copper-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --font-sans: var(--font-plex), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-plex), "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif Pro", Georgia, serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
+  --shadow-card: 0 12px 32px var(--shadow); /* shadow-overlay */
+  --shadow-sheet: 0 1px 2px var(--shadow-sheet-c);
+}
+
+/* Radii: 4 badges and checkboxes, 6 controls, 10 sheets and dialogs. Nothing rounder. */
+@theme {
+  /* Motion tokens: ease-out for UI state changes; never ease-in (reads as lag). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-3xl: 10px;
+}
+
+/* hover: only on devices that really hover, so a tap never leaves a hover state stuck. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
+:root {
+  scrollbar-gutter: stable;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* 16px fields on touch screens, so iOS does not zoom into the page on focus. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-feature-settings: "kern";
+}
+
+/* In the base layer, so a control that draws its own focus (outline-hidden + ring) is not outlined twice. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Client screens: 48px controls, comfortable on touch (the workspace keeps 40px). */
+.client-scale {
+  --control-h: 3rem;
+}
+
+/* Page titles: Source Serif 4, one per page (client and public pages; the case name in the workspace). */
+@utility display-serif {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Headings: IBM Plex Sans, semibold, slightly tightened. */
+@utility display-tight {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Figures that line up: amounts, percentages, dates in tables. */
+@utility figures {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Former gradient wash, kept as a name so existing panels stay flat and consistent. */
+@utility soft-wash {
+  background: var(--surface);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Fades the edges of a horizontal scroller only while there is more to scroll to (Chrome, Safari; elsewhere it just scrolls). */
+@property --fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes scroll-fade-edges {
+  from {
+    --fade-start: 0px;
+    --fade-end: 1.5rem;
+  }
+  10%,
+  90% {
+    --fade-start: 1.5rem;
+    --fade-end: 1.5rem;
+  }
+  to {
+    --fade-start: 1.5rem;
+    --fade-end: 0px;
+  }
+}
+@utility scroll-fade {
+  overflow-x: auto;
+  animation: scroll-fade-edges linear;
+  animation-timeline: scroll(self inline);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+}
+
+/* <details class="accordion">: animates its height where the browser can (Chrome); elsewhere it just opens. */
+.accordion {
+  interpolate-size: allow-keywords;
+}
+.accordion::details-content {
+  height: 0;
+  overflow: clip;
+}
+.accordion[open]::details-content {
+  height: auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .accordion::details-content {
+    transition:
+      height 0.3s var(--ease-out),
+      content-visibility 0.3s allow-discrete;
+  }
+}
+
+/* Motion is opt-in: things that move use motion-safe: variants; colour fades stay for everyone. */
+
+/* The gestoría panel scrolls inside its own frame on desktop: no page scrollbar gutter beside it. */
+@media (min-width: 64rem) {
+  :root:has(.gestor-shell) {
+    scrollbar-gutter: auto;
+  }
+}
