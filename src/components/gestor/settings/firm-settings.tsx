@@ -79,7 +79,7 @@ function Logo() {
         <b className="text-[14px] font-semibold">{f.logo}</b>
         <p className="text-[12.5px] text-muted">{f.logoHint}</p>
         <div className="flex flex-wrap gap-2">
-          <label htmlFor="firm-logo" className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-line bg-surface px-3 text-[13px] font-medium transition-colors hover:border-line-strong hover:bg-sunk">
+          <label htmlFor="firm-logo" className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13px] font-medium transition-colors">
             <ImagePlus size={15} aria-hidden="true" />
             {busy ? t.upload.uploading : firm.logo ? f.logoReplace : f.logoUpload}
           </label>

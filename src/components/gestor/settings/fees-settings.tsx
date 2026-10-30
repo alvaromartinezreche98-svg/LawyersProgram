@@ -25,7 +25,7 @@ export function FeesSettings() {
           <div className="grid gap-4 sm:grid-cols-3">
             {AMOUNTS.map((k) => (
               <Field key={k} id={`fee-${k}`} label={s[k]}>
-                <div className="flex h-(--control-h) items-center overflow-clip rounded-md border border-line-strong bg-surface transition-colors focus-within:border-focus focus-within:ring-1 focus-within:ring-focus">
+                <div className="shadow-field flex h-(--control-h) items-center overflow-clip rounded-md border border-line-strong bg-surface transition-colors focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15">
                   <input id={`fee-${k}`} type="text" inputMode="decimal" placeholder="0,00" value={firm.fees[k]} onChange={(e) => set({ [k]: e.target.value })} className="figures h-full w-full bg-transparent px-3 text-right outline-hidden" />
                   <span className="grid h-full place-items-center border-l border-line bg-sunk px-3 text-[14px] text-muted">€</span>
                 </div>

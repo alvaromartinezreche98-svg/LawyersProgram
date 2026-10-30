@@ -12,6 +12,7 @@
   /* Colour */
   --bg: #f6f3ec; /* paper */
   --surface: #ffffff; /* surface */
+  --paper-white: #fcfbf8; /* the gestoría sidebar: off the beige ground, a touch warmer than the content sheet */
   --sunk: #efeae0; /* surface-sunk: follow-ups, table heads, read-only answers */
   --hover: #f1ede4; /* surface-hover */
   --chat: #efeae0; /* message thread: surface-sunk; bubbles carry the author */
@@ -24,6 +25,9 @@
   --accent-hover: #152b45; /* brand-hover */
   --accent-ink: #ffffff; /* on-brand */
   --accent-soft: #e5ecf4; /* brand-soft */
+  --accent-soft-hover: #d5e1ee; /* tonal button hover */
+  /* Fields sit slightly raised off the page; a soft halo (not a hard ring) on focus. */
+  --field-shadow: 0 1px 2px rgba(28, 37, 48, 0.07), 0 3px 8px -3px rgba(28, 37, 48, 0.12);
   --copper: #a8572a; /* copper: the gestoría's voice */
   --copper-text: #8a4520; /* copper-text */
   --copper-soft: #f7ebe0; /* copper-soft */
@@ -37,6 +41,22 @@
   --info: #285889; /* info */
   --info-soft: #e3ecf6;
   --neutral-soft: #ebe7de;
+  /*
+   * Topic hues: colour for icons and their tiles (sections, navigation, features).
+   * Never for status (ok/warn/bad keep that job). Each hue holds 4.5:1 on its soft tile.
+   */
+  --blue: #2259a8;
+  --blue-soft: #e2ecfa;
+  --teal: #0b6b64;
+  --teal-soft: #d9f0ec;
+  --green: #2d6f35;
+  --green-soft: #e1f1de;
+  --amber: #8f4f00;
+  --amber-soft: #fcecd2;
+  --plum: #6f3796;
+  --plum-soft: #efe4f7;
+  --rose: #a52c52;
+  --rose-soft: #fbe3ea;
   /* Footer band: deep navy in both themes, warm white type, a lighter copper that holds AA on navy */
   --band: #1c3048;
   --band-ink: #f4f0e8;
@@ -69,6 +89,7 @@
 :root[data-theme="dark"] {
   --bg: #13171c;
   --surface: #1b2027;
+  --paper-white: #171b21;
   --sunk: #0f1317;
   --hover: #232933;
   --chat: #0f1317;
@@ -81,6 +102,8 @@
   --accent-hover: #b9d1ef;
   --accent-ink: #0e1a29;
   --accent-soft: #1c2a3b;
+  --accent-soft-hover: #24364b;
+  --field-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   --copper: #d9925c;
   --copper-text: #e3a676;
   --copper-soft: #2c2017;
@@ -94,6 +117,18 @@
   --info: #8dbbe8;
   --info-soft: #172637;
   --neutral-soft: #262c34;
+  --blue: #8db8f2;
+  --blue-soft: #18263a;
+  --teal: #6fd3c6;
+  --teal-soft: #11302d;
+  --green: #8fd395;
+  --green-soft: #172b19;
+  --amber: #f0b45e;
+  --amber-soft: #33240f;
+  --plum: #cfa4ef;
+  --plum-soft: #2a1e36;
+  --rose: #f29ab4;
+  --rose-soft: #361b24;
   --band: #0e1620;
   --band-line: rgba(244, 240, 232, 0.12);
   --shadow: rgba(0, 0, 0, 0.65);
@@ -105,6 +140,7 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-paper-white: var(--paper-white);
   --color-sunk: var(--sunk);
   --color-hover: var(--hover);
   --color-disabled: var(--disabled);
@@ -119,6 +155,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-hover: var(--accent-soft-hover);
   --color-copper: var(--copper);
   --color-copper-text: var(--copper-text);
   --color-copper-soft: var(--copper-soft);
@@ -130,12 +167,25 @@
   --color-info-soft: var(--info-soft);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-green: var(--green);
+  --color-green-soft: var(--green-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-plum: var(--plum);
+  --color-plum-soft: var(--plum-soft);
+  --color-rose: var(--rose);
+  --color-rose-soft: var(--rose-soft);
   --font-sans: var(--font-plex), "Helvetica Neue", Arial, sans-serif;
   --font-display: var(--font-plex), "Helvetica Neue", Arial, sans-serif;
   --font-serif: var(--font-source-serif), "Source Serif Pro", Georgia, serif;
   --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
   --shadow-card: 0 12px 32px var(--shadow); /* shadow-overlay */
-  --shadow-sheet: 0 1px 2px var(--shadow-sheet-c);
+  --shadow-sheet: 0 1px 2px var(--shadow-sheet-c), 0 6px 18px -8px rgba(28, 37, 48, 0.12);
+  --shadow-field: var(--field-shadow);
 }
 
 /* Radii: 4 badges and checkboxes, 6 controls, 10 sheets and dialogs. Nothing rounder. */
@@ -198,6 +248,10 @@ body {
 
 /* In the base layer, so a control that draws its own focus (outline-hidden + ring) is not outlined twice. */
 @layer base {
+  /* Every text field, select and textarea is raised a little (utilities can still override). */
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"]):not(.bg-transparent), select, textarea:not(.bg-transparent)) {
+    box-shadow: var(--field-shadow);
+  }
   :focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;

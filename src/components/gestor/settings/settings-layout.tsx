@@ -3,20 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Building2, CalendarClock, Euro, FileSignature, Mail, Users, type LucideIcon } from "lucide-react";
+import { Building2, CalendarClock, Euro, FileSignature, Mail, Users, type LucideIcon, MessageSquareReply } from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
 import { cx } from "@/components/ui/primitives";
 import { SaveFailed, SaveStatus } from "@/components/ui/save-status";
 import { TopBar } from "../gestor-shell";
 
-type Section = "firm" | "legal" | "team" | "fees" | "campaign" | "emails";
+type Section = "firm" | "legal" | "team" | "fees" | "campaign" | "replies" | "emails";
 const SECTIONS: { id: Section; href: string; icon: LucideIcon }[] = [
   { id: "firm", href: "/ajustes/despacho", icon: Building2 },
   { id: "legal", href: "/ajustes/documentos", icon: FileSignature },
   { id: "team", href: "/ajustes/equipo", icon: Users },
   { id: "fees", href: "/ajustes/honorarios", icon: Euro },
   { id: "campaign", href: "/ajustes/campana", icon: CalendarClock },
+  { id: "replies", href: "/ajustes/respuestas", icon: MessageSquareReply },
   { id: "emails", href: "/ajustes/correos", icon: Mail },
 ];
 
@@ -70,7 +71,7 @@ export function SectionHead({ title, intro }: { title: string; intro: string }) 
 }
 
 export const inputCls =
-  "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-1 focus:ring-focus disabled:bg-sunk disabled:text-muted";
+  "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-4 focus:ring-focus/15 disabled:bg-sunk disabled:text-muted";
 
 /** Label + control, stacked. */
 export function Field({ id, label, hint, children, className }: { id: string; label: string; hint?: string; children: ReactNode; className?: string }) {

@@ -3,7 +3,7 @@
 import { ArrowRight, Bell, Check, CircleAlert, ClipboardList, FileSignature, Globe, LayoutGrid, ListChecks, MessageCircle, QrCode, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { IconTile } from "@/components/ui/icons";
+import { IconTile, HUES } from "@/components/ui/icons";
 import { ButtonLink, Eyebrow, StatusPill, cx } from "@/components/ui/primitives";
 import { SCHEMA } from "@/lib/questionnaire/schema";
 import type { Status } from "@/lib/data/types";
@@ -18,15 +18,18 @@ export function FirmsPage() {
   return (
     <PublicShell>
       <PageTitle>{f.title}</PageTitle>
-      <section className="mx-auto grid w-full max-w-[1200px] items-center gap-10 px-4 py-12 sm:px-8 md:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
+      <section className="mx-auto grid w-full max-w-[1200px] items-center gap-10 px-4 py-16 sm:px-8 md:grid-cols-[minmax(0,1fr)_minmax(0,400px)] md:py-24">
         <div className="flex min-w-0 flex-col gap-5">
           <Eyebrow>{f.eyebrow}</Eyebrow>
           <h1 className="display-serif max-w-[22ch] text-[clamp(28px,3.6vw,40px)] leading-[1.12] font-semibold">{f.h1}</h1>
           <p className="max-w-[60ch] text-[16px] text-muted">{f.intro}</p>
-          <ButtonLink href="/contacto?tipo=gestoria" variant="primary" size="lg" className="self-start">
-            {f.cta}
-            <ArrowRight size={18} aria-hidden="true" />
-          </ButtonLink>
+          <span className="flex flex-wrap gap-2">
+            <ButtonLink href="/demo" variant="primary" size="lg">
+              {t.extra.demo.send}
+              <ArrowRight size={18} aria-hidden="true" />
+            </ButtonLink>
+            <ButtonLink href="/contacto?tipo=gestoria" size="lg">{f.cta}</ButtonLink>
+          </span>
         </div>
         <PanelPreview />
       </section>
@@ -35,7 +38,7 @@ export function FirmsPage() {
         <ul className="mx-auto grid w-full max-w-[1200px] grid-cols-[repeat(auto-fill,minmax(min(100%,16rem),1fr))] gap-4 px-4 py-12 sm:px-8">
           {f.features.map(([title, d], i) => (
             <li key={title} className="flex flex-col gap-2 rounded-xl border border-line bg-bg p-5">
-              <IconTile icon={FEATURE_ICONS[i]} size="sm" tone="info" />
+              <IconTile icon={FEATURE_ICONS[i]} tone={HUES[i % HUES.length]} />
               <b className="text-[15px] font-semibold">{title}</b>
               <span className="text-[14px] text-muted">{d}</span>
             </li>
@@ -54,8 +57,8 @@ export function FirmsPage() {
             </li>
           ))}
         </ol>
-        <ButtonLink href="/contacto?tipo=gestoria" variant="primary" size="lg" className="self-center">
-          {f.cta}
+        <ButtonLink href="/demo" variant="primary" size="lg" className="self-center">
+          {t.extra.demo.send}
           <ArrowRight size={18} aria-hidden="true" />
         </ButtonLink>
       </section>

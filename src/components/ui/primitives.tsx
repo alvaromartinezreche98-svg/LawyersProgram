@@ -5,6 +5,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { CircleAlert, CircleCheck, ClipboardList, Eye, Info, PencilLine, Send, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { Status } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
+import { IconTile, type Tone as IconTone } from "./icons";
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
@@ -14,7 +15,7 @@ type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 const BTN: Record<Variant, string> = {
   primary: "border-accent bg-accent text-accent-ink hover:border-accent-hover hover:bg-accent-hover",
-  secondary: "border-line bg-surface text-ink hover:border-line-strong hover:bg-sunk",
+  secondary: "border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover",
   ghost: "border-transparent bg-transparent text-accent hover:bg-accent-soft",
   danger: "border-transparent bg-transparent text-bad hover:bg-bad-soft",
 };
@@ -146,11 +147,14 @@ export function Loading({ label }: { label?: string }) {
   );
 }
 
-/** Empty state (design system › Feedback): why it is empty and what fills it, in a dashed frame. */
-export function EmptyState({ icon: Icon, title, children, tone = "neutral" }: { icon: LucideIcon; title: string; children?: ReactNode; tone?: "neutral" | "ok" }) {
+/**
+ * Empty state (design system › Feedback): why it is empty and what fills it, in a dashed frame.
+ * `inset` when it already sits inside a bordered box (a card, a table): that box is the frame.
+ */
+export function EmptyState({ icon: Icon, title, children, tone = "neutral", iconTone, inset }: { icon: LucideIcon; title: string; children?: ReactNode; tone?: "neutral" | "ok"; iconTone?: IconTone; inset?: boolean }) {
   return (
-    <div className="flex flex-col items-start gap-2 rounded-xl border border-dashed border-line-strong p-6 text-muted">
-      <Icon size={22} strokeWidth={1.9} className={tone === "ok" ? "text-ok" : "text-muted"} aria-hidden="true" />
+    <div className={cx("flex flex-col items-start gap-2 p-6 text-muted", !inset && "rounded-xl border border-dashed border-line-strong")}>
+      <IconTile icon={Icon} tone={tone === "ok" ? "ok" : iconTone ?? "blue"} />
       <p className="text-[15px] font-semibold text-ink">{title}</p>
       {children && <div className="max-w-[52ch] text-[14px]">{children}</div>}
     </div>

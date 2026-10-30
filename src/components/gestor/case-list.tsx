@@ -4,7 +4,7 @@ import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowRight, CalendarClock, UserPlus, CircleAlert, Clock, ClipboardCheck, Inbox, Info, type LucideIcon, MessageCircle, Search, TriangleAlert } from "lucide-react";
+import { ArrowRight, CalendarClock, Download, UserPlus, CircleAlert, Clock, ClipboardCheck, Inbox, Info, type LucideIcon, MessageCircle, Search, TriangleAlert } from "lucide-react";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import type { Alert, AlertLevel } from "@/lib/questionnaire/alerts";
 import { useAppState } from "@/lib/data/store";
@@ -15,6 +15,18 @@ import { fmtDate, fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
 import { Button, ButtonLink, EmptyState, StatusPill, cx } from "@/components/ui/primitives";
 import { TopBar } from "./gestor-shell";
+
+const str = (v: unknown) => (typeof v === "string" ? v : "");
+
+/** Downloads rows as CSV (semicolon-separated with a BOM, as Spanish Excel expects). */
+function exportCsv<T>(rows: T[], cells: (x: T) => string[], head: readonly string[], name: string) {
+  const esc = (v: string) => (/[";\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const text = [head, ...rows.map(cells)].map((r) => r.map(esc).join(";")).join("\r\n");
+  const url = URL.createObjectURL(new Blob(["\uFEFF" + text], { type: "text/csv;charset=utf-8" }));
+  const a = Object.assign(document.createElement("a"), { href: url, download: `${name}.csv` });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 const isStatus = (v: string | null): v is Status => STATUSES.some((s) => s.id === v);
@@ -43,6 +55,8 @@ export function CaseList() {
   const view: View = rawView === "todos" ? "all" : isView(rawView) ? rawView : "gestoria";
   const sort: SortKey = isSort(params.get("orden")) ? (params.get("orden") as SortKey) : "attention";
   const [q, setQ] = useState("");
+  // ?gestor=<member id>, or "ninguno" for unassigned cases.
+  const who = params.get("gestor");
 
   const all = Object.values(exps).map(triage);
   const waitN = (w: "gestoria" | "cliente") => all.filter((x) => x.waiting === w).length;
@@ -57,14 +71,15 @@ export function CaseList() {
       if (view === "atencion" && !needsAttention(x)) return false;
       if (view === "mensajes" && !x.unread) return false;
       if ((view === "gestoria" || view === "cliente") && x.waiting !== view) return false;
+      if (who && (x.exp.assignee ?? "ninguno") !== who) return false;
       if (!query) return true;
       return norm([x.name, x.exp.answers.email, x.exp.answers.telefono].filter((v) => typeof v === "string").join(" ")).includes(query);
     }),
     sort,
   );
-  const filtered = status !== "all" || view !== "gestoria" || !!query;
+  const filtered = status !== "all" || view !== "gestoria" || !!query || !!who;
 
-  const go = (patch: { estado?: Status | "all"; vista?: View; orden?: SortKey }) => {
+  const go = (patch: { estado?: Status | "all"; vista?: View; orden?: SortKey; gestor?: string }) => {
     const next = new URLSearchParams(params.toString());
     for (const [k, v] of Object.entries(patch)) {
       if (k === "vista") {
@@ -121,7 +136,7 @@ export function CaseList() {
             ] as const).map(([id, label, n]) => {
               const on = view === id;
               return (
-                <button key={id} type="button" aria-pressed={on} onClick={() => go({ vista: id })} className={cx("flex h-(--control-h) items-center gap-2 rounded-md border px-3.5 text-[14px] font-medium whitespace-nowrap transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line-strong bg-surface hover:bg-hover")}>
+                <button key={id} type="button" aria-pressed={on} onClick={() => go({ vista: id })} className={cx("flex h-(--control-h) items-center gap-2 rounded-md border px-3.5 text-[14px] font-medium whitespace-nowrap transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-line-strong")}>
                   {label}
                   <span className={cx("figures rounded-full px-1.5 text-[12px] font-semibold", on ? "bg-accent-ink/15" : id === "gestoria" && n ? "bg-copper-soft text-copper-text" : "bg-sunk text-muted")}>{n}</span>
                 </button>
@@ -131,12 +146,22 @@ export function CaseList() {
           <label className="relative min-w-[min(100%,16rem)] grow-[999] basis-0">
             <span className="sr-only">{t.list.searchLabel}</span>
             <Search size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" aria-hidden="true" />
-            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQ("")} placeholder={t.list.search} className="h-(--control-h) w-full rounded-md border border-line-strong bg-surface pr-3 pl-9 outline-hidden focus:border-focus focus:ring-1 focus:ring-focus" />
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQ("")} placeholder={t.list.search} className="h-(--control-h) w-full rounded-md border border-line-strong bg-surface pr-3 pl-9 outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15" />
           </label>
           <div className="flex max-w-full grow flex-wrap items-center gap-2">
+            {firm.team.length > 0 && (
+              <label className="flex items-center gap-2 text-[13px] text-muted">
+                <span className="sr-only">{t.extra.assignee.label}</span>
+                <select value={who ?? "all"} onChange={(e) => go({ gestor: e.target.value })} className="h-(--control-h) max-w-[220px] rounded-md border border-line-strong bg-surface px-3 text-[14px] text-ink outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
+                  <option value="all">{t.extra.assignee.all}</option>
+                  {firm.team.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  <option value="ninguno">{t.list.unassigned}</option>
+                </select>
+              </label>
+            )}
             <label className="flex items-center gap-2 text-[13px] text-muted">
               <span className="sr-only">{t.list.filterLabel}</span>
-              <select value={status} onChange={(e) => go({ estado: e.target.value as Status | "all" })} className="h-(--control-h-sm) rounded-md border border-line-strong bg-surface px-2 text-[13px] text-ink outline-hidden focus:border-focus focus:ring-1 focus:ring-focus">
+              <select value={status} onChange={(e) => go({ estado: e.target.value as Status | "all" })} className="h-(--control-h) rounded-md border border-line-strong bg-surface px-3 text-[14px] text-ink outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
                 <option value="all">{t.list.allStatuses} ({all.length})</option>
                 {STATUSES.map((x) => (
                   <option key={x.id} value={x.id}>
@@ -147,7 +172,7 @@ export function CaseList() {
             </label>
             <label className="flex items-center gap-2 text-[13px] text-muted">
               <span className="whitespace-nowrap">{t.list.sort.label}</span>
-              <select value={sort} onChange={(e) => go({ orden: e.target.value as SortKey })} className="h-(--control-h-sm) rounded-md border border-line-strong bg-surface px-2 text-[13px] text-ink outline-hidden focus:border-focus focus:ring-1 focus:ring-focus">
+              <select value={sort} onChange={(e) => go({ orden: e.target.value as SortKey })} className="h-(--control-h) rounded-md border border-line-strong bg-surface px-3 text-[14px] text-ink outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
                 {SORT_KEYS.map((k) => (
                   <option key={k} value={k}>
                     {t.list.sort[k]}
@@ -162,11 +187,19 @@ export function CaseList() {
           <span className="figures" aria-live="polite">
             {t.list.results(shown.length, all.length)}
           </span>
-          {filtered && (
-            <button type="button" onClick={clear} className="font-medium text-accent hover:underline">
-              {t.list.clear}
-            </button>
-          )}
+          <span className="flex items-center gap-4">
+            {filtered && (
+              <button type="button" onClick={clear} className="font-medium text-accent hover:underline">
+                {t.list.clear}
+              </button>
+            )}
+            {shown.length > 0 && (
+              <button type="button" onClick={() => exportCsv(shown, (x) => [x.name, str(x.exp.answers.email), str(x.exp.answers.telefono), tr(STATUSES.find((s) => s.id === x.exp.status)!.label), x.waiting ? t.list.wait.row[x.waiting] : "", `${x.pct}`, `${x.pending}`, `${x.bad + x.warn}`, teamName(x.exp.assignee) ?? "", x.exp.updatedAt.slice(0, 16).replace("T", " ")], t.extra.csv.cols, `expedientes-${EJERCICIO}`)} className="inline-flex items-center gap-1.5 font-medium text-accent hover:underline">
+                <Download size={14} aria-hidden="true" />
+                {t.extra.csv.export}
+              </button>
+            )}
+          </span>
         </div>
 
         {/* Table */}
@@ -182,7 +215,7 @@ export function CaseList() {
             <span className="text-right">{t.list.cols.updated}</span>
           </div>
           {shown.length === 0 ? (
-            <EmptyState icon={Inbox} title={t.list.none}>
+            <EmptyState inset icon={Inbox} title={t.list.none}>
               {filtered && (
                 <Button size="sm" onClick={clear} className="mt-2">
                   {t.list.clear}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, CircleUserRound, LogOut, type LucideIcon } from "lucide-react";
+import { IconTile, TONE_TEXT, routeTone } from "./icons";
 import { useAppState } from "@/lib/data/store";
 import { useFileUrl } from "@/lib/data/files";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
@@ -67,7 +68,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
                     on ? "border-accent text-ink" : "border-transparent text-muted hover:text-ink",
                   )}
                 >
-                  {n.icon && <n.icon size={17} strokeWidth={1.9} aria-hidden="true" />}
+                  {n.icon && <n.icon size={18} strokeWidth={2.1} className={TONE_TEXT[routeTone(n.href)]} aria-hidden="true" />}
                   <span className="max-lg:hidden">{n.label}</span>
                   <span className="lg:hidden">{n.short ?? n.label}</span>
                   <Badge n={n.badge ?? 0} />
@@ -140,7 +141,7 @@ function AccountMenu({ items, isOn, className }: { items: NavItem[]; isOn: (n: N
   }, [open]);
   return (
     <div ref={box} className={cx("relative", className)}>
-      <button type="button" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)} className={cx("inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[14px] font-medium whitespace-nowrap transition-colors", on || open ? "border-accent bg-accent-soft text-accent" : "border-line-strong bg-surface hover:bg-hover")}>
+      <button type="button" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)} className={cx("inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[14px] font-medium whitespace-nowrap transition-colors", on || open ? "border-transparent bg-accent-soft-hover text-accent" : "border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
         <CircleUserRound size={16} strokeWidth={1.9} aria-hidden="true" />
         {t.side.account}
         <Badge n={badge} />
@@ -150,7 +151,7 @@ function AccountMenu({ items, isOn, className }: { items: NavItem[]; isOn: (n: N
         <div role="menu" className="absolute top-full right-0 z-30 mt-1.5 flex w-64 flex-col gap-1 rounded-xl border border-line bg-surface p-1.5 shadow-card">
           {items.map((n) => (
             <Link key={n.href} role="menuitem" href={n.href} onClick={() => setOpen(false)} aria-current={isOn(n) ? "page" : undefined} className={cx("flex items-center gap-3 rounded-md px-3 py-2.5 text-[14.5px] font-medium", isOn(n) ? "bg-accent-soft text-accent" : "hover:bg-accent-soft hover:text-accent")}>
-              {n.icon && <n.icon size={17} strokeWidth={1.9} aria-hidden="true" />}
+              {n.icon && <IconTile icon={n.icon} size="xs" tone={routeTone(n.href)} />}
               <span className="flex-1">{n.label}</span>
               <Badge n={n.badge ?? 0} />
             </Link>
@@ -189,7 +190,7 @@ function BottomNav({ nav, isOn }: { nav: NavItem[]; isOn: (n: NavItem) => boolea
           {rest.map((n) => (
             <li key={n.href}>
               <Link href={n.href} onClick={() => setOpen(false)} aria-current={isOn(n) ? "page" : undefined} className={cx("flex items-center gap-3 rounded-md px-3 py-3 text-[15px] font-medium", isOn(n) ? "bg-accent-soft text-accent" : "hover:bg-accent-soft hover:text-accent")}>
-                {n.icon && <n.icon size={18} strokeWidth={1.9} aria-hidden="true" />}
+                {n.icon && <IconTile icon={n.icon} size="xs" tone={routeTone(n.href)} />}
                 <span className="flex-1">{n.label}</span>
                 <Badge n={n.badge ?? 0} />
               </Link>
@@ -214,7 +215,7 @@ function BottomNav({ nav, isOn }: { nav: NavItem[]; isOn: (n: NavItem) => boolea
             <Link key={n.href} href={n.href} onClick={() => setOpen(false)} aria-current={on ? "page" : undefined} className={tab(on)}>
               {bar(on)}
               <span className="relative">
-                {n.icon && <n.icon size={21} strokeWidth={1.9} aria-hidden="true" />}
+                {n.icon && <n.icon size={22} strokeWidth={2.1} className={TONE_TEXT[routeTone(n.href)]} aria-hidden="true" />}
                 {!!n.badge && <span className="absolute -top-1.5 left-3.5"><Badge n={n.badge} /></span>}
               </span>
               <span className="max-w-full truncate">{n.short ?? n.label}</span>

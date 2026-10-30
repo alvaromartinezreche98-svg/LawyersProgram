@@ -16,7 +16,8 @@ import { StepsNav } from "@/components/questionnaire/steps-nav";
 import { ReviewBlock } from "@/components/questionnaire/review-block";
 import { PageTitle } from "@/components/ui/app-shell";
 import { Button, Notice } from "@/components/ui/primitives";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
+import { IconTile, SECTION_ICON, SECTION_TONE } from "@/components/ui/icons";
 import { useClientExp } from "./client-shell";
 import { SectionTasks } from "./client-tasks";
 
@@ -74,7 +75,10 @@ export function Questionnaire({ slug }: { slug: string }) {
             </span>
             <SaveStatus idle={t.q.autosave} className="max-[959px]:hidden" />
           </div>
-          <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold">{title}</h1>
+          <div className="flex items-center gap-3.5">
+            <IconTile icon={SECTION_ICON[slug] ?? ClipboardCheck} tone={SECTION_TONE[slug] ?? "accent"} size="lg" />
+            <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold">{title}</h1>
+          </div>
         </header>
         <div className="px-4 pt-6 pb-8 sm:px-8 lg:px-10">
         <SaveFailed className="mb-5" />

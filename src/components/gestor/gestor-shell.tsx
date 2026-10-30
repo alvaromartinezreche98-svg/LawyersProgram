@@ -3,8 +3,9 @@
 import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
-import { Menu, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, LogOut, Settings, UserPlus, Wallet, type LucideIcon } from "lucide-react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { Menu, Search, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, LogOut, Settings, UserPlus, Wallet, type LucideIcon } from "lucide-react";
+import { IconTile, routeTone } from "@/components/ui/icons";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { actions, unreadFor, useAppState } from "@/lib/data/store";
 import { HTML_LANG, LANGS } from "@/lib/i18n";
@@ -13,12 +14,16 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { Badge, Brand, Loading, cx } from "@/components/ui/primitives";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
 import { useRemoteInbox } from "@/lib/api/use-remote";
+import { QuickSearch, useQuickSearchKey } from "./quick-search";
 
 /** Gestoría panel frame: left sidebar (drawer on mobile) + content panel. */
 export function GestorShell({ children }: { children: ReactNode }) {
   const { ready, session } = useAppState();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const openSearch = useCallback(() => { setOpen(false); setSearching(true); }, []);
+  useQuickSearchKey(openSearch);
   const allowed = session?.role === "gestoria";
   const signOut = useSignOut();
   useSignInRedirect(allowed);
@@ -43,32 +48,36 @@ export function GestorShell({ children }: { children: ReactNode }) {
   if (!ready || !allowed) return <Loading />;
 
   return (
-    <div className={cx("gestor-shell min-h-dvh lg:grid lg:h-dvh lg:overflow-hidden", compact ? "lg:grid-cols-[64px_minmax(0,1fr)]" : "lg:grid-cols-[248px_minmax(0,1fr)]")}>
-      <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 lg:hidden">
+    <div className={cx("gestor-shell min-h-dvh lg:grid lg:h-dvh lg:overflow-hidden print:block print:h-auto print:overflow-visible", compact ? "lg:grid-cols-[76px_minmax(0,1fr)]" : "lg:grid-cols-[256px_minmax(0,1fr)]")}>
+      <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 lg:hidden print:hidden">
         <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className="grid size-9 place-items-center rounded-lg border border-line transition-colors hover:bg-sunk active:bg-sunk">
           <Menu size={18} strokeWidth={1.9} aria-hidden="true" />
         </button>
         <Brand />
+        <button type="button" aria-label={t.extra.search.open} onClick={openSearch} className="ml-auto grid size-9 place-items-center rounded-lg bg-accent-soft text-accent">
+          <Search size={18} strokeWidth={2} aria-hidden="true" />
+        </button>
       </div>
 
       {open && <div className="fixed inset-0 z-40 bg-[var(--scrim)] lg:hidden" onClick={() => setOpen(false)} />}
       <aside
         className={cx(
-          "fixed inset-y-0 left-0 z-50 w-[272px] bg-bg motion-safe:transition-[translate] motion-safe:duration-250 motion-safe:ease-out lg:sticky lg:top-0 lg:z-40 lg:h-dvh lg:w-auto lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 w-[272px] bg-paper-white motion-safe:transition-[translate] motion-safe:duration-250 motion-safe:ease-out lg:sticky lg:top-0 lg:z-40 lg:h-dvh lg:w-auto lg:translate-x-0 lg:bg-transparent lg:py-3 lg:pl-3 print:hidden",
           open ? "translate-x-0 shadow-card" : "-translate-x-full",
         )}
       >
-        <Sidebar onNavigate={() => setOpen(false)} compact={compact} />
+        <Sidebar onNavigate={() => setOpen(false)} onSearch={openSearch} compact={compact} />
       </aside>
 
-      <div className="min-w-0 lg:h-dvh lg:py-3 lg:pr-3">
-        <div className="min-h-[calc(100dvh-56px)] bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:rounded-xl lg:border lg:border-line">{children}</div>
+      <div className="min-w-0 lg:h-dvh lg:p-3 print:h-auto print:p-0">
+        <QuickSearch open={searching} onClose={() => setSearching(false)} />
+        <div className="min-h-[calc(100dvh-56px)] bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet print:h-auto print:overflow-visible print:border-0 print:shadow-none">{children}</div>
       </div>
     </div>
   );
 }
 
-function Sidebar({ onNavigate, compact }: { onNavigate: () => void; compact: boolean }) {
+function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; onSearch: () => void; compact: boolean }) {
   // Folded (desktop only): labels stay for screen readers and as tooltips; the drawer on phones is always full.
   const label = (text: string) => <span className={cx("flex-1", compact && "lg:sr-only")}>{text}</span>;
   const item = (on: boolean) => cx(itemCls(on), compact && "lg:justify-center lg:px-0");
@@ -90,9 +99,9 @@ function Sidebar({ onNavigate, compact }: { onNavigate: () => void; compact: boo
   const firmName = firm.name.trim() || "Gestoría";
 
   return (
-    <nav aria-label={t.side.main} className="flex h-full flex-col">
+    <nav aria-label={t.side.main} className="flex h-full flex-col lg:overflow-hidden lg:rounded-[14px] lg:border lg:border-line lg:bg-paper-white lg:shadow-sheet">
       {/* Who is signed in: the gestoría, at the top. */}
-      <div className={cx("flex items-center gap-2.5 px-5 pt-5 pb-2", compact && "lg:justify-center lg:px-0")}>
+      <div className={cx("mx-3 flex items-center gap-3 border-b border-line px-2 pt-4 pb-4", compact && "lg:mx-2 lg:justify-center lg:px-0")}>
         <span className="grid size-8 shrink-0 place-items-center rounded-md bg-accent text-[13px] font-bold text-accent-ink" title={compact ? firmName : undefined} aria-hidden={!compact}>
           {firmName[0].toUpperCase()}
         </span>
@@ -105,11 +114,16 @@ function Sidebar({ onNavigate, compact }: { onNavigate: () => void; compact: boo
         </button>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pt-3 pb-4">
-        <ul className="flex flex-col gap-0.5">
+      <div className={cx("flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pt-4 pb-3", compact && "lg:px-2")}>
+        <button type="button" onClick={onSearch} title={compact ? `${t.extra.search.open} · Ctrl K` : undefined} className={cx("mb-3 flex h-9 items-center gap-2.5 rounded-lg border border-line bg-surface px-2.5 text-left text-[13.5px] text-muted shadow-field transition-colors hover:border-line-strong hover:text-ink", compact && "lg:justify-center lg:px-0")}>
+          <Search size={15} strokeWidth={2} className="shrink-0" aria-hidden="true" />
+          <span className={cx("flex-1", compact && "lg:sr-only")}>{t.extra.search.open}</span>
+          <kbd className={cx("rounded border border-line px-1 font-mono text-[10.5px]", compact && "lg:hidden")}>Ctrl K</kbd>
+        </button>
+        <ul className="flex flex-col gap-1">
           <li>
             <Link href="/expedientes" onClick={onNavigate} title={compact ? t.nav.cases : undefined} aria-current={inCases ? "page" : undefined} className={cx(item(inCases), "relative")}>
-              <Inbox size={16} strokeWidth={1.9} aria-hidden="true" />
+              <IconTile icon={Inbox} size="xs" tone={routeTone("/expedientes")} />
               {label(t.nav.cases)}
               <span className={cx(compact && "lg:absolute lg:-top-1 lg:right-1")}><Badge n={unread} /></span>
             </Link>
@@ -117,7 +131,7 @@ function Sidebar({ onNavigate, compact }: { onNavigate: () => void; compact: boo
           {live.map(([LiveIcon, text, href]) => (
             <li key={href}>
               <Link href={href} onClick={onNavigate} title={compact ? text : undefined} aria-current={path.startsWith(href) ? "page" : undefined} className={item(path.startsWith(href))}>
-                <LiveIcon size={16} strokeWidth={1.9} aria-hidden="true" />
+                <IconTile icon={LiveIcon} size="xs" tone={routeTone(href)} />
                 {label(text)}
               </Link>
             </li>
@@ -125,20 +139,22 @@ function Sidebar({ onNavigate, compact }: { onNavigate: () => void; compact: boo
         </ul>
 
         {/* Account: settings, language and sign-out, under a divider. */}
-        <ul className="mt-3 flex flex-col gap-0.5 border-t border-line pt-3">
+        <ul className="mt-auto flex flex-col gap-1 border-t border-line pt-3">
           {FEATURES.firmSettings && (
             <li>
               <Link href="/ajustes/despacho" onClick={onNavigate} title={compact ? t.side.settings : undefined} aria-current={inSettings ? "page" : undefined} className={item(inSettings)}>
-                <Settings size={16} strokeWidth={1.9} aria-hidden="true" />
+                <IconTile icon={Settings} size="xs" tone="neutral" />
                 {label(t.side.settings)}
               </Link>
             </li>
           )}
           <li>
-            <span className={cx(item(false), "cursor-default opacity-55 hover:bg-transparent hover:shadow-none hover:ring-0")} aria-disabled="true" title={compact ? `${t.side.invite} · ${t.side.soon}` : undefined}>
-              <UserPlus size={16} strokeWidth={1.9} aria-hidden="true" />
-              {label(t.side.invite)}
-              <span className={cx("rounded border border-line px-1.5 text-[10.5px] font-medium", compact && "lg:hidden")}>{t.side.soon}</span>
+            <span className={cx(item(false), "cursor-default text-disabled opacity-70 hover:bg-transparent hover:text-disabled hover:ring-0")} aria-disabled="true" title={compact ? `${t.side.invite} · ${t.side.soon}` : undefined}>
+              <IconTile icon={UserPlus} size="xs" tone="neutral" />
+              <span className={cx("flex-1 leading-[18px]", compact && "lg:sr-only")}>
+                {t.side.invite}{" "}
+                <span className="ml-0.5 inline-block rounded-sm bg-sunk px-1.5 align-[1px] text-[10.5px] leading-4 font-medium tracking-wide text-muted">{t.side.soon}</span>
+              </span>
             </span>
           </li>
           <li>
@@ -146,7 +162,7 @@ function Sidebar({ onNavigate, compact }: { onNavigate: () => void; compact: boo
           </li>
           <li>
             <button type="button" onClick={signOut} title={compact ? t.common.signOut : "Alt ⇧ Q"} className={cx(item(false), "w-full text-left")}>
-              <LogOut size={16} strokeWidth={1.9} aria-hidden="true" />
+              <IconTile icon={LogOut} size="xs" tone="neutral" />
               {label(t.common.signOut)}
             </button>
           </li>
@@ -168,13 +184,13 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
   return (
     <>
       <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} title={compact ? `${t.common.language}: ${cur.label}` : undefined} className={cx(item(false), "w-full text-left")}>
-        <Languages size={16} strokeWidth={1.9} className="shrink-0" aria-hidden="true" />
+        <IconTile icon={Languages} size="xs" tone="neutral" />
         <span className={cx("flex-1", compact && "lg:sr-only")}>{t.common.language}</span>
         <span className={cx("text-[13px] font-normal text-muted", compact && "lg:hidden")}>{cur.label}</span>
         <ChevronDown size={14} className={cx("shrink-0 text-muted transition-transform", open && "rotate-180", compact && "lg:hidden")} aria-hidden="true" />
       </button>
       {open && (
-        <ul role="group" aria-label={t.common.language} className={cx("mt-0.5 mb-1 ml-[26px] flex flex-col gap-0.5", compact && "lg:ml-0")}>
+        <ul role="group" aria-label={t.common.language} className={cx("mt-0.5 mb-1 ml-10 flex flex-col gap-0.5", compact && "lg:ml-0")}>
           {LANGS.map((l) => {
             const on = l.id === lang;
             return (
@@ -184,7 +200,7 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
                   aria-pressed={on}
                   onClick={() => actions.setLang(l.id)}
                   title={compact ? l.label : undefined}
-                  className={cx("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13.5px] transition", on ? "bg-surface font-semibold text-ink shadow-sm ring-1 ring-line" : "text-muted hover:bg-surface hover:text-ink hover:shadow-sm hover:ring-1 hover:ring-line", compact && "lg:justify-center lg:px-0")}
+                  className={cx("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13.5px] transition", on ? "bg-bg font-semibold text-ink ring-1 ring-line ring-inset" : "text-muted hover:bg-bg/70 hover:text-ink", compact && "lg:justify-center lg:px-0")}
                 >
                   <span className={cx("flex-1", compact && "lg:hidden")}>{l.label}</span>
                   <span className={cx("hidden text-[11.5px] font-semibold", compact && "lg:inline")}>{l.short}</span>
@@ -200,13 +216,13 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
 }
 
 const itemCls = (on: boolean) =>
-  cx("flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[14px] font-medium transition", on ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:bg-surface hover:text-ink hover:shadow-sm hover:ring-1 hover:ring-line");
+  cx("flex min-h-10 items-center gap-3 rounded-lg px-2 py-1.5 text-[14px] transition-colors", on ? "bg-bg font-semibold text-ink ring-1 ring-line ring-inset" : "font-medium text-muted hover:bg-bg/70 hover:text-ink");
 
 
 /** Sticky header inside the content panel: breadcrumbs on the left, actions on the right. */
 export function TopBar({ crumbs, right }: { crumbs: { label: string; href?: string }[]; right?: ReactNode }) {
   return (
-    <div className="sticky top-14 z-10 flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1 border-b border-line bg-surface px-4 py-2 sm:px-6 lg:top-0 lg:rounded-t-xl">
+    <div className="sticky top-14 z-10 flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1 border-b border-line bg-surface px-4 py-2 sm:px-6 lg:top-0 lg:rounded-t-[14px]">
       <ol className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         {crumbs.map((c, i) => (
           <li key={i} className="flex min-w-0 items-center gap-1.5">

@@ -68,7 +68,7 @@ function FieldList({ fields, scope, path, idBase, itemId = null, listKey = null,
   }
   // Each group list measures its own width, so groups nested in a follow-up stay stacked.
   return <div className="@container flex flex-col">{parts.map((g, i) => (
-    <section key={i} className="grid gap-4 border-t border-line py-6 first:border-t-0 first:pt-0 last:pb-0 @[820px]:grid-cols-[220px_minmax(0,1fr)] @[820px]:gap-6">
+    <section key={i} className="grid gap-4 border-t border-line py-8 first:border-t-0 first:pt-0 last:pb-0 @[820px]:grid-cols-[220px_minmax(0,1fr)] @[820px]:gap-6">
       {g.group ? (
         <div className="flex flex-col gap-1 @[820px]:sticky @[820px]:top-[calc(var(--app-header,64px)+1.5rem)] @[820px]:self-start">
           <h3 className="text-[20px] leading-7 font-semibold">{tr(g.group.title)}</h3>
@@ -85,7 +85,7 @@ const pinnedTasks = (exp: Expediente | undefined, field: string, item: string | 
   exp ? (exp.tasks ?? []).filter((x) => x.target?.field === field && (x.target.item ?? null) === item && (!x.closedAt || Date.now() - Date.parse(x.closedAt) < 14 * 864e5)) : [];
 
 const inputCls =
-  "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-1 focus:ring-focus disabled:bg-sunk disabled:text-muted max-w-[460px]";
+  "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-4 focus:ring-focus/15 disabled:bg-sunk disabled:text-muted max-w-[460px]";
 
 function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field: Field; scope: Answers; path: Path; id: string; itemId: string | null; listKey: string | null; depth: number }) {
   const { set, readOnly, exp, markEmpty } = useForm();
@@ -127,7 +127,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
         return "";
       };
       control = (
-        <div className={cx("flex h-(--control-h) max-w-[220px] items-center overflow-clip rounded-md border bg-surface transition-colors focus-within:ring-1", err ? "border-2 border-bad focus-within:ring-bad" : "border-line-strong hover:border-muted focus-within:border-focus focus-within:ring-focus")}>
+        <div className={cx("flex h-(--control-h) max-w-[220px] items-center overflow-clip rounded-md border bg-surface shadow-field transition-colors focus-within:ring-4", err ? "border-2 border-bad focus-within:ring-bad/15" : "border-line-strong hover:border-muted focus-within:border-focus focus-within:ring-focus/15")}>
           <input id={id} type="text" inputMode="decimal" disabled={readOnly} aria-invalid={!!err || undefined} aria-describedby={err ? id + "-err" : undefined} placeholder={x.type === "money" ? "0,00" : ""} value={asText(v)} onChange={(e) => { set(at, e.target.value); if (err) setErr(check(e.target.value)); }} onBlur={(e) => setErr(check(e.target.value))} className="figures h-full w-full bg-transparent px-3 text-right outline-hidden disabled:text-muted" />
           {unit && <span className="grid h-full place-items-center border-l border-line bg-sunk px-3 text-[14px] text-muted">{unit}</span>}
         </div>
@@ -153,7 +153,8 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
     case "choice": {
       const opts = x.type === "yn" ? ([["si", t.common.yes], ["no", t.common.no]] as const) : (x.choices ?? []).map(([val, l]) => [val, tr(l)] as const);
       control = (
-        <div role="radiogroup" aria-labelledby={id + "-l"} className="flex flex-wrap gap-2">
+        // Segmented control: one frame, equal-width options, only the chosen one filled.
+        <div role="radiogroup" aria-labelledby={id + "-l"} className={cx("max-w-full gap-1 rounded-lg border border-line-strong bg-surface p-1 shadow-field", x.type === "yn" ? "grid w-[240px] grid-cols-2" : "inline-flex flex-wrap")}>
           {opts.map(([val, l]) => {
             const on = v === val;
             return (
@@ -165,11 +166,11 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
                 disabled={readOnly}
                 onClick={() => set(at, on ? undefined : val)}
                 className={cx(
-                  "inline-flex h-(--control-h) min-w-[72px] items-center justify-center gap-1.5 rounded-md border px-4 text-[16px] font-medium transition-colors disabled:cursor-default",
-                  on ? "border-accent bg-accent text-accent-ink" : "border-line-strong bg-surface hover:bg-hover",
+                  "inline-flex h-[calc(var(--control-h)-10px)] min-w-[96px] flex-1 items-center justify-center gap-1.5 rounded-md px-4 text-[15.5px] font-medium whitespace-nowrap transition-colors disabled:cursor-default",
+                  on ? "bg-accent text-accent-ink shadow-sm" : "text-ink hover:bg-hover disabled:hover:bg-transparent",
                 )}
               >
-                {on && <Check size={16} strokeWidth={2.4} aria-hidden="true" />}
+                {on && <Check size={16} strokeWidth={2.4} className="-ml-1" aria-hidden="true" />}
                 {l}
               </button>
             );
@@ -187,7 +188,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
   }
 
   return (
-    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="flex scroll-mt-40 flex-col gap-2 border-t border-line py-4 first:border-t-0 first:pt-0 lg:scroll-mt-32">
+    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="flex scroll-mt-40 flex-col gap-2.5 py-5 first:pt-0 last:pb-0 lg:scroll-mt-32">
       {grouped ? (
         <div id={id + "-l"} className={labelCls}>
           {label}
@@ -226,7 +227,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
         </p>
       )}
       {showsKids(x, v) && (
-        <div aria-live="polite" className={cx("relative mt-1 flex flex-col gap-1 rounded-md py-4 pr-4 pl-6 before:absolute before:top-4 before:bottom-4 before:left-2.5 before:w-0.5 before:rounded-full before:bg-line-strong", depth % 2 ? "bg-surface" : "bg-sunk")}>
+        <div aria-live="polite" className="mt-2 flex flex-col gap-1 border-l-2 border-line pl-4 sm:pl-6">
           <span className="flex items-center gap-1.5 text-[13px] text-muted">
             <ArrowRight size={13} aria-hidden="true" />
             {t.q.because(x.type === "yn" ? (v === "si" ? t.common.yes : t.common.no) : tr(x.choices?.find(([c]) => c === v)?.[1] ?? { es: String(v), en: String(v) }))}
@@ -253,7 +254,7 @@ function Repeater({ field: x, items, path, id }: { field: Field; items: Answers[
         );
       })}
       {!readOnly && (
-        <button type="button" onClick={() => set(path, [...items, { [ITEM_ID]: uid("i-") }])} className="self-start rounded-lg border-[1.5px] border-dashed border-accent px-3.5 py-2 font-semibold text-accent hover:bg-accent-soft">
+        <button type="button" onClick={() => set(path, [...items, { [ITEM_ID]: uid("i-") }])} className="inline-flex h-(--control-h) items-center gap-2 self-start rounded-md bg-accent-soft px-4 font-semibold text-accent transition-colors hover:bg-accent-soft-hover">
           {t.common.add(item)}
         </button>
       )}
@@ -421,11 +422,11 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
               <span>{t.upload.reqSize}</span>
             </span>
           </div>
-          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-line-strong bg-surface hover:bg-hover")}>
+          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
             <Camera size={17} aria-hidden="true" />
             {t.upload.camera}
           </label>
-          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-line-strong bg-surface hover:bg-hover")}>
+          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
             <Upload size={17} aria-hidden="true" />
             {t.upload.choose}
           </label>
@@ -453,7 +454,7 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
               </span>
               {p.failed && (
                 <span className="flex gap-1">
-                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-line-strong bg-surface px-3 text-[13.5px] font-medium hover:bg-hover"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
+                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
                   <button type="button" aria-label={t.common.removeFile(p.file.name)} onClick={() => setPending((l) => l.filter((x) => x.key !== p.key))} className="grid size-8 place-items-center rounded-md text-muted hover:bg-surface hover:text-ink"><X size={16} aria-hidden="true" /></button>
                 </span>
               )}
@@ -463,7 +464,7 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
       )}
 
       {!readOnly && !empty && (
-        <label htmlFor={id} className={cx(btn, "cursor-pointer self-start border-line-strong bg-surface hover:bg-hover")}>
+        <label htmlFor={id} className={cx(btn, "cursor-pointer self-start border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
           <Upload size={17} aria-hidden="true" />
           {t.upload.addMore}
         </label>
@@ -479,7 +480,7 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
                 {later.note && <p className="text-muted">{t.upload.laterNote(later.note)}</p>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-line-strong bg-surface hover:bg-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
+                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
                 <button type="button" onClick={() => { setNote(later.note); setNoting(true); }} className={cx(btn, "border-transparent text-accent hover:bg-accent-soft")}>{t.upload.changeNote}</button>
               </div>
             </div>

@@ -45,7 +45,7 @@ function SignCard({ exp, kind, readOnly }: { exp: Expediente; kind: LegalKind; r
   const canSign = accepted && name.trim() && dni.trim();
   const title = kind === "privacy" ? t.settings.legal.privacy : t.settings.legal.mandate;
   const desc = kind === "privacy" ? t.settings.legal.privacyDesc : t.settings.legal.mandateDesc;
-  const field = "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden focus:border-focus focus:ring-1 focus:ring-focus";
+  const field = "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15";
 
   return (
     <section className="flex flex-col gap-3 rounded-lg border border-line p-4 sm:p-5">

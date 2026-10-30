@@ -209,6 +209,13 @@ export interface Firm {
   fees: Fees;
   /** Campaign dates (ISO yyyy-mm-dd), set by the gestoría. Not set yet: the dashboard shows countdowns once they are. */
   campaign?: { filing?: string; directDebit?: string };
+  /** The chat's quick replies, as the gestoría wrote them. Unset: the built-in ones in the user's language. */
+  replies?: QuickReply[];
+}
+
+export interface QuickReply {
+  label: string;
+  text: string;
 }
 
 /** Key of one upload slot: the question id plus, inside a repeated group, the item's id. */

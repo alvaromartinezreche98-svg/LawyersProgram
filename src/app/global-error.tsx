@@ -29,7 +29,7 @@ export default function GlobalError({ error, retry }: { error: Error & { digest?
             <button type="button" onClick={() => retry()} className="h-(--control-h) rounded-md bg-accent px-4 font-medium text-accent-ink">
               Reintentar · Try again
             </button>
-            <Link href="/" className="inline-flex h-(--control-h) items-center rounded-md border border-line-strong bg-surface px-4 font-medium">
+            <Link href="/" className="inline-flex h-(--control-h) items-center rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-4 font-medium">
               Inicio · Home
             </Link>
           </div>

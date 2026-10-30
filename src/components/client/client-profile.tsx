@@ -52,7 +52,7 @@ export function ClientProfile() {
                   role="radio"
                   aria-checked={l.id === lang}
                   onClick={() => actions.setLang(l.id)}
-                  className={cx("h-(--control-h) rounded-md border px-4 text-[14px] font-medium transition-colors", l.id === lang ? "border-accent bg-accent text-accent-ink" : "border-line-strong bg-surface hover:bg-sunk")}
+                  className={cx("h-(--control-h) rounded-md border px-4 text-[14px] font-medium transition-colors", l.id === lang ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-line-strong")}
                 >
                   {l.label}
                 </button>

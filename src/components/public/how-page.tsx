@@ -5,7 +5,7 @@ import { ArrowRight, Check, FileCheck2, FileSignature, ListChecks, Mail, Message
 import { NO_NEED_TO_UPLOAD } from "@/lib/questionnaire/schema";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { IconTile } from "@/components/ui/icons";
+import { IconTile, HUES } from "@/components/ui/icons";
 import { ButtonLink, Card, Eyebrow } from "@/components/ui/primitives";
 import { PublicShell } from "./public-shell";
 
@@ -28,7 +28,7 @@ export function HowPage() {
         <ol className="flex flex-col gap-3">
           {h.steps.map(([title, d], i) => (
             <li key={title} className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-5 rounded-xl border border-line bg-surface p-5">
-              <IconTile icon={STEP_ICONS[i]} size="lg" />
+              <IconTile icon={STEP_ICONS[i]} size="lg" tone={HUES[i % HUES.length]} />
               <div>
                 <span className="font-mono text-[12px] tracking-wide text-muted uppercase">{t.access.step(i + 1)}</span>
                 <h2 className="display-tight text-[17px] font-semibold">{title}</h2>

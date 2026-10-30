@@ -26,7 +26,7 @@ export function ClientHistory() {
       </div>
       <Card className="overflow-clip">
         {all.length < 2 ? (
-          <EmptyState icon={History} title={t.years.none} />
+          <EmptyState inset iconTone="copper" icon={History} title={t.years.none} />
         ) : (
           <>
             <div className="hidden grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] gap-4 border-b border-line bg-sunk px-5 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase sm:grid">

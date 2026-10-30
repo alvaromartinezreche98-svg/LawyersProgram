@@ -25,10 +25,10 @@ import { CLERK_ENABLED } from "@/lib/auth/config";
 import { ClerkAccess } from "@/components/auth/clerk-access";
 import { PublicShell } from "@/components/public/public-shell";
 import { PageTitle } from "@/components/ui/app-shell";
-import { IconTile } from "@/components/ui/icons";
+import { IconTile, HUES } from "@/components/ui/icons";
 import { Button, Card, Eyebrow, Loading, Notice, StatusPill, cx } from "@/components/ui/primitives";
 
-const field = "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-1 focus:ring-focus disabled:bg-sunk disabled:text-muted";
+const field = "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-4 focus:ring-focus/15 disabled:bg-sunk disabled:text-muted";
 const GESTOR_ICONS: LucideIcon[] = [Inbox, FileText, MessageCircle];
 const AVATAR = ["bg-accent-soft text-accent", "bg-info-soft text-info", "bg-warn-soft text-warn", "bg-ok-soft text-ok"];
 const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
@@ -199,7 +199,7 @@ function DemoAccess({ gate, banner }: { gate?: ReactNode; banner?: ReactNode }) 
               <ul className="flex flex-col gap-2">
                 {t.access.gestoriaItems.map((g, i) => (
                   <li key={g} className="flex items-center gap-3 rounded-lg border border-line bg-sunk px-3 py-2.5 text-[14px]">
-                    <IconTile icon={GESTOR_ICONS[i]} size="sm" tone={i === 0 ? "accent" : i === 1 ? "warn" : "info"} />
+                    <IconTile icon={GESTOR_ICONS[i]} size="sm" tone={HUES[i % HUES.length]} />
                     {g}
                   </li>
                 ))}

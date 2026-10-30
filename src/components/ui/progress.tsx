@@ -1,9 +1,10 @@
 import { Check, type LucideIcon } from "lucide-react";
+import { TONE_TILE as TILE, type Tone } from "./icons";
 import type { SectionState } from "@/lib/questionnaire/progress";
 import { cx } from "./primitives";
 
 /** Section glyph (design system › Progress): a green check when done, half-filled in progress, hollow not started. */
-export function StepDot({ n, state, icon: Icon, size = 24 }: { n?: number; state: SectionState | "none"; icon?: LucideIcon; size?: number }) {
+export function StepDot({ n, state, icon: Icon, size = 24, tone }: { n?: number; state: SectionState | "none"; icon?: LucideIcon; size?: number; tone?: Tone }) {
   return (
     <span
       aria-hidden="true"
@@ -11,7 +12,9 @@ export function StepDot({ n, state, icon: Icon, size = 24 }: { n?: number; state
       className={cx(
         "grid shrink-0 place-items-center rounded-full border-[1.5px] text-[12px] font-semibold",
         state === "done" ? "border-ok bg-ok text-surface"
+        : state === "partial" && tone ? cx("border-current", TILE[tone])
         : state === "partial" ? "border-accent bg-[linear-gradient(90deg,var(--accent-soft)_50%,var(--surface)_50%)] text-accent"
+        : tone ? cx("border-current/40", TILE[tone])
         : "border-line-strong bg-surface text-muted",
       )}
     >

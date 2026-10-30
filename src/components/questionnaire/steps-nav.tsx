@@ -8,6 +8,7 @@ import { progressOf, sectionState, type SectionState } from "@/lib/questionnaire
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { cx } from "@/components/ui/primitives";
 import { SegMeter, StepDot } from "@/components/ui/progress";
+import { SECTION_TONE } from "@/components/ui/icons";
 
 /**
  * Left rail of the questionnaire (design system › Progress): sections counted
@@ -49,11 +50,11 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
         type="button"
         aria-current={slug === current ? "step" : undefined}
         onClick={() => go(slug)}
-        className={cx("grid w-full grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[14.5px] leading-5 transition-colors", slug === current ? "bg-accent-soft font-semibold" : "hover:bg-accent-soft")}
+        className={cx("grid w-full grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[14.5px] leading-5 transition-colors", slug === current ? "bg-accent-soft font-semibold" : "hover:bg-accent-soft")}
       >
         {dot}
         <span className="min-w-0 [overflow-wrap:normal] hyphens-auto">{name}</span>
-        <span className={cx("text-right text-[12.5px] whitespace-nowrap", request ? "font-semibold text-copper-text" : "font-normal text-muted")}>{state}</span>
+        <span className={cx("text-right text-[12.5px] whitespace-nowrap", request ? "font-semibold text-copper-text" : "font-normal text-muted", state === t.sectionState.done && "sr-only")}>{state}</span>
       </button>
     </li>
   );
@@ -87,11 +88,11 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
 
       <div className={cx("max-[959px]:mt-2 max-[959px]:max-h-[60dvh] max-[959px]:overflow-y-auto", open ? "block" : "max-[959px]:hidden")}>
         <ol className="flex flex-col gap-0.5">
-          {sections.map((s, i) => row(s.slug, s.short, <StepDot n={i + 1} state={s.st as SectionState} />, stateText(s), requested?.has(s.slug)))}
+          {sections.map((s, i) => row(s.slug, s.short, <StepDot n={i + 1} state={s.st as SectionState} tone={SECTION_TONE[s.slug]} />, stateText(s), requested?.has(s.slug)))}
         </ol>
         <ul className="mt-2 flex flex-col gap-0.5 border-t border-line pt-2">
-          {signDone !== undefined && row(SIGN_SLUG, t.sign.short, <StepDot state={signDone ? "done" : "none"} icon={PenLine} />, signDone ? t.sectionState.done : "")}
-          {row(REVIEW_SLUG, t.q.review, <StepDot state="none" icon={Send} />)}
+          {signDone !== undefined && row(SIGN_SLUG, t.sign.short, <StepDot state={signDone ? "done" : "none"} icon={PenLine} tone={SECTION_TONE[SIGN_SLUG]} />, signDone ? t.sectionState.done : "")}
+          {row(REVIEW_SLUG, t.q.review, <StepDot state="none" icon={Send} tone="accent" />)}
         </ul>
       </div>
     </nav>

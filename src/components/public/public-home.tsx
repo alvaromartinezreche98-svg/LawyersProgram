@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Bell, Camera, ClipboardList, FileSignature, Inbox, LayoutGrid, ListChecks, MessageCircle, QrCode, ThumbsUp, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { IconTile } from "@/components/ui/icons";
+import { IconTile, HUES } from "@/components/ui/icons";
 import { ChatArt, ReturnArt } from "@/components/ui/illustrations";
 import { ButtonLink, Eyebrow } from "@/components/ui/primitives";
 import { PublicShell } from "./public-shell";
@@ -60,7 +60,7 @@ export function PublicHome() {
           <ul className="flex flex-col gap-4">
             {h.clients.map(([title, d], i) => (
               <li key={title} className="flex items-start gap-3.5">
-                <IconTile icon={CLIENT_ICONS[i]} size="sm" />
+                <IconTile icon={CLIENT_ICONS[i]} size="sm" tone={HUES[i % HUES.length]} />
                 <span>
                   <b className="block text-[15px] font-semibold">{title}</b>
                   <span className="text-[14px] text-muted">{d}</span>
@@ -82,7 +82,7 @@ export function PublicHome() {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {h.gestorias.map(([title, d], i) => (
               <li key={title} className="flex flex-col gap-2 rounded-xl border border-line bg-bg p-5">
-                <IconTile icon={GESTOR_ICONS[i]} size="sm" tone="info" />
+                <IconTile icon={GESTOR_ICONS[i]} size="sm" tone={HUES[(i + 3) % HUES.length]} />
                 <b className="text-[15px] font-semibold">{title}</b>
                 <span className="text-[14px] text-muted">{d}</span>
               </li>

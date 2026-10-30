@@ -30,13 +30,11 @@ export function Payments() {
         </div>
 
         {!configured ? (
-          <div className="rounded-lg border border-line bg-surface">
-            <EmptyState icon={Wallet} title={t.cobros.noFees}>
-              <ButtonLink href="/ajustes/honorarios" size="sm" className="mt-2">
-                {t.cobros.configure}
-              </ButtonLink>
-            </EmptyState>
-          </div>
+          <EmptyState iconTone="green" icon={Wallet} title={t.cobros.noFees}>
+            <ButtonLink href="/ajustes/honorarios" size="sm" className="mt-2">
+              {t.cobros.configure}
+            </ButtonLink>
+          </EmptyState>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-2 sm:max-w-[520px]">

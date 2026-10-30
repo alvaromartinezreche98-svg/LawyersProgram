@@ -13,7 +13,7 @@ export const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 export const DEMO_LOGIN = !CLERK_ENABLED || process.env.NEXT_PUBLIC_DEMO_LOGIN === "1";
 
 /** Pages open without signing in: the public website, the access page and maintenance. */
-export const isPublicPath = (p: string) => ["/", "/acceso", "/entrar", "/contacto", "/como-funciona", "/para-gestorias", "/preguntas-frecuentes", "/mantenimiento"].includes(p) || p.startsWith("/legal/") || p.startsWith("/invitacion/");
+export const isPublicPath = (p: string) => ["/", "/acceso", "/entrar", "/contacto", "/demo", "/como-funciona", "/para-gestorias", "/preguntas-frecuentes", "/mantenimiento"].includes(p) || p.startsWith("/legal/") || p.startsWith("/invitacion/");
 
 /** The access (sign-in) page. "/?next=…" and invitation links on "/" still forward here. */
 export const SIGN_IN_PATH = "/acceso";

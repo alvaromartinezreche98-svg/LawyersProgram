@@ -3,7 +3,7 @@
 import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, CalendarClock, ChevronRight, CircleCheck, FileText, MessageCircle, PenLine, Send, type LucideIcon } from "lucide-react";
+import { ArrowRight, CalendarClock, ChevronRight, CircleCheck, ClipboardList, FileText, MessageCircle, PenLine, Send, type LucideIcon } from "lucide-react";
 import { SCHEMA, REVIEW_SLUG, SIGN_SLUG } from "@/lib/questionnaire/schema";
 import { collectDocs, progressOf, sectionState } from "@/lib/questionnaire/progress";
 import { signingDone } from "@/lib/data/legal";
@@ -79,7 +79,7 @@ export function ClientHome() {
     if (x.doneAt && !x.closedAt) list.push({ key: x.id, kind: "sent", icon: CircleCheck, label: t.home.answeredKind, title: tr(x.text), meta: [t.home.answeredMeta, x.reply].filter(Boolean).join(" · "), href: hrefOf(x) });
     else if (x.closedAt && recent(x.closedAt)) list.push({ key: x.id, kind: "resolved", icon: CircleCheck, label: t.home.resolvedKind, title: tr(x.text), href: hrefOf(x) });
   }
-  if (open.length) list.push({ key: "continue", kind: "plain", icon: null, label: t.home.continueKind, title: t.home.openSections(open.length), meta: open.map((x) => tr(x.s.short)).join(" · "), href: `/declaracion/${open[0].s.slug}` });
+  if (open.length) list.push({ key: "continue", kind: "plain", icon: ClipboardList, label: t.home.continueKind, title: t.home.openSections(open.length), meta: open.map((x) => tr(x.s.short)).join(" · "), href: `/declaracion/${open[0].s.slug}` });
   else if (!sent) list.push({ key: "send", kind: "plain", icon: Send, label: t.home.continueKind, title: t.home.readyToSend, href: `/declaracion/${REVIEW_SLUG}` });
   // Answered or resolved requests never lead the page: they are information, not a next step.
   const actionable = list.filter((x) => x.kind !== "sent" && x.kind !== "resolved");
@@ -129,7 +129,10 @@ export function ClientHome() {
                   {leadTask && <time className="font-normal text-muted">{fmtDayMonth(leadTask.createdAt)}</time>}
                 </p>
               ) : (
-                <p className="text-[13px] font-semibold text-muted">{lead.label}</p>
+                <p className="flex items-center gap-2.5 text-[13px] font-semibold text-muted">
+                  {lead.icon && <span className={cx("grid size-10 place-items-center rounded-lg ring-1 ring-current/15 ring-inset", TASK_ICON[lead.kind])}><lead.icon size={19} strokeWidth={2.1} aria-hidden="true" /></span>}
+                  {lead.label}
+                </p>
               )}
               <h2 id="nx" className="max-w-[34ch] text-[22px] leading-[30px] font-semibold">{lead.title}</h2>
               {lead.meta && <p className="max-w-[60ch] text-[15px] text-muted">{lead.meta}</p>}
@@ -259,8 +262,8 @@ function FirmLogo({ mark }: { mark: string }) {
 const TASK_ICON: Record<Kind, string> = {
   approval: "bg-accent text-accent-ink",
   request: "bg-copper-soft text-copper-text",
-  message: "bg-info-soft text-info",
-  plain: "bg-sunk text-muted",
+  message: "bg-plum-soft text-plum",
+  plain: "bg-teal-soft text-teal",
   sent: "bg-info-soft text-info",
   resolved: "bg-ok-soft text-ok",
 };
@@ -269,8 +272,8 @@ function TaskRow({ task: x }: { task: Task }) {
   return (
     <li className="border-t border-line first:border-t-0">
       <Link href={x.href} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 p-4 transition-colors hover:bg-hover">
-        <span className={cx("grid size-9 place-items-center rounded-full", TASK_ICON[x.kind])}>
-          {x.icon ? <x.icon size={17} strokeWidth={2} aria-hidden="true" /> : <span className="size-2.5 rounded-full border-[1.5px] border-accent bg-[linear-gradient(90deg,var(--accent)_50%,transparent_50%)]" aria-hidden="true" />}
+        <span className={cx("grid size-10 place-items-center rounded-lg ring-1 ring-current/15 ring-inset", TASK_ICON[x.kind])}>
+          {x.icon ? <x.icon size={19} strokeWidth={2.1} aria-hidden="true" /> : <span className="size-2.5 rounded-full border-[1.5px] border-accent bg-[linear-gradient(90deg,var(--accent)_50%,transparent_50%)]" aria-hidden="true" />}
         </span>
         <span className="min-w-0">
           <span className={cx("block text-[13px] leading-[18px] font-semibold", x.kind === "request" ? "text-copper-text" : x.kind === "sent" ? "text-info" : x.kind === "resolved" ? "text-ok" : "text-muted")}>{x.label}</span>

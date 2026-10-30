@@ -13,7 +13,7 @@ import { AP_TONE } from "@/components/client/client-appointment";
 import { TopBar } from "./gestor-shell";
 
 type Filter = "solicitada" | "confirmada" | "all";
-const ctl = "h-(--control-h-sm) rounded-md border border-line-strong bg-surface px-2 text-[13px] outline-hidden focus:border-focus focus:ring-1 focus:ring-focus";
+const ctl = "h-(--control-h-sm) rounded-md border border-line-strong bg-surface px-2 text-[13px] outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15";
 
 /** G5 · Citas: requests from every case; confirm with a time and an accountant, or cancel. */
 export function Appointments() {
@@ -43,7 +43,7 @@ export function Appointments() {
         </div>
         <div className="overflow-clip rounded-lg border border-line bg-surface">
           {shown.length === 0 ? (
-            <EmptyState icon={CalendarDays} title={t.citas.none} />
+            <EmptyState inset iconTone="rose" icon={CalendarDays} title={t.citas.none} />
           ) : (
             <ul>
               {shown.map(({ e, a }) => (

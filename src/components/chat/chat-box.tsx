@@ -137,14 +137,14 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
       <div className="border-t border-line bg-surface p-3">
         {side === "gestor" && (
           <div className="mb-2 flex flex-wrap gap-1.5">
-            {t.chat.quick.map((q) => (
-              <button key={q.label} type="button" onClick={() => { setDraft(q.text); ta.current?.focus(); }} className="rounded-full border border-line bg-surface px-3 py-1 text-xs transition-colors hover:border-line-strong hover:bg-sunk">
+            {(firm.replies?.length ? firm.replies : t.chat.quick).filter((q) => q.label.trim()).map((q, i) => (
+              <button key={i} type="button" onClick={() => { setDraft(q.text); ta.current?.focus(); }} className="rounded-full border border-line bg-surface px-3 py-1 text-xs transition-colors hover:border-line-strong hover:bg-sunk">
                 {q.label}
               </button>
             ))}
           </div>
         )}
-        <div className="flex items-end gap-2 rounded-xl border border-line-strong bg-surface p-1.5 pl-3 transition-colors focus-within:border-focus focus-within:ring-1 focus-within:ring-focus">
+        <div className="shadow-field flex items-end gap-2 rounded-xl border border-line-strong bg-surface p-1.5 pl-3 transition-colors focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15">
           <textarea
             ref={ta}
             rows={1}

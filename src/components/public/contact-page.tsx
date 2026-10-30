@@ -11,8 +11,8 @@ import { PublicShell } from "./public-shell";
 
 type Kind = "gestoria" | "cliente" | "otro";
 
-const field =
-  "h-(--control-h-lg) w-full rounded-md border border-line-strong bg-surface px-4 text-[16px] outline-hidden transition-colors placeholder:text-disabled hover:border-muted focus:border-focus focus:ring-1 focus:ring-focus";
+export const field =
+  "h-(--control-h-lg) w-full rounded-md border border-line-strong bg-surface px-4 text-[16px] outline-hidden transition-colors placeholder:text-disabled hover:border-muted focus:border-focus focus:ring-4 focus:ring-focus/15";
 
 /**
  * P6 · Contacto, editorial layout: the introduction and the form carry the
@@ -118,7 +118,7 @@ export function ContactPage() {
         </div>
 
         {/* Company details: an editorial navy column */}
-        <aside className="bg-[var(--band)] px-7 py-9 text-[var(--band-ink)] [--focus:#a9c8ff] sm:px-9 lg:sticky lg:top-24">
+        <aside className="rounded-xl bg-[var(--band)] px-7 py-9 text-[var(--band-ink)] [--focus:#a9c8ff] sm:px-9 lg:sticky lg:top-24">
           <p className="text-[12px] font-semibold tracking-[.14em] text-[var(--band-copper)] uppercase">{c.details}</p>
           <dl className="mt-6">
             <Detail label={c.company}>{COMPANY.name || <PendingOnDark k="name" />}</Detail>
@@ -144,7 +144,7 @@ export function ContactPage() {
   );
 }
 
-function Labeled({ id, label, children }: { id: string; label: string; children: ReactNode }) {
+export function Labeled({ id, label, children }: { id: string; label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[14px] font-semibold">{label}</label>

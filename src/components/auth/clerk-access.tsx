@@ -126,7 +126,7 @@ export function ClerkAccess({ render }: { render: (gate?: ReactNode, banner?: Re
       {lookup.status === "badCode" && <Notice tone="bad">{t.auth.badCode}</Notice>}
       <form onSubmit={submitCode} className="flex flex-col gap-2">
         <label htmlFor="inv-code" className="text-[14px] font-semibold">{t.auth.codeLabel}</label>
-        <input id="inv-code" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="one-time-code" spellCheck={false} className="h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 font-mono text-[14px] outline-hidden focus:border-focus focus:ring-1 focus:ring-focus" />
+        <input id="inv-code" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="one-time-code" spellCheck={false} className="h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 font-mono text-[14px] outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15" />
         <span className="flex flex-wrap gap-2 pt-1">
           <Button type="submit" variant="primary">{t.auth.codeSubmit}</Button>
           {signOutBtn}

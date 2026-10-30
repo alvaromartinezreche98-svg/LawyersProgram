@@ -10,7 +10,7 @@ import { fmtTime, uid } from "@/lib/format";
 import { FileChip } from "@/components/ui/file-chip";
 import { Button, Notice, cx } from "@/components/ui/primitives";
 
-const field = "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden focus:border-focus focus:ring-1 focus:ring-focus";
+const field = "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15";
 
 /** G3 · Result and approval: the gestoría sends the outcome; the client's approval shows here. */
 export function ResultPanel({ exp }: { exp: Expediente }) {
@@ -88,14 +88,14 @@ function ResultForm({ exp, initial, onDone, onCancel }: { exp: Expediente; initi
       <div className="grid gap-3 sm:grid-cols-[auto_minmax(0,220px)] sm:items-end">
         <div role="radiogroup" aria-label={t.resultG.kind} className="flex gap-2">
           {(["devolver", "pagar"] as const).map((k) => (
-            <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => setKind(k)} className={cx("h-(--control-h) rounded-md border px-4 text-[14px] font-medium transition-colors", kind === k ? "border-accent bg-accent text-accent-ink" : "border-line-strong bg-surface hover:bg-sunk")}>
+            <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => setKind(k)} className={cx("h-(--control-h) rounded-md border px-4 text-[14px] font-medium transition-colors", kind === k ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-line-strong")}>
               {t.result.kind[k]}
             </button>
           ))}
         </div>
         <label className="flex flex-col gap-1.5 text-[13.5px] font-medium">
           {t.resultG.amount}
-          <span className="flex h-(--control-h) items-center overflow-clip rounded-md border border-line-strong bg-surface focus-within:border-focus focus-within:ring-1 focus-within:ring-focus">
+          <span className="shadow-field flex h-(--control-h) items-center overflow-clip rounded-md border border-line-strong bg-surface focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15">
             <input inputMode="decimal" placeholder="0,00" value={amount} onChange={(e) => { setAmount(e.target.value); setError(""); }} className="figures h-full w-full bg-transparent px-3 text-right font-normal outline-hidden" />
             <span className="grid h-full place-items-center border-l border-line bg-sunk px-3 font-normal text-muted">€</span>
           </span>
@@ -104,7 +104,7 @@ function ResultForm({ exp, initial, onDone, onCancel }: { exp: Expediente; initi
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[13.5px] font-medium">{t.resultG.file}</span>
         {file && <FileChip file={file} />}
-        <label htmlFor={id} className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-line bg-surface px-3 text-[13px] font-medium transition-colors hover:border-line-strong hover:bg-sunk">
+        <label htmlFor={id} className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13px] font-medium transition-colors">
           <Upload size={14} aria-hidden="true" />
           {busy ? t.upload.uploading : file ? t.resultG.replace : t.resultG.upload}
         </label>

@@ -14,9 +14,11 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  // Browsers and extensions add attributes to <html>/<body> before React loads
+  // (Chrome on iOS: __gcrremoteframetoken; Grammarly, ColorZilla); ignore those, one level deep only.
   return (
-    <html lang="es" className={`${plex.variable} ${plexMono.variable} ${serif.variable} h-full antialiased`}>
-      <body className="min-h-full bg-bg font-sans text-[15px] leading-normal text-ink">
+    <html lang="es" suppressHydrationWarning className={`${plex.variable} ${plexMono.variable} ${serif.variable} h-full antialiased`}>
+      <body suppressHydrationWarning className="min-h-full bg-bg font-sans text-[15px] leading-normal text-ink">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

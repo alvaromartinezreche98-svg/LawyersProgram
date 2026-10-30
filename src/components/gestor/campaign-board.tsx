@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { FEATURES } from "@/lib/features";
 import { useState, type DragEvent } from "react";
-import { CircleAlert, MessageCircle, TriangleAlert } from "lucide-react";
+import { CalendarClock, ChartNoAxesColumn, CircleAlert, Clock, FolderOpen, MessageCircle, SearchCheck, Send, TriangleAlert, type LucideIcon } from "lucide-react";
 import { actions, useAppState } from "@/lib/data/store";
 import { STATUSES, awaitingApproval, type Status } from "@/lib/data/types";
-import { needsAttention, sortCases, triage, type Triage } from "@/lib/gestor/triage";
+import { daysUntil, needsAttention, sortCases, triage, type Triage } from "@/lib/gestor/triage";
+import { IconTile, type Tone } from "@/components/ui/icons";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
 import { ProgressBar, cx } from "@/components/ui/primitives";
@@ -53,10 +55,11 @@ export function CampaignBoard() {
             {t.board.onlyAttention}
           </label>
         </div>
+        <CampaignStats all={all} filing={firm.campaign?.filing} />
         <DeadlineChips />
 
         <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6">
-          <div className="grid min-w-max auto-cols-[260px] grid-flow-col gap-3">
+          <div className="grid w-full min-w-[996px] auto-cols-[minmax(240px,1fr)] grid-flow-col gap-3">
             {STATUSES.map((s) => {
               const col = shown.filter((x) => x.exp.status === s.id);
               return (
@@ -147,5 +150,44 @@ function Card({ x, member }: { x: Triage; member?: string }) {
         )}
       </span>
     </article>
+  );
+}
+
+/** Campaign at a glance: one figure per tile, each linking to the matching case list. */
+function CampaignStats({ all, filing }: { all: Triage[]; filing?: string }) {
+  const { t } = useI18n();
+  const k = t.extra.kpi;
+  const avg = all.length ? Math.round(all.reduce((n, x) => n + x.pct, 0) / all.length) : 0;
+  const left = filing ? daysUntil(filing) : null;
+  const tiles: { icon: LucideIcon; tone: Tone; label: string; value: string; href?: string; urgent?: boolean }[] = [
+    { icon: FolderOpen, tone: "blue", label: k.total, value: String(all.length), href: "/expedientes?vista=todos" },
+    { icon: Send, tone: "plum", label: k.toReview, value: String(all.filter((x) => x.exp.status === "enviado").length), href: "/expedientes?vista=todos&estado=enviado" },
+    { icon: Clock, tone: "amber", label: k.waitingClient, value: String(all.filter((x) => x.waiting === "cliente").length), href: "/expedientes?vista=cliente" },
+    { icon: SearchCheck, tone: "green", label: k.ready, value: String(all.filter((x) => x.exp.status === "listo").length), href: "/expedientes?vista=todos&estado=listo" },
+    { icon: ChartNoAxesColumn, tone: "teal", label: k.avg, value: `${avg} %` },
+    left === null
+      ? { icon: CalendarClock, tone: "rose", label: k.noDeadline, value: "—", href: FEATURES.firmSettings ? "/ajustes/campana" : undefined }
+      : { icon: CalendarClock, tone: "rose", label: k.deadline, value: left < 0 ? k.passed : k.days(left), urgent: left <= 7 },
+  ];
+  return (
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-6">
+      {tiles.map((x) => {
+        const body = (
+          <>
+            <IconTile icon={x.icon} tone={x.tone} size="sm" />
+            <span className="flex min-w-0 flex-col">
+              <span className={cx("figures text-[22px] leading-7 font-semibold", x.urgent && "text-bad")}>{x.value}</span>
+              <span className="truncate text-[13px] text-muted">{x.label}</span>
+            </span>
+          </>
+        );
+        const cls = "flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet";
+        return (
+          <li key={x.label}>
+            {x.href ? <Link href={x.href} className={cx(cls, "transition-colors hover:border-line-strong")}>{body}</Link> : <div className={cls}>{body}</div>}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

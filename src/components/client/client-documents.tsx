@@ -9,7 +9,7 @@ import { PageTitle } from "@/components/ui/app-shell";
 import { FileThumb } from "@/components/ui/file-chip";
 import { Card, Eyebrow, Notice, Pill } from "@/components/ui/primitives";
 import { openTasks } from "@/lib/data/store";
-import { IconTile, SECTION_ICON } from "@/components/ui/icons";
+import { IconTile, SECTION_ICON, SECTION_TONE } from "@/components/ui/icons";
 import { useClientExp } from "./client-shell";
 
 /** C4 · Mis documentos: every document the answers ask for, grouped by step. */
@@ -58,7 +58,7 @@ export function ClientDocuments() {
           <Card key={s.slug} className="p-5 sm:p-6">
             <div className="mb-2 flex items-center justify-between gap-3">
               <h2 className="display-tight flex items-center gap-3 text-[16px] font-semibold">
-                <IconTile icon={SECTION_ICON[s.slug]} size="sm" />
+                <IconTile icon={SECTION_ICON[s.slug]} size="sm" tone={SECTION_TONE[s.slug]} />
                 {tr(s.title)}
               </h2>
               <Link href={`/declaracion/${s.slug}`} className="text-sm font-semibold whitespace-nowrap text-accent">

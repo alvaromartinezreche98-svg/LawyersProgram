@@ -34,7 +34,7 @@ export function ClientResult() {
 
       {!r ? (
         <Card>
-          <EmptyState icon={FileCheck2} title={t.result.none} />
+          <EmptyState inset iconTone="green" icon={FileCheck2} title={t.result.none} />
         </Card>
       ) : (
         <Card className="overflow-clip">

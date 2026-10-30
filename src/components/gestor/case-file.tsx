@@ -23,6 +23,7 @@ import { useRemoteCase } from "@/lib/api/use-remote";
 import { API_MODE } from "@/lib/auth/config";
 import { alertsOf, triage } from "@/lib/gestor/triage";
 import { ResultPanel } from "./result-panel";
+import { DownloadAll } from "./download-all";
 import { AskButton, TaskPanel, isAsked } from "./task-panel";
 import { ActivityLog } from "./activity-log";
 import { SendChanges, hasSendChanges } from "./send-changes";
@@ -134,7 +135,7 @@ export function CaseFile({ id }: { id: string }) {
           <h2 className="mb-3 text-[13px] font-semibold text-muted">{t.file.properties}</h2>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:max-[1179px]:grid-cols-3 min-[1180px]:grid-cols-1">
             <Prop label={t.file.status}>
-              <select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(ev) => actions.setStatus(e.id, ev.target.value as Status)} className="h-(--control-h-sm) w-full rounded-md border border-line-strong bg-surface px-2.5 text-sm outline-hidden focus:border-focus focus:ring-1 focus:ring-focus">
+              <select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(ev) => actions.setStatus(e.id, ev.target.value as Status)} className="h-(--control-h-sm) w-full rounded-md border border-line-strong bg-surface px-2.5 text-sm outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
                 {STATUSES.map((s) => (
                   <option key={s.id} value={s.id}>
                     {tr(s.label)}
@@ -143,7 +144,7 @@ export function CaseFile({ id }: { id: string }) {
               </select>
             </Prop>
             <Prop label={t.list.assignee}>
-              <select aria-label={t.list.assignee} value={e.assignee ?? ""} onChange={(ev) => actions.assign(e.id, ev.target.value || null)} className="h-(--control-h-sm) w-full rounded-md border border-line-strong bg-surface px-2.5 text-sm outline-hidden focus:border-focus focus:ring-1 focus:ring-focus">
+              <select aria-label={t.list.assignee} value={e.assignee ?? ""} onChange={(ev) => actions.assign(e.id, ev.target.value || null)} className="h-(--control-h-sm) w-full rounded-md border border-line-strong bg-surface px-2.5 text-sm outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
                 <option value="">{t.list.unassigned}</option>
                 {firm.team.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -204,6 +205,11 @@ export function CaseFile({ id }: { id: string }) {
           <ButtonLink href={`/expedientes/${e.id}/vista-cliente`} size="sm" className="mt-4 w-full">
             {t.file.viewAsClient}
           </ButtonLink>
+          {(FEATURES.signing || FEATURES.resultApproval) && (
+            <ButtonLink href={`/expedientes/${e.id}/constancia`} size="sm" className="mt-2 w-full">
+              {t.extra.record.link}
+            </ButtonLink>
+          )}
           {e.example && <p className="mt-3 text-xs text-muted">{t.file.exampleNote}</p>}
           <p className="mt-4 hidden text-[11.5px] text-muted xl:block">{t.file.keys}</p>
           <div className="mt-6 flex flex-col gap-6 border-t border-line pt-5">
@@ -220,7 +226,7 @@ export function CaseFile({ id }: { id: string }) {
                   {a.obs}
                 </p>
               )}
-              <textarea id={"notes-" + e.id} rows={4} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="w-full resize-y rounded-md border border-line-strong bg-neutral-soft px-3 py-2 outline-hidden focus:border-focus focus:ring-1 focus:ring-focus" />
+              <textarea id={"notes-" + e.id} rows={4} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="w-full resize-y rounded-md border border-line-strong bg-neutral-soft px-3 py-2 outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15" />
             </Block>
           </div>
         </aside>
@@ -336,7 +342,7 @@ export function CaseFile({ id }: { id: string }) {
             </div>
           </Block>
 
-          <Block id="documentos" icon={FileText} title={t.file.docs} aside={t.file.docsAside(nDocs, nPend)}>
+          <Block id="documentos" icon={FileText} title={t.file.docs} aside={<span className="flex flex-wrap items-center gap-3">{t.file.docsAside(nDocs, nPend)}<DownloadAll exp={e} /></span>}>
             {docs.length ? (
               <div className="@container -mx-4 -my-4">
                 <div className="hidden grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto_minmax(0,1.2fr)] gap-4 border-b border-line bg-sunk px-4 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase @2xl:grid">
@@ -425,7 +431,7 @@ function Prop({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function NavBtn({ href, label, children }: { href: string | null; label: string; children: ReactNode }) {
-  const cls = "grid size-8 place-items-center rounded-lg border border-line text-sm";
+  const cls = "grid size-8 place-items-center rounded-lg border border-transparent bg-accent-soft text-sm text-accent";
   if (!href)
     return (
       <span className={cx(cls, "opacity-35")} aria-disabled="true" aria-label={label}>
@@ -433,7 +439,7 @@ function NavBtn({ href, label, children }: { href: string | null; label: string;
       </span>
     );
   return (
-    <Link href={href} aria-label={label} title={label} className={cx(cls, "hover:border-line-strong hover:bg-sunk")}>
+    <Link href={href} aria-label={label} title={label} className={cx(cls, "hover:bg-accent-soft-hover")}>
       {children}
     </Link>
   );
