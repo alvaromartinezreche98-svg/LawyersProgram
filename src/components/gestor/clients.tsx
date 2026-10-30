@@ -16,10 +16,11 @@ import { PageTitle } from "@/components/ui/app-shell";
 import { CopyField } from "@/components/ui/copy-field";
 import { QrCode } from "@/components/ui/qr-code";
 import { Button, ButtonLink, Card, CardTitle, Loading, Notice, Pill, StatusPill, cx } from "@/components/ui/primitives";
+import { PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
 import { inputCls } from "./settings/settings-layout";
 
-const AVATAR = ["bg-accent-soft text-accent", "bg-info-soft text-info", "bg-warn-soft text-warn", "bg-ok-soft text-ok"];
+const AVATAR = ["bg-accent text-accent-ink"];
 const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 
 /** Delivery 1 invitation links: they sign the client in on this browser (see access-screen). Older "/?…" links still forward to /acceso. */
@@ -63,19 +64,16 @@ function DemoClients() {
       <TopBar crumbs={[{ label: t.clients.title }]} />
       <div className="grid items-start gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-4">
-          <div>
-            <h1 className="display-tight text-[clamp(20px,2vw,24px)] font-semibold">{t.clients.title}</h1>
-            <p className="mt-1 max-w-[64ch] text-[14px] text-muted">{t.clients.intro}</p>
-          </div>
+          <PageHead title={t.clients.title} intro={t.clients.intro} />
           {created && <Notice tone="ok">{t.clients.created(created)}</Notice>}
 
           <div className="overflow-clip rounded-lg border border-line bg-surface">
-            <div className="hidden grid-cols-[minmax(0,1.4fr)_150px_130px_120px_auto] gap-4 border-b border-line bg-sunk px-4 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase md:grid">
+            <div className="hidden grid-cols-[minmax(0,1fr)_116px_120px_96px_156px] gap-4 border-b border-line bg-sunk px-4 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase md:grid">
               <span>{t.clients.cols.client}</span>
               <span>{t.clients.cols.status}</span>
               <span>{FEATURES.identityCheck ? t.clients.cols.identity : ""}</span>
               <span>{t.clients.cols.invited}</span>
-              <span className="w-[130px]" />
+              <span />
             </div>
             <ul>
               {list.map((e, i) => (
@@ -123,7 +121,7 @@ function ClientRow({ exp: e, i, origin, open, onToggle, locale }: { exp: Expedie
   const link = origin ? inviteLink(origin, e.id) : "";
   return (
     <li className="border-t border-line first:border-t-0">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3 md:grid-cols-[minmax(0,1.4fr)_150px_130px_120px_auto]">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3 md:grid-cols-[minmax(0,1fr)_116px_120px_96px_156px]">
         <div className="flex min-w-0 items-center gap-3">
           <span className={cx("grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-semibold", AVATAR[i % AVATAR.length])}>{initials(name)}</span>
           <span className="min-w-0">
@@ -140,7 +138,7 @@ function ClientRow({ exp: e, i, origin, open, onToggle, locale }: { exp: Expedie
           <Pill tone={e.identityConfirmedAt ? "ok" : "neutral"}>{e.identityConfirmedAt ? t.clients.identity.ok : t.clients.identity.no}</Pill>
         </span>
         <span className="figures hidden text-[12.5px] text-muted md:block">{fmtTime(e.createdAt, locale)}</span>
-        <Button size="sm" onClick={onToggle} aria-expanded={open} className="col-span-2 justify-self-start md:col-span-1 md:w-[130px]">
+        <Button size="sm" onClick={onToggle} aria-expanded={open} className="col-span-2 justify-self-start md:col-span-1 md:justify-self-end [&_svg]:shrink-0">
           <QrIcon size={14} aria-hidden="true" />
           {open ? t.clients.hide : t.clients.show}
           <ChevronDown size={14} className={cx("motion-safe:transition-[rotate] motion-safe:duration-200 motion-safe:ease-out", open && "rotate-180")} aria-hidden="true" />
@@ -246,17 +244,14 @@ function ApiClients() {
       <TopBar crumbs={[{ label: c.title }]} />
       <div className="grid items-start gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-4">
-          <div>
-            <h1 className="display-tight text-[clamp(20px,2vw,24px)] font-semibold">{c.title}</h1>
-            <p className="mt-1 max-w-[64ch] text-[14px] text-muted">{c.api.intro}</p>
-          </div>
+          <PageHead title={c.title} intro={c.api.intro} />
           {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
           {items === null ? (
             <Loading />
           ) : (
             <div className="overflow-clip rounded-lg border border-line bg-surface">
-              <div className="hidden grid-cols-[minmax(0,1.4fr)_150px_160px_100px_auto] gap-4 border-b border-line bg-sunk px-4 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase md:grid">
+              <div className="hidden grid-cols-[minmax(0,1fr)_116px_150px_96px_auto] gap-4 border-b border-line bg-sunk px-4 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase md:grid">
                 <span>{c.cols.client}</span>
                 <span>{c.cols.status}</span>
                 <span>{c.link}</span>
@@ -269,7 +264,7 @@ function ApiClients() {
                   const kase = x.cases[0];
                   const st = kase ? FROM_API_STATUS[kase.status as keyof typeof FROM_API_STATUS] : undefined;
                   return (
-                    <li key={x.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 md:grid-cols-[minmax(0,1.4fr)_150px_160px_100px_auto]">
+                    <li key={x.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 md:grid-cols-[minmax(0,1fr)_116px_150px_96px_auto]">
                       <div className="flex min-w-0 items-center gap-3">
                         <span className={cx("grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-semibold", AVATAR[i % AVATAR.length])}>{initials(x.display_name)}</span>
                         {kase ? (

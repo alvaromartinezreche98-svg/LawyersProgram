@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
 import { ButtonLink, EmptyState, Notice, Pill } from "@/components/ui/primitives";
+import { PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
 
 /** G6 · Cobros: what each case owes, what has been paid. */
@@ -24,13 +25,10 @@ export function Payments() {
       <PageTitle>{t.titles.cobros}</PageTitle>
       <TopBar crumbs={[{ label: t.cobros.title }]} />
       <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
-        <div>
-          <h1 className="display-tight text-[clamp(20px,2vw,24px)] font-semibold">{t.cobros.title}</h1>
-          <p className="mt-1 text-[14px] text-muted">{t.cobros.intro}</p>
-        </div>
+        <PageHead title={t.cobros.title} intro={t.cobros.intro} />
 
         {!configured ? (
-          <EmptyState iconTone="green" icon={Wallet} title={t.cobros.noFees}>
+          <EmptyState icon={Wallet} title={t.cobros.noFees}>
             <ButtonLink href="/ajustes/honorarios" size="sm" className="mt-2">
               {t.cobros.configure}
             </ButtonLink>

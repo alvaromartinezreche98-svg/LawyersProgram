@@ -724,6 +724,9 @@ export const va: Dict = {
         ["Signatura i conformitat", "El client signa els seus documents legals i dona la conformitat al resultat, amb constància de data i versió."],
         ["La seua marca i el seu domini", "Els seus clients entren en l'adreça de la seua gestoria i en veuen el nom i el logotip."],
       ],
+      featuresEyebrow: "Què inclou",
+      featuresTitle: "Tot el que la seua gestoria necessita per a la campanya",
+      carousel: { prev: "Anterior", next: "Següent", label: "Funcions de PreRenta" },
       startTitle: "Com començar",
       start: [
         ["Parle amb nosaltres", "Conte'ns com treballa la seua gestoria i quants clients atén en campanya."],

@@ -57,7 +57,7 @@ export function ClientAppointment() {
             <div className="grid gap-4 sm:grid-cols-[220px_minmax(0,1fr)]">
               <label className="flex flex-col gap-1.5 text-[14px] font-medium">
                 {t.cita.date}
-                <input type="date" min={today()} value={date} onChange={(e) => { setDate(e.target.value); setError(""); }} className="h-(--control-h) rounded-md border border-line-strong bg-surface px-3 font-normal outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15" />
+                <input type="date" min={today()} value={date} onChange={(e) => { setDate(e.target.value); setError(""); }} className="field h-(--control-h) w-auto font-normal" />
               </label>
               <div className="flex flex-col gap-1.5">
                 <span className="text-[14px] font-medium">{t.cita.slotLabel}</span>
@@ -72,7 +72,7 @@ export function ClientAppointment() {
             </div>
             <label className="flex flex-col gap-1.5 text-[14px] font-medium">
               {t.cita.note}
-              <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} className="resize-y rounded-md border border-line-strong bg-surface px-3 py-2 font-normal outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15" />
+              <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} className="field py-2 font-normal" />
             </label>
             {error && <Notice tone="bad">{error}</Notice>}
             {sent && <Notice tone="ok">{t.cita.sent}</Notice>}
@@ -87,7 +87,7 @@ export function ClientAppointment() {
       <Card className="p-5 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)] lg:mt-[92px]">
         <CardTitle>{t.cita.mine}</CardTitle>
         {list.length === 0 ? (
-          <EmptyState iconTone="rose" icon={CalendarDays} title={t.cita.none} />
+          <EmptyState icon={CalendarDays} title={t.cita.none} />
         ) : (
           <ul className="flex flex-col">
             {list.map((a) => (

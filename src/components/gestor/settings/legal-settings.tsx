@@ -82,7 +82,7 @@ function DocCard({ kind, icon }: { kind: LegalKind; icon: LucideIcon }) {
       {error && <Notice tone="bad">{error}</Notice>}
 
       <div className="flex flex-wrap items-center gap-2">
-        <label htmlFor={inputId} className={(doc ? "border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover" : "border-accent bg-accent text-accent-ink hover:bg-accent-hover") + " inline-flex h-(--control-h) cursor-pointer items-center gap-2 rounded-md border px-4 text-[14px] font-medium transition-colors"}>
+        <label htmlFor={inputId} className={(doc ? "border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover" : "btn-fx btn-fx-primary border-accent bg-accent text-accent-ink hover:bg-accent-hover") + " inline-flex h-(--control-h) cursor-pointer items-center gap-2 rounded-md border px-4 text-[14px] font-medium transition-colors"}>
           <Upload size={15} aria-hidden="true" />
           {busy ? t.upload.uploading : doc ? l.replace : l.upload}
         </label>

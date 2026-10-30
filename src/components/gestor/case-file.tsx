@@ -135,7 +135,7 @@ export function CaseFile({ id }: { id: string }) {
           <h2 className="mb-3 text-[13px] font-semibold text-muted">{t.file.properties}</h2>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:max-[1179px]:grid-cols-3 min-[1180px]:grid-cols-1">
             <Prop label={t.file.status}>
-              <select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(ev) => actions.setStatus(e.id, ev.target.value as Status)} className="h-(--control-h-sm) w-full rounded-md border border-line-strong bg-surface px-2.5 text-sm outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
+              <select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(ev) => actions.setStatus(e.id, ev.target.value as Status)} className="field h-(--control-h-sm) px-2.5 text-sm">
                 {STATUSES.map((s) => (
                   <option key={s.id} value={s.id}>
                     {tr(s.label)}
@@ -144,7 +144,7 @@ export function CaseFile({ id }: { id: string }) {
               </select>
             </Prop>
             <Prop label={t.list.assignee}>
-              <select aria-label={t.list.assignee} value={e.assignee ?? ""} onChange={(ev) => actions.assign(e.id, ev.target.value || null)} className="h-(--control-h-sm) w-full rounded-md border border-line-strong bg-surface px-2.5 text-sm outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
+              <select aria-label={t.list.assignee} value={e.assignee ?? ""} onChange={(ev) => actions.assign(e.id, ev.target.value || null)} className="field h-(--control-h-sm) px-2.5 text-sm">
                 <option value="">{t.list.unassigned}</option>
                 {firm.team.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -226,7 +226,7 @@ export function CaseFile({ id }: { id: string }) {
                   {a.obs}
                 </p>
               )}
-              <textarea id={"notes-" + e.id} rows={4} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="w-full resize-y rounded-md border border-line-strong bg-neutral-soft px-3 py-2 outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15" />
+              <textarea id={"notes-" + e.id} rows={4} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="field bg-neutral-soft py-2" />
             </Block>
           </div>
         </aside>

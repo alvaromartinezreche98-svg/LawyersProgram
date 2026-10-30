@@ -88,7 +88,7 @@ function TaskRow({ exp, task: x, onDone }: { exp: Expediente; task: ClientTask; 
             value={reply}
             onChange={(ev) => setReply(ev.target.value)}
             placeholder={t.tasks.replyPh}
-            className="h-(--control-h-sm) min-w-0 flex-1 rounded-md border border-line-strong bg-surface px-3 text-[14px] outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15"
+            className="field h-(--control-h-sm) min-w-0 flex-1 text-[14px]"
           />
           <div className="flex gap-2">
             <Button size="sm" type="submit" variant="primary">{t.tasks.confirmDone}</Button>
@@ -118,12 +118,12 @@ export function SectionTasks({ exp, section }: { exp: Expediente; section: strin
           <li key={x.id} className="flex flex-col items-start gap-2">
             <span className="text-[15px] leading-[22px]">{tr(x.text)}</span>
             {x.target?.field ? (
-              <a href={`#q-${x.target.field}${x.target.item ? `-${x.target.item}` : ""}`} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
+              <a href={`#q-${x.target.field}${x.target.item ? `-${x.target.item}` : ""}`} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
                 {t.home.goField}
                 <ArrowDown size={14} aria-hidden="true" />
               </a>
             ) : (
-              <Link href="/inicio" className="inline-flex h-(--control-h-sm) items-center rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
+              <Link href="/inicio" className="inline-flex h-(--control-h-sm) items-center rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
                 {t.tasks.markDone}
               </Link>
             )}

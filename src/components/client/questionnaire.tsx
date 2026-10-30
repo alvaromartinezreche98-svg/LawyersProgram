@@ -17,7 +17,7 @@ import { ReviewBlock } from "@/components/questionnaire/review-block";
 import { PageTitle } from "@/components/ui/app-shell";
 import { Button, Notice } from "@/components/ui/primitives";
 import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
-import { IconTile, SECTION_ICON, SECTION_TONE } from "@/components/ui/icons";
+import { IconTile, SECTION_ICON } from "@/components/ui/icons";
 import { useClientExp } from "./client-shell";
 import { SectionTasks } from "./client-tasks";
 
@@ -70,13 +70,13 @@ export function Questionnaire({ slug }: { slug: string }) {
         {/* Sheet head: where the client is, the save status, the step's title */}
         <header className="flex flex-col gap-1.5 border-b border-line px-4 pt-6 pb-5 sm:px-8 lg:px-10">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[12.5px] font-semibold tracking-[.04em] text-copper-text uppercase">
+            <span className="text-[12.5px] font-semibold tracking-[.04em] text-accent uppercase">
               {section ? t.q.sectionOf(SCHEMA.indexOf(section) + 1, SCHEMA.length) : isSign ? t.sign.short : t.q.review}
             </span>
             <SaveStatus idle={t.q.autosave} className="max-[959px]:hidden" />
           </div>
           <div className="flex items-center gap-3.5">
-            <IconTile icon={SECTION_ICON[slug] ?? ClipboardCheck} tone={SECTION_TONE[slug] ?? "accent"} size="lg" />
+            <IconTile icon={SECTION_ICON[slug] ?? ClipboardCheck} size="lg" />
             <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold">{title}</h1>
           </div>
         </header>

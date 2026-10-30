@@ -30,7 +30,7 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <PageTitle>{`${t.settings.nav[current.id]} · ${t.titles.settings}`}</PageTitle>
-      <TopBar crumbs={[{ label: t.settings.title, href: "/ajustes/despacho" }, { label: t.settings.nav[current.id] }]} right={<SaveStatus idle={t.settings.saved} className="hidden sm:block" />} />
+      <TopBar crumbs={[{ label: t.settings.title, href: "/ajustes/despacho" }, { label: t.settings.nav[current.id] }]} right={<SaveStatus idle={t.settings.saved} className="hidden sm:inline-flex" />} />
       <div className="grid items-start gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 lg:py-6">
         <nav aria-label={t.settings.navLabel} className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto lg:sticky lg:top-[72px] lg:mx-0 lg:flex-col">
           {SECTIONS.map((s) => {
@@ -64,14 +64,14 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
 export function SectionHead({ title, intro }: { title: string; intro: string }) {
   return (
     <div className="mb-5">
-      <h1 className="display-tight text-[20px] font-semibold">{title}</h1>
-      <p className="mt-1.5 max-w-[64ch] text-[14.5px] text-muted">{intro}</p>
+      <h1 className="text-[24px] leading-[30px] font-semibold tracking-[-0.01em]">{title}</h1>
+      <p className="mt-1 max-w-[68ch] text-[14px] leading-[21px] text-muted">{intro}</p>
     </div>
   );
 }
 
-export const inputCls =
-  "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-4 focus:ring-focus/15 disabled:bg-sunk disabled:text-muted";
+/** Workspace fields: the shared .field look (globals.css) at the workspace height. */
+export const inputCls = "field disabled:text-muted";
 
 /** Label + control, stacked. */
 export function Field({ id, label, hint, children, className }: { id: string; label: string; hint?: string; children: ReactNode; className?: string }) {

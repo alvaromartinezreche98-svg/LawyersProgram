@@ -7,10 +7,11 @@ import { CalendarClock, ChartNoAxesColumn, CircleAlert, Clock, FolderOpen, Messa
 import { actions, useAppState } from "@/lib/data/store";
 import { STATUSES, awaitingApproval, type Status } from "@/lib/data/types";
 import { daysUntil, needsAttention, sortCases, triage, type Triage } from "@/lib/gestor/triage";
-import { IconTile, type Tone } from "@/components/ui/icons";
+import { IconTile } from "@/components/ui/icons";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
 import { ProgressBar, cx } from "@/components/ui/primitives";
+import { PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
 import { DeadlineChips } from "./case-list";
 
@@ -45,16 +46,16 @@ export function CampaignBoard() {
       <PageTitle>{t.titles.board}</PageTitle>
       <TopBar crumbs={[{ label: t.board.title }]} />
       <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="display-tight text-[clamp(20px,2vw,24px)] font-semibold">{t.board.title}</h1>
-            <p className="mt-1 text-[14px] text-muted">{t.board.intro}</p>
-          </div>
-          <label className="flex items-center gap-2 text-[13.5px]">
-            <input type="checkbox" checked={only} onChange={(e) => setOnly(e.target.checked)} className="size-4 accent-[var(--accent)]" />
-            {t.board.onlyAttention}
-          </label>
-        </div>
+        <PageHead
+          title={t.board.title}
+          intro={t.board.intro}
+          actions={
+            <label className="flex items-center gap-2 text-[13.5px]">
+              <input type="checkbox" checked={only} onChange={(e) => setOnly(e.target.checked)} className="size-4 accent-[var(--accent)]" />
+              {t.board.onlyAttention}
+            </label>
+          }
+        />
         <CampaignStats all={all} filing={firm.campaign?.filing} />
         <DeadlineChips />
 
@@ -159,22 +160,22 @@ function CampaignStats({ all, filing }: { all: Triage[]; filing?: string }) {
   const k = t.extra.kpi;
   const avg = all.length ? Math.round(all.reduce((n, x) => n + x.pct, 0) / all.length) : 0;
   const left = filing ? daysUntil(filing) : null;
-  const tiles: { icon: LucideIcon; tone: Tone; label: string; value: string; href?: string; urgent?: boolean }[] = [
-    { icon: FolderOpen, tone: "blue", label: k.total, value: String(all.length), href: "/expedientes?vista=todos" },
-    { icon: Send, tone: "plum", label: k.toReview, value: String(all.filter((x) => x.exp.status === "enviado").length), href: "/expedientes?vista=todos&estado=enviado" },
-    { icon: Clock, tone: "amber", label: k.waitingClient, value: String(all.filter((x) => x.waiting === "cliente").length), href: "/expedientes?vista=cliente" },
-    { icon: SearchCheck, tone: "green", label: k.ready, value: String(all.filter((x) => x.exp.status === "listo").length), href: "/expedientes?vista=todos&estado=listo" },
-    { icon: ChartNoAxesColumn, tone: "teal", label: k.avg, value: `${avg} %` },
+  const tiles: { icon: LucideIcon; label: string; value: string; href?: string; urgent?: boolean }[] = [
+    { icon: FolderOpen, label: k.total, value: String(all.length), href: "/expedientes?vista=todos" },
+    { icon: Send, label: k.toReview, value: String(all.filter((x) => x.exp.status === "enviado").length), href: "/expedientes?vista=todos&estado=enviado" },
+    { icon: Clock, label: k.waitingClient, value: String(all.filter((x) => x.waiting === "cliente").length), href: "/expedientes?vista=cliente" },
+    { icon: SearchCheck, label: k.ready, value: String(all.filter((x) => x.exp.status === "listo").length), href: "/expedientes?vista=todos&estado=listo" },
+    { icon: ChartNoAxesColumn, label: k.avg, value: `${avg} %` },
     left === null
-      ? { icon: CalendarClock, tone: "rose", label: k.noDeadline, value: "—", href: FEATURES.firmSettings ? "/ajustes/campana" : undefined }
-      : { icon: CalendarClock, tone: "rose", label: k.deadline, value: left < 0 ? k.passed : k.days(left), urgent: left <= 7 },
+      ? { icon: CalendarClock, label: k.noDeadline, value: "—", href: FEATURES.firmSettings ? "/ajustes/campana" : undefined }
+      : { icon: CalendarClock, label: k.deadline, value: left < 0 ? k.passed : k.days(left), urgent: left <= 7 },
   ];
   return (
     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-6">
       {tiles.map((x) => {
         const body = (
           <>
-            <IconTile icon={x.icon} tone={x.tone} size="sm" />
+            <IconTile icon={x.icon} size="sm" />
             <span className="flex min-w-0 flex-col">
               <span className={cx("figures text-[22px] leading-7 font-semibold", x.urgent && "text-bad")}>{x.value}</span>
               <span className="truncate text-[13px] text-muted">{x.label}</span>

@@ -5,17 +5,19 @@ import type { ComponentProps, ReactNode } from "react";
 import { CircleAlert, CircleCheck, ClipboardList, Eye, Info, PencilLine, Send, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { Status } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
-import { IconTile, type Tone as IconTone } from "./icons";
+import { IconTile } from "./icons";
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
 /* ---------- Buttons ---------- */
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "inverse";
 type Size = "sm" | "md" | "lg";
 const BTN: Record<Variant, string> = {
-  primary: "border-accent bg-accent text-accent-ink hover:border-accent-hover hover:bg-accent-hover",
-  secondary: "border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover",
+  primary: "btn-fx-primary border-accent bg-accent text-accent-ink hover:border-accent-hover hover:bg-accent-hover",
+  secondary: "btn-fx-soft border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover",
+  // White on a navy band (footer, contact column).
+  inverse: "btn-fx-inverse border-white bg-white text-accent hover:border-accent-soft hover:bg-accent-soft",
   ghost: "border-transparent bg-transparent text-accent hover:bg-accent-soft",
   danger: "border-transparent bg-transparent text-bad hover:bg-bad-soft",
 };
@@ -26,8 +28,8 @@ const SIZE: Record<Size, string> = {
 };
 const btnClass = (variant: Variant, size: Size, extra?: string) =>
   cx(
-    // Press feedback: a slight scale on :active (motion-safe only), colour fades for everyone.
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md border font-medium whitespace-nowrap transition-colors motion-safe:transition-[color,background-color,border-color,scale] motion-safe:duration-150 motion-safe:ease-out motion-safe:active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100",
+    // Hover and press feedback come from .btn-fx (globals.css), shared with hand-made buttons.
+    "btn-fx inline-flex shrink-0 items-center justify-center gap-2 rounded-md border font-medium whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50",
     SIZE[size],
     BTN[variant],
     extra,
@@ -57,7 +59,7 @@ export function CardTitle({ children, aside }: { children: ReactNode; aside?: Re
 }
 
 export function Eyebrow({ children }: { children: ReactNode }) {
-  return <p className="text-[11.5px] font-semibold tracking-[.1em] text-copper-text uppercase">{children}</p>;
+  return <p className="text-[11.5px] font-semibold tracking-[.1em] text-accent uppercase">{children}</p>;
 }
 
 export function ProgressBar({ pct, className }: { pct: number; className?: string }) {
@@ -110,8 +112,8 @@ export function StatusPill({ status }: { status: Status }) {
 type NoticeTone = "info" | "ok" | "bad" | "warn" | "copper";
 const NOTICE_ICON: Record<NoticeTone, LucideIcon> = { info: Info, ok: CircleCheck, bad: CircleAlert, warn: TriangleAlert, copper: ClipboardList };
 
-const NOTICE_BG: Record<NoticeTone, string> = { info: "bg-info-soft", ok: "bg-ok-soft", bad: "bg-bad-soft", warn: "bg-warn-soft", copper: "bg-copper-soft" };
-const NOTICE_FG: Record<NoticeTone, string> = { info: "text-info", ok: "text-ok", bad: "text-bad", warn: "text-warn", copper: "text-copper-text" };
+const NOTICE_BG: Record<NoticeTone, string> = { info: "border border-line bg-surface shadow-[inset_3px_0_0_var(--accent)]", ok: "bg-ok-soft", bad: "bg-bad-soft", warn: "bg-warn-soft", copper: "bg-copper-soft" };
+const NOTICE_FG: Record<NoticeTone, string> = { info: "text-accent", ok: "text-ok", bad: "text-bad", warn: "text-warn", copper: "text-copper-text" };
 
 /**
  * Alert (design system › Feedback): chosen by meaning, an icon and, when it
@@ -151,10 +153,10 @@ export function Loading({ label }: { label?: string }) {
  * Empty state (design system › Feedback): why it is empty and what fills it, in a dashed frame.
  * `inset` when it already sits inside a bordered box (a card, a table): that box is the frame.
  */
-export function EmptyState({ icon: Icon, title, children, tone = "neutral", iconTone, inset }: { icon: LucideIcon; title: string; children?: ReactNode; tone?: "neutral" | "ok"; iconTone?: IconTone; inset?: boolean }) {
+export function EmptyState({ icon: Icon, title, children, tone = "neutral", inset }: { icon: LucideIcon; title: string; children?: ReactNode; tone?: "neutral" | "ok"; inset?: boolean }) {
   return (
     <div className={cx("flex flex-col items-start gap-2 p-6 text-muted", !inset && "rounded-xl border border-dashed border-line-strong")}>
-      <IconTile icon={Icon} tone={tone === "ok" ? "ok" : iconTone ?? "blue"} />
+      <IconTile icon={Icon} tone={tone === "ok" ? "ok" : "accent"} />
       <p className="text-[15px] font-semibold text-ink">{title}</p>
       {children && <div className="max-w-[52ch] text-[14px]">{children}</div>}
     </div>

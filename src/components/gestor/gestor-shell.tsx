@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Menu, Search, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, LogOut, Settings, UserPlus, Wallet, type LucideIcon } from "lucide-react";
-import { IconTile, routeTone } from "@/components/ui/icons";
+import { IconTile } from "@/components/ui/icons";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { actions, unreadFor, useAppState } from "@/lib/data/store";
 import { HTML_LANG, LANGS } from "@/lib/i18n";
@@ -62,7 +62,7 @@ export function GestorShell({ children }: { children: ReactNode }) {
       {open && <div className="fixed inset-0 z-40 bg-[var(--scrim)] lg:hidden" onClick={() => setOpen(false)} />}
       <aside
         className={cx(
-          "fixed inset-y-0 left-0 z-50 w-[272px] bg-paper-white motion-safe:transition-[translate] motion-safe:duration-250 motion-safe:ease-out lg:sticky lg:top-0 lg:z-40 lg:h-dvh lg:w-auto lg:translate-x-0 lg:bg-transparent lg:py-3 lg:pl-3 print:hidden",
+          "fixed inset-y-0 left-0 z-50 w-[272px] bg-chrome motion-safe:transition-[translate] motion-safe:duration-250 motion-safe:ease-out lg:sticky lg:top-0 lg:z-40 lg:h-dvh lg:w-auto lg:translate-x-0 lg:bg-transparent lg:py-3 lg:pl-3 print:hidden",
           open ? "translate-x-0 shadow-card" : "-translate-x-full",
         )}
       >
@@ -99,31 +99,31 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
   const firmName = firm.name.trim() || "Gestoría";
 
   return (
-    <nav aria-label={t.side.main} className="flex h-full flex-col lg:overflow-hidden lg:rounded-[14px] lg:border lg:border-line lg:bg-paper-white lg:shadow-sheet">
+    <nav aria-label={t.side.main} className="flex h-full flex-col bg-chrome text-chrome-ink [--focus:#a9c8ff] lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
       {/* Who is signed in: the gestoría, at the top. */}
-      <div className={cx("mx-3 flex items-center gap-3 border-b border-line px-2 pt-4 pb-4", compact && "lg:mx-2 lg:justify-center lg:px-0")}>
-        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-accent text-[13px] font-bold text-accent-ink" title={compact ? firmName : undefined} aria-hidden={!compact}>
+      <div className={cx("mx-3 flex items-center gap-3 border-b border-chrome-line px-2 pt-4 pb-4", compact && "lg:mx-2 lg:justify-center lg:px-0")}>
+        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[inset_0_-3px_0_var(--copper)]" title={compact ? firmName : undefined} aria-hidden={!compact}>
           {firmName[0].toUpperCase()}
         </span>
         <span className={cx("min-w-0 flex-1", compact && "lg:sr-only")}>
           <span className="block truncate text-[14.5px] font-semibold">{firmName}</span>
-          <span className="block truncate text-[11.5px] text-muted">PreRenta · {t.common.taxYear(EJERCICIO)}</span>
+          <span className="block truncate text-[11.5px] text-chrome-muted">PreRenta · {t.common.taxYear(EJERCICIO)}</span>
         </span>
-        <button type="button" aria-label={t.side.closeMenu} onClick={onNavigate} className="px-2 text-xl text-muted lg:hidden">
+        <button type="button" aria-label={t.side.closeMenu} onClick={onNavigate} className="px-2 text-xl text-chrome-muted lg:hidden">
           ×
         </button>
       </div>
 
       <div className={cx("flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pt-4 pb-3", compact && "lg:px-2")}>
-        <button type="button" onClick={onSearch} title={compact ? `${t.extra.search.open} · Ctrl K` : undefined} className={cx("mb-3 flex h-9 items-center gap-2.5 rounded-lg border border-line bg-surface px-2.5 text-left text-[13.5px] text-muted shadow-field transition-colors hover:border-line-strong hover:text-ink", compact && "lg:justify-center lg:px-0")}>
+        <button type="button" onClick={onSearch} title={compact ? `${t.extra.search.open} · Ctrl K` : undefined} className={cx("mb-3 flex h-9 items-center gap-2.5 rounded-lg border border-chrome-line bg-chrome-hover px-2.5 text-left text-[13.5px] text-chrome-muted transition-colors hover:bg-chrome-active hover:text-chrome-ink", compact && "lg:justify-center lg:px-0")}>
           <Search size={15} strokeWidth={2} className="shrink-0" aria-hidden="true" />
           <span className={cx("flex-1", compact && "lg:sr-only")}>{t.extra.search.open}</span>
-          <kbd className={cx("rounded border border-line px-1 font-mono text-[10.5px]", compact && "lg:hidden")}>Ctrl K</kbd>
+          <kbd className={cx("rounded border border-chrome-line px-1 font-mono text-[10.5px]", compact && "lg:hidden")}>Ctrl K</kbd>
         </button>
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-1.5">
           <li>
             <Link href="/expedientes" onClick={onNavigate} title={compact ? t.nav.cases : undefined} aria-current={inCases ? "page" : undefined} className={cx(item(inCases), "relative")}>
-              <IconTile icon={Inbox} size="xs" tone={routeTone("/expedientes")} />
+              <IconTile icon={Inbox} size="xs" tone={inCases ? "copperSolid" : "chrome"} />
               {label(t.nav.cases)}
               <span className={cx(compact && "lg:absolute lg:-top-1 lg:right-1")}><Badge n={unread} /></span>
             </Link>
@@ -131,7 +131,7 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
           {live.map(([LiveIcon, text, href]) => (
             <li key={href}>
               <Link href={href} onClick={onNavigate} title={compact ? text : undefined} aria-current={path.startsWith(href) ? "page" : undefined} className={item(path.startsWith(href))}>
-                <IconTile icon={LiveIcon} size="xs" tone={routeTone(href)} />
+                <IconTile icon={LiveIcon} size="xs" tone={path.startsWith(href) ? "copperSolid" : "chrome"} />
                 {label(text)}
               </Link>
             </li>
@@ -139,21 +139,21 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
         </ul>
 
         {/* Account: settings, language and sign-out, under a divider. */}
-        <ul className="mt-auto flex flex-col gap-1 border-t border-line pt-3">
+        <ul className="mt-auto flex flex-col gap-1.5 border-t border-chrome-line pt-4">
           {FEATURES.firmSettings && (
             <li>
               <Link href="/ajustes/despacho" onClick={onNavigate} title={compact ? t.side.settings : undefined} aria-current={inSettings ? "page" : undefined} className={item(inSettings)}>
-                <IconTile icon={Settings} size="xs" tone="neutral" />
+                <IconTile icon={Settings} size="xs" tone={inSettings ? "copperSolid" : "chrome"} />
                 {label(t.side.settings)}
               </Link>
             </li>
           )}
           <li>
-            <span className={cx(item(false), "cursor-default text-disabled opacity-70 hover:bg-transparent hover:text-disabled hover:ring-0")} aria-disabled="true" title={compact ? `${t.side.invite} · ${t.side.soon}` : undefined}>
-              <IconTile icon={UserPlus} size="xs" tone="neutral" />
+            <span className={cx(item(false), "cursor-default opacity-60 hover:bg-transparent hover:text-chrome-muted")} aria-disabled="true" title={compact ? `${t.side.invite} · ${t.side.soon}` : undefined}>
+              <IconTile icon={UserPlus} size="xs" tone="chrome" />
               <span className={cx("flex-1 leading-[18px]", compact && "lg:sr-only")}>
                 {t.side.invite}{" "}
-                <span className="ml-0.5 inline-block rounded-sm bg-sunk px-1.5 align-[1px] text-[10.5px] leading-4 font-medium tracking-wide text-muted">{t.side.soon}</span>
+                <span className="ml-0.5 inline-block rounded-sm bg-chrome-tile px-1.5 align-[1px] text-[10.5px] leading-4 font-medium tracking-wide text-chrome-muted">{t.side.soon}</span>
               </span>
             </span>
           </li>
@@ -162,7 +162,7 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
           </li>
           <li>
             <button type="button" onClick={signOut} title={compact ? t.common.signOut : "Alt ⇧ Q"} className={cx(item(false), "w-full text-left")}>
-              <IconTile icon={LogOut} size="xs" tone="neutral" />
+              <IconTile icon={LogOut} size="xs" tone="chrome" />
               {label(t.common.signOut)}
             </button>
           </li>
@@ -184,10 +184,10 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
   return (
     <>
       <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} title={compact ? `${t.common.language}: ${cur.label}` : undefined} className={cx(item(false), "w-full text-left")}>
-        <IconTile icon={Languages} size="xs" tone="neutral" />
+        <IconTile icon={Languages} size="xs" tone="chrome" />
         <span className={cx("flex-1", compact && "lg:sr-only")}>{t.common.language}</span>
-        <span className={cx("text-[13px] font-normal text-muted", compact && "lg:hidden")}>{cur.label}</span>
-        <ChevronDown size={14} className={cx("shrink-0 text-muted transition-transform", open && "rotate-180", compact && "lg:hidden")} aria-hidden="true" />
+        <span className={cx("text-[13px] font-normal text-chrome-muted", compact && "lg:hidden")}>{cur.label}</span>
+        <ChevronDown size={14} className={cx("shrink-0 text-chrome-muted transition-transform", open && "rotate-180", compact && "lg:hidden")} aria-hidden="true" />
       </button>
       {open && (
         <ul role="group" aria-label={t.common.language} className={cx("mt-0.5 mb-1 ml-10 flex flex-col gap-0.5", compact && "lg:ml-0")}>
@@ -200,11 +200,11 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
                   aria-pressed={on}
                   onClick={() => actions.setLang(l.id)}
                   title={compact ? l.label : undefined}
-                  className={cx("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13.5px] transition", on ? "bg-bg font-semibold text-ink ring-1 ring-line ring-inset" : "text-muted hover:bg-bg/70 hover:text-ink", compact && "lg:justify-center lg:px-0")}
+                  className={cx("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13.5px] transition", on ? "bg-chrome-active font-semibold text-chrome-ink" : "text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink", compact && "lg:justify-center lg:px-0")}
                 >
                   <span className={cx("flex-1", compact && "lg:hidden")}>{l.label}</span>
                   <span className={cx("hidden text-[11.5px] font-semibold", compact && "lg:inline")}>{l.short}</span>
-                  {on && <Check size={14} className={cx("shrink-0 text-accent", compact && "lg:hidden")} aria-hidden="true" />}
+                  {on && <Check size={14} className={cx("shrink-0 text-chrome-mark", compact && "lg:hidden")} aria-hidden="true" />}
                 </button>
               </li>
             );
@@ -216,7 +216,7 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
 }
 
 const itemCls = (on: boolean) =>
-  cx("flex min-h-10 items-center gap-3 rounded-lg px-2 py-1.5 text-[14px] transition-colors", on ? "bg-bg font-semibold text-ink ring-1 ring-line ring-inset" : "font-medium text-muted hover:bg-bg/70 hover:text-ink");
+  cx("flex min-h-11 items-center gap-3 rounded-lg px-2.5 py-1.5 text-[14.5px] transition-colors", on ? "bg-chrome-active font-semibold text-chrome-ink shadow-[inset_3px_0_0_var(--chrome-mark)]" : "font-medium text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink");
 
 
 /** Sticky header inside the content panel: breadcrumbs on the left, actions on the right. */

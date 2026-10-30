@@ -8,7 +8,6 @@ import { progressOf, sectionState, type SectionState } from "@/lib/questionnaire
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { cx } from "@/components/ui/primitives";
 import { SegMeter, StepDot } from "@/components/ui/progress";
-import { SECTION_TONE } from "@/components/ui/icons";
 
 /**
  * Left rail of the questionnaire (design system › Progress): sections counted
@@ -88,10 +87,10 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
 
       <div className={cx("max-[959px]:mt-2 max-[959px]:max-h-[60dvh] max-[959px]:overflow-y-auto", open ? "block" : "max-[959px]:hidden")}>
         <ol className="flex flex-col gap-0.5">
-          {sections.map((s, i) => row(s.slug, s.short, <StepDot n={i + 1} state={s.st as SectionState} tone={SECTION_TONE[s.slug]} />, stateText(s), requested?.has(s.slug)))}
+          {sections.map((s, i) => row(s.slug, s.short, <StepDot n={i + 1} state={s.st as SectionState} tone="accent" />, stateText(s), requested?.has(s.slug)))}
         </ol>
         <ul className="mt-2 flex flex-col gap-0.5 border-t border-line pt-2">
-          {signDone !== undefined && row(SIGN_SLUG, t.sign.short, <StepDot state={signDone ? "done" : "none"} icon={PenLine} tone={SECTION_TONE[SIGN_SLUG]} />, signDone ? t.sectionState.done : "")}
+          {signDone !== undefined && row(SIGN_SLUG, t.sign.short, <StepDot state={signDone ? "done" : "none"} icon={PenLine} tone="accent" />, signDone ? t.sectionState.done : "")}
           {row(REVIEW_SLUG, t.q.review, <StepDot state="none" icon={Send} tone="accent" />)}
         </ul>
       </div>

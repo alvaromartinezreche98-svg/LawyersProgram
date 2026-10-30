@@ -1,18 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Building2, Check, LogIn, Mail, MapPin, UserRound, type LucideIcon } from "lucide-react";
 import { COMPANY, type CompanyKey } from "@/lib/company";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { Notice, cx } from "@/components/ui/primitives";
+import { ButtonLink, Notice, cx } from "@/components/ui/primitives";
 import { PublicShell } from "./public-shell";
 
 type Kind = "gestoria" | "cliente" | "otro";
 
-export const field =
-  "h-(--control-h-lg) w-full rounded-md border border-line-strong bg-surface px-4 text-[16px] outline-hidden transition-colors placeholder:text-disabled hover:border-muted focus:border-focus focus:ring-4 focus:ring-focus/15";
+export const field = "field h-(--control-h-lg) text-[16px]";
 
 /**
  * P6 · Contacto, editorial layout: the introduction and the form carry the
@@ -58,7 +56,7 @@ export function ContactPage() {
         {/* Introduction and form: the main column */}
         <div className="flex min-w-0 flex-col">
           <header className="border-b border-line pb-10">
-            <p className="text-[12.5px] font-semibold tracking-[.14em] text-copper-text uppercase">{c.eyebrow}</p>
+            <p className="text-[12.5px] font-semibold tracking-[.14em] text-accent uppercase">{c.eyebrow}</p>
             <h1 className="display-serif mt-4 text-[clamp(44px,6vw,72px)] leading-[0.98] font-semibold tracking-[-0.02em]">{c.title}</h1>
             <p className="mt-6 max-w-[48ch] text-[17px] leading-[27px] text-muted">{c.intro}</p>
           </header>
@@ -99,17 +97,17 @@ export function ContactPage() {
               </Labeled>
             )}
             <Labeled id="ct-msg" label={c.message}>
-              <textarea id="ct-msg" required rows={6} value={msg} onChange={(e) => setMsg(e.target.value)} className={cx(field, "h-auto min-h-40 resize-y py-3 leading-[24px]")} />
+              <textarea id="ct-msg" required rows={6} value={msg} onChange={(e) => setMsg(e.target.value)} className={cx(field, "h-auto min-h-40")} />
             </Labeled>
 
             <div className="flex flex-col-reverse gap-5 border-t border-line pt-7 sm:flex-row sm:items-center sm:justify-between">
               <p className="max-w-[46ch] text-[13px] leading-5 text-muted">{c.privacy}</p>
               <button
                 type="submit"
-                className="group inline-flex h-(--control-h-lg) shrink-0 items-center justify-center gap-3 rounded-md bg-accent px-7 text-[16px] font-semibold text-accent-ink transition-colors hover:bg-accent-hover"
+                className="btn-fx btn-fx-primary group inline-flex h-(--control-h-lg) shrink-0 items-center justify-center gap-3 rounded-md bg-accent px-7 text-[16px] font-semibold text-accent-ink transition-colors hover:bg-accent-hover"
               >
                 {c.send}
-                <ArrowRight size={18} aria-hidden="true" className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-1" />
+                <ArrowRight size={18} aria-hidden="true" />
               </button>
             </div>
             {unavailable && <Notice tone="info">{c.unavailable}</Notice>}
@@ -119,24 +117,27 @@ export function ContactPage() {
 
         {/* Company details: an editorial navy column */}
         <aside className="rounded-xl bg-[var(--band)] px-7 py-9 text-[var(--band-ink)] [--focus:#a9c8ff] sm:px-9 lg:sticky lg:top-24">
-          <p className="text-[12px] font-semibold tracking-[.14em] text-[var(--band-copper)] uppercase">{c.details}</p>
+          <p className="text-[12px] font-semibold tracking-[.14em] text-[var(--band-muted)] uppercase">{c.details}</p>
           <dl className="mt-6">
-            <Detail label={c.company}>{COMPANY.name || <PendingOnDark k="name" />}</Detail>
-            <Detail label={c.email}>
+            <Detail icon={Building2} label={c.company}>{COMPANY.name || <PendingOnDark k="name" />}</Detail>
+            <Detail icon={Mail} label={c.email}>
               {COMPANY.email ? <a href={`mailto:${COMPANY.email}`} className="underline-offset-4 hover:underline">{COMPANY.email}</a> : <PendingOnDark k="email" />}
             </Detail>
-            <Detail label={c.address}>{COMPANY.address || <PendingOnDark k="address" />}</Detail>
+            <Detail icon={MapPin} label={c.address}>{COMPANY.address || <PendingOnDark k="address" />}</Detail>
           </dl>
-          <div className="mt-10 border-t border-[var(--band-line)] pt-8">
-            <p className="display-serif text-[22px] leading-7 font-semibold">{c.clientsTitle}</p>
-            <p className="mt-2 text-[15px] leading-6 text-[var(--band-muted)]">{c.clientsBox}</p>
-            <Link
-              href="/acceso"
-              className="group mt-5 inline-flex h-(--control-h) items-center gap-2.5 rounded-md border border-[var(--band-ink)]/40 px-5 text-[15px] font-semibold transition-colors hover:border-[var(--band-ink)] hover:bg-[var(--band-ink)] hover:text-[var(--band)]"
-            >
+          <div className="mt-8 flex flex-col items-start gap-4 rounded-lg bg-[var(--chrome-hover)] p-5 ring-1 ring-[var(--band-line)] ring-inset">
+            <span className="grid size-11 place-items-center rounded-lg bg-white text-accent" aria-hidden="true">
+              <UserRound size={22} strokeWidth={2.1} />
+            </span>
+            <div>
+              <p className="display-serif text-[22px] leading-7 font-semibold">{c.clientsTitle}</p>
+              <p className="mt-1.5 text-[15px] leading-6 text-[var(--band-muted)]">{c.clientsBox}</p>
+            </div>
+            <ButtonLink href="/acceso" variant="inverse">
+              <LogIn size={16} aria-hidden="true" />
               {t.pub.nav.signIn}
-              <ArrowRight size={16} aria-hidden="true" className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-1" />
-            </Link>
+              <ArrowRight size={16} aria-hidden="true" />
+            </ButtonLink>
           </div>
         </aside>
       </div>
@@ -153,11 +154,14 @@ export function Labeled({ id, label, children }: { id: string; label: string; ch
   );
 }
 
-function Detail({ label, children }: { label: string; children: ReactNode }) {
+function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-1 border-t border-[var(--band-line)] py-4 first:border-t-0 first:pt-0">
+    <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 border-t border-[var(--band-line)] py-4 first:border-t-0 first:pt-0">
+      <span className="row-span-2 grid size-10 place-items-center rounded-lg bg-[var(--chrome-tile)] text-white" aria-hidden="true">
+        <Icon size={19} strokeWidth={2.1} />
+      </span>
       <dt className="text-[12px] tracking-[.06em] text-[var(--band-muted)] uppercase">{label}</dt>
-      <dd className="text-[17px] leading-6 break-words">{children}</dd>
+      <dd className="mt-0.5 text-[17px] leading-6 break-words">{children}</dd>
     </div>
   );
 }

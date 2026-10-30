@@ -5,7 +5,7 @@ import { ArrowRight, CalendarCheck, ClipboardList, LayoutDashboard, QrCode, Tria
 import { COMPANY } from "@/lib/company";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { HUES, IconTile } from "@/components/ui/icons";
+import { IconTile } from "@/components/ui/icons";
 import { Notice, cx } from "@/components/ui/primitives";
 import { Labeled, field } from "./contact-page";
 import { PublicShell } from "./public-shell";
@@ -50,7 +50,7 @@ export function DemoPage() {
       <div className="mx-auto grid w-full max-w-[1200px] items-start gap-x-16 gap-y-12 px-4 pt-14 pb-20 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:pt-20">
         <div className="flex min-w-0 flex-col">
           <header className="border-b border-line pb-10">
-            <p className="text-[12.5px] font-semibold tracking-[.14em] text-copper-text uppercase">{c.eyebrow}</p>
+            <p className="text-[12.5px] font-semibold tracking-[.14em] text-accent uppercase">{c.eyebrow}</p>
             <h1 className="display-serif mt-4 text-[clamp(40px,5.4vw,64px)] leading-[1] font-semibold tracking-[-0.02em]">{c.title}</h1>
             <p className="mt-6 max-w-[48ch] text-[17px] leading-[27px] text-muted">{c.intro}</p>
           </header>
@@ -82,9 +82,9 @@ export function DemoPage() {
 
             <div className="flex flex-col-reverse gap-5 border-t border-line pt-7 sm:flex-row sm:items-center sm:justify-between">
               <p className="max-w-[46ch] text-[13px] leading-5 text-muted">{pc.privacy}</p>
-              <button type="submit" className="group inline-flex h-(--control-h-lg) shrink-0 items-center justify-center gap-3 rounded-md bg-accent px-7 text-[16px] font-semibold text-accent-ink transition-colors hover:bg-accent-hover">
+              <button type="submit" className="btn-fx btn-fx-primary group inline-flex h-(--control-h-lg) shrink-0 items-center justify-center gap-3 rounded-md bg-accent px-7 text-[16px] font-semibold text-accent-ink transition-colors hover:bg-accent-hover">
                 {c.send}
-                <ArrowRight size={18} aria-hidden="true" className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-1" />
+                <ArrowRight size={18} aria-hidden="true" />
               </button>
             </div>
             {unavailable && <Notice tone="info">{pc.unavailable}</Notice>}
@@ -95,13 +95,13 @@ export function DemoPage() {
         {/* What the demo covers */}
         <aside className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-7 shadow-sheet lg:sticky lg:top-24">
           <p className="flex items-center gap-3">
-            <IconTile icon={CalendarCheck} tone="teal" />
+            <IconTile icon={CalendarCheck} />
             <span className="display-serif text-[22px] leading-7 font-semibold">{c.seeTitle}</span>
           </p>
           <ul className="flex flex-col gap-4">
             {c.see.map((x, i) => (
               <li key={x} className="flex items-start gap-3 text-[15px] leading-6">
-                <IconTile icon={SEE_ICONS[i]} tone={HUES[i % HUES.length]} size="xs" className="mt-0.5" />
+                <IconTile icon={SEE_ICONS[i]} size="xs" className="mt-0.5" />
                 {x}
               </li>
             ))}

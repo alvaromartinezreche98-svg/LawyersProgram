@@ -13,7 +13,7 @@ import { Button, Notice, cx } from "./primitives";
 export function SaveStatus({ idle, className }: { idle: string; className?: string }) {
   const { save } = useAppState();
   const { t, locale } = useI18n();
-  const base = "inline-flex items-center gap-1.5 text-[13px] leading-[18px]";
+  const base = "inline-flex shrink-0 flex-row items-center gap-1.5 whitespace-nowrap text-[13px] leading-[18px]";
   if (save.status === "failed")
     return (
       <span role="alert" className={cx(base, "font-medium text-bad", className)}>

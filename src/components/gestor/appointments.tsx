@@ -8,12 +8,13 @@ import type { Appointment, Expediente } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDate, fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
-import { Button, EmptyState, Pill, cx } from "@/components/ui/primitives";
+import { Button, EmptyState, Pill } from "@/components/ui/primitives";
 import { AP_TONE } from "@/components/client/client-appointment";
+import { Chip, Chips, PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
 
 type Filter = "solicitada" | "confirmada" | "all";
-const ctl = "h-(--control-h-sm) rounded-md border border-line-strong bg-surface px-2 text-[13px] outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15";
+const ctl = "field w-auto h-(--control-h-sm) text-[13px]";
 
 /** G5 · Citas: requests from every case; confirm with a time and an accountant, or cancel. */
 export function Appointments() {
@@ -29,21 +30,17 @@ export function Appointments() {
       <PageTitle>{t.titles.citas}</PageTitle>
       <TopBar crumbs={[{ label: t.citas.title }]} />
       <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
-        <div>
-          <h1 className="display-tight text-[clamp(20px,2vw,24px)] font-semibold">{t.citas.title}</h1>
-          <p className="mt-1 text-[14px] text-muted">{t.citas.intro}</p>
-        </div>
-        <div role="group" aria-label={t.citas.title} className="flex gap-0.5 self-start rounded-md border border-line bg-sunk p-0.5">
+        <PageHead title={t.citas.title} intro={t.citas.intro} />
+        <Chips label={t.citas.title}>
           {(["solicitada", "confirmada", "all"] as const).map((f) => (
-            <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)} className={cx("flex h-(--control-h-sm) items-center gap-1.5 rounded-sm px-2.5 text-[13px] font-medium", filter === f ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink")}>
+            <Chip key={f} on={filter === f} count={count(f)} alert={f === "solicitada"} onClick={() => setFilter(f)}>
               {t.citas.filter[f]}
-              <span className="figures text-[11.5px] text-muted">{count(f)}</span>
-            </button>
+            </Chip>
           ))}
-        </div>
+        </Chips>
         <div className="overflow-clip rounded-lg border border-line bg-surface">
           {shown.length === 0 ? (
-            <EmptyState inset iconTone="rose" icon={CalendarDays} title={t.citas.none} />
+            <EmptyState inset icon={CalendarDays} title={t.citas.none} />
           ) : (
             <ul>
               {shown.map(({ e, a }) => (

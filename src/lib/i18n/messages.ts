@@ -723,6 +723,9 @@ const es = {
         ["Firma y conformidad", "El cliente firma sus documentos legales y da su conformidad al resultado, con constancia de fecha y versión."],
         ["Su marca y su dominio", "Sus clientes entran en la dirección de su gestoría y ven su nombre y su logo."],
       ] as [string, string][],
+      featuresEyebrow: "Qué incluye",
+      featuresTitle: "Todo lo que su gestoría necesita para la campaña",
+      carousel: { prev: "Anterior", next: "Siguiente", label: "Funciones de PreRenta" },
       startTitle: "Cómo empezar",
       start: [
         ["Hable con nosotros", "Cuéntenos cómo trabaja su gestoría y cuántos clientes atiende en campaña."],
@@ -1634,6 +1637,9 @@ const en: Dict = {
         ["Signing and approval", "The client signs your legal documents and approves the result, recorded with the date and version."],
         ["Your brand and your domain", "Your clients sign in at your gestoría’s address and see your name and logo."],
       ],
+      featuresEyebrow: "What's included",
+      featuresTitle: "Everything your gestoría needs for the campaign",
+      carousel: { prev: "Previous", next: "Next", label: "PreRenta features" },
       startTitle: "How to get started",
       start: [
         ["Talk to us", "Tell us how your gestoría works and how many clients you handle in the campaign."],

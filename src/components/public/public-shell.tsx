@@ -67,7 +67,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
               <FooterLinks title={t.pub.footer.legal} links={LEGAL_DOCS.map((d) => ({ href: `/legal/${d.slug}`, label: tr(d.title) }))} />
               {(firmName || firm.phone || firm.email || firm.address) && (
                 <div className="col-span-2 flex flex-col gap-2 border-t border-[var(--band-line)] pt-6 text-[14px]">
-                  <h2 className="text-[11.5px] font-semibold tracking-[.14em] text-[var(--band-copper)] uppercase">{t.pub.footer.firmLabel}</h2>
+                  <h2 className="text-[11.5px] font-semibold tracking-[.14em] text-[var(--band-muted)] uppercase">{t.pub.footer.firmLabel}</h2>
                   {firmName && <span className="text-[16px] font-semibold">{firmName}</span>}
                   <span className="flex flex-wrap gap-x-5 gap-y-1 text-[var(--band-muted)]">
                     {firm.phone && <a href={`tel:${firm.phone.replace(/\s+/g, "")}`} className="hover:text-[var(--band-ink)] hover:underline">{firm.phone}</a>}
@@ -99,11 +99,11 @@ export function PublicShell({ children }: { children: ReactNode }) {
 function FooterLinks({ title, links }: { title: string; links: { href: string; label: string }[] }) {
   return (
     <nav aria-label={title} className="flex flex-col gap-4">
-      <h2 className="text-[11.5px] font-semibold tracking-[.14em] text-[var(--band-copper)] uppercase">{title}</h2>
+      <h2 className="text-[11.5px] font-semibold tracking-[.14em] text-[var(--band-muted)] uppercase">{title}</h2>
       <ul className="flex flex-col gap-2.5 text-[15px]">
         {links.map((l) => (
           <li key={l.href}>
-            <Link href={l.href} className="text-[var(--band-ink)] underline-offset-4 transition-colors hover:text-[var(--band-copper)] hover:underline">
+            <Link href={l.href} className="text-[var(--band-ink)] underline-offset-4 transition-colors hover:text-[var(--band-ink)] hover:underline hover:underline">
               {l.label}
             </Link>
           </li>

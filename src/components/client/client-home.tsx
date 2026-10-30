@@ -92,7 +92,8 @@ export function ClientHome() {
       <PageTitle>{t.titles.home}</PageTitle>
 
       <header className="flex flex-col gap-1.5">
-        <p className="text-[13px] font-semibold tracking-[.04em] text-copper-text uppercase">
+        <p className="flex items-center gap-2.5 text-[13px] font-semibold tracking-[.06em] text-accent uppercase">
+          <span className="h-[3px] w-6 rounded-full bg-copper" aria-hidden="true" />
           {t.home.eyebrow(exp.ejercicio)} · {firmName}
         </p>
         <h1 className="display-serif text-[clamp(28px,3vw,36px)] leading-tight font-semibold">{first ? t.home.hello(first) : t.titles.home}</h1>
@@ -256,14 +257,14 @@ function FirmLogo({ mark }: { mark: string }) {
   if (url)
     // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
     return <img src={url} alt="" className="size-10 shrink-0 rounded-md border border-line object-contain" />;
-  return <span className="grid size-10 shrink-0 place-items-center rounded-md border border-dashed border-line-strong text-[12px] font-semibold text-muted" aria-hidden="true">{mark}</span>;
+  return <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[inset_0_-3px_0_var(--copper)]" aria-hidden="true">{mark}</span>;
 }
 
 const TASK_ICON: Record<Kind, string> = {
   approval: "bg-accent text-accent-ink",
   request: "bg-copper-soft text-copper-text",
-  message: "bg-plum-soft text-plum",
-  plain: "bg-teal-soft text-teal",
+  message: "bg-icon-soft text-icon",
+  plain: "bg-icon-soft text-icon",
   sent: "bg-info-soft text-info",
   resolved: "bg-ok-soft text-ok",
 };

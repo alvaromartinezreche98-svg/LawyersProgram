@@ -14,6 +14,7 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDate, fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
 import { Button, ButtonLink, EmptyState, StatusPill, cx } from "@/components/ui/primitives";
+import { Chip, Chips, PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
 
 const str = (v: unknown) => (typeof v === "string" ? v : "");
@@ -110,49 +111,45 @@ export function CaseList() {
   return (
     <>
       <PageTitle>{t.titles.cases}</PageTitle>
-      <TopBar crumbs={crumb ? [{ label: t.list.title, href: "/expedientes" }, { label: crumb }] : [{ label: t.list.title }]} right={<span className="text-xs text-muted">{t.list.eyebrow(EJERCICIO)}</span>} />
+      <TopBar crumbs={crumb ? [{ label: t.list.title, href: "/expedientes" }, { label: crumb }] : [{ label: t.list.title }]} />
 
       <div className="flex flex-col gap-5 px-4 py-5 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-[12px] font-semibold tracking-[.04em] text-copper-text uppercase">{t.list.eyebrow(EJERCICIO)}</p>
-            <h1 className="display-serif mt-1 text-[clamp(24px,2.4vw,28px)] font-semibold">{t.list.title}</h1>
-          </div>
-          <ButtonLink href="/clientes" size="sm">
-            <UserPlus size={15} aria-hidden="true" />
-            {t.list.invite}
-          </ButtonLink>
-        </div>
+        <PageHead
+          eyebrow={t.list.eyebrow(EJERCICIO)}
+          title={t.list.title}
+          actions={
+            <ButtonLink href="/clientes" size="sm">
+              <UserPlus size={15} aria-hidden="true" />
+              {t.list.invite}
+            </ButtonLink>
+          }
+        />
 
         {FEATURES.campaignBoard && <DeadlineChips />}
 
         {/* Toolbar: who we are waiting on first, then search, status and order; it wraps on narrow screens. */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <div role="group" aria-label={t.list.wait.label} className="flex flex-wrap gap-2">
+          <Chips label={t.list.wait.label}>
             {([
               ["gestoria", t.list.wait.views.gestoria, waitN("gestoria")],
               ["cliente", t.list.wait.views.cliente, waitN("cliente")],
               ["all", t.list.all, all.length],
-            ] as const).map(([id, label, n]) => {
-              const on = view === id;
-              return (
-                <button key={id} type="button" aria-pressed={on} onClick={() => go({ vista: id })} className={cx("flex h-(--control-h) items-center gap-2 rounded-md border px-3.5 text-[14px] font-medium whitespace-nowrap transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-line-strong")}>
-                  {label}
-                  <span className={cx("figures rounded-full px-1.5 text-[12px] font-semibold", on ? "bg-accent-ink/15" : id === "gestoria" && n ? "bg-copper-soft text-copper-text" : "bg-sunk text-muted")}>{n}</span>
-                </button>
-              );
-            })}
-          </div>
+            ] as const).map(([id, label, n]) => (
+              <Chip key={id} on={view === id} count={n} alert={id === "gestoria"} onClick={() => go({ vista: id })}>
+                {label}
+              </Chip>
+            ))}
+          </Chips>
           <label className="relative min-w-[min(100%,16rem)] grow-[999] basis-0">
             <span className="sr-only">{t.list.searchLabel}</span>
             <Search size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" aria-hidden="true" />
-            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQ("")} placeholder={t.list.search} className="h-(--control-h) w-full rounded-md border border-line-strong bg-surface pr-3 pl-9 outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15" />
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQ("")} placeholder={t.list.search} className="field h-(--control-h) pr-3 pl-9" />
           </label>
           <div className="flex max-w-full grow flex-wrap items-center gap-2">
             {firm.team.length > 0 && (
               <label className="flex items-center gap-2 text-[13px] text-muted">
                 <span className="sr-only">{t.extra.assignee.label}</span>
-                <select value={who ?? "all"} onChange={(e) => go({ gestor: e.target.value })} className="h-(--control-h) max-w-[220px] rounded-md border border-line-strong bg-surface px-3 text-[14px] text-ink outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
+                <select value={who ?? "all"} onChange={(e) => go({ gestor: e.target.value })} className="field h-(--control-h) w-auto max-w-[220px] text-[14px]">
                   <option value="all">{t.extra.assignee.all}</option>
                   {firm.team.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                   <option value="ninguno">{t.list.unassigned}</option>
@@ -161,7 +158,7 @@ export function CaseList() {
             )}
             <label className="flex items-center gap-2 text-[13px] text-muted">
               <span className="sr-only">{t.list.filterLabel}</span>
-              <select value={status} onChange={(e) => go({ estado: e.target.value as Status | "all" })} className="h-(--control-h) rounded-md border border-line-strong bg-surface px-3 text-[14px] text-ink outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
+              <select value={status} onChange={(e) => go({ estado: e.target.value as Status | "all" })} className="field h-(--control-h) w-auto text-[14px]">
                 <option value="all">{t.list.allStatuses} ({all.length})</option>
                 {STATUSES.map((x) => (
                   <option key={x.id} value={x.id}>
@@ -172,7 +169,7 @@ export function CaseList() {
             </label>
             <label className="flex items-center gap-2 text-[13px] text-muted">
               <span className="whitespace-nowrap">{t.list.sort.label}</span>
-              <select value={sort} onChange={(e) => go({ orden: e.target.value as SortKey })} className="h-(--control-h) rounded-md border border-line-strong bg-surface px-3 text-[14px] text-ink outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15">
+              <select value={sort} onChange={(e) => go({ orden: e.target.value as SortKey })} className="field h-(--control-h) w-auto text-[14px]">
                 {SORT_KEYS.map((k) => (
                   <option key={k} value={k}>
                     {t.list.sort[k]}

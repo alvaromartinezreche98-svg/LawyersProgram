@@ -13,7 +13,7 @@ export function LangSwitch({ className }: { className?: string }) {
     document.documentElement.lang = HTML_LANG[lang];
   }, [lang]);
   return (
-    <div role="group" aria-label={t.common.language} className={cx("flex h-(--control-h-sm) items-stretch rounded-md border border-line bg-sunk p-0.5", className)}>
+    <div role="group" aria-label={t.common.language} className={cx("flex h-(--control-h-sm) items-stretch gap-0.5 rounded-md border border-line-strong/50 bg-surface p-0.5", className)}>
       {LANGS.map((l) => (
         <button
           key={l.id}
@@ -21,7 +21,7 @@ export function LangSwitch({ className }: { className?: string }) {
           aria-pressed={lang === l.id}
           title={l.label}
           onClick={() => actions.setLang(l.id)}
-          className={cx("flex items-center rounded-sm px-2.5 text-xs font-semibold tracking-wide transition-colors", lang === l.id ? "bg-accent text-accent-ink" : "text-muted hover:text-ink")}
+          className={cx("flex items-center rounded-sm px-2.5 text-xs font-semibold tracking-wide transition-colors", lang === l.id ? "bg-accent text-accent-ink" : "text-muted hover:bg-accent-soft hover:text-accent")}
         >
           {l.short}
         </button>

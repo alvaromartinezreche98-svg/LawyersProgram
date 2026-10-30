@@ -3,11 +3,11 @@
 import { ArrowRight, Bell, Check, CircleAlert, ClipboardList, FileSignature, Globe, LayoutGrid, ListChecks, MessageCircle, QrCode, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { IconTile, HUES } from "@/components/ui/icons";
 import { ButtonLink, Eyebrow, StatusPill, cx } from "@/components/ui/primitives";
 import { SCHEMA } from "@/lib/questionnaire/schema";
 import type { Status } from "@/lib/data/types";
 import { PublicShell } from "./public-shell";
+import { FeatureCarousel } from "./feature-carousel";
 
 const FEATURE_ICONS: LucideIcon[] = [QrCode, ListChecks, Bell, ClipboardList, MessageCircle, LayoutGrid, FileSignature, Globe];
 
@@ -34,16 +34,14 @@ export function FirmsPage() {
         <PanelPreview />
       </section>
 
-      <section className="border-y border-line bg-surface">
-        <ul className="mx-auto grid w-full max-w-[1200px] grid-cols-[repeat(auto-fill,minmax(min(100%,16rem),1fr))] gap-4 px-4 py-12 sm:px-8">
-          {f.features.map(([title, d], i) => (
-            <li key={title} className="flex flex-col gap-2 rounded-xl border border-line bg-bg p-5">
-              <IconTile icon={FEATURE_ICONS[i]} tone={HUES[i % HUES.length]} />
-              <b className="text-[15px] font-semibold">{title}</b>
-              <span className="text-[14px] text-muted">{d}</span>
-            </li>
-          ))}
-        </ul>
+      <section className="overflow-hidden border-y border-line bg-surface">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-14 sm:px-8">
+          <div className="flex flex-col gap-2">
+            <Eyebrow>{f.featuresEyebrow}</Eyebrow>
+            <h2 className="display-serif max-w-[26ch] text-[clamp(24px,2.6vw,32px)] leading-tight font-semibold">{f.featuresTitle}</h2>
+          </div>
+          <FeatureCarousel items={f.features} icons={FEATURE_ICONS} labels={f.carousel} />
+        </div>
       </section>
 
       <section className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-12 sm:px-8">

@@ -6,7 +6,7 @@ import { ClipboardList, FileSignature, ShieldCheck, type LucideIcon } from "luci
 import { actions, clientName, useAppState } from "@/lib/data/store";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { IconTile, HUES } from "@/components/ui/icons";
+import { IconTile } from "@/components/ui/icons";
 import { Button, Card, Eyebrow, Notice, cx } from "@/components/ui/primitives";
 import { useClientExp } from "./client-shell";
 
@@ -45,7 +45,7 @@ export function Welcome() {
       <ol className="grid gap-3 sm:grid-cols-3">
         {t.welcome.steps.map(([title, d], i) => (
           <li key={title} className="flex flex-col gap-2 rounded-lg border border-line bg-surface p-4">
-            <IconTile icon={STEP_ICONS[i]} size="sm" tone={HUES[i % HUES.length]} />
+            <IconTile icon={STEP_ICONS[i]} size="sm" />
             <b className="text-[14.5px] font-semibold">{title}</b>
             <span className="text-[13px] text-muted">{d}</span>
           </li>

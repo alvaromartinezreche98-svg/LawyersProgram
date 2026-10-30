@@ -46,7 +46,7 @@ export function CaseRecord({ id }: { id: string }) {
 
         <article className="mx-auto flex w-full max-w-[780px] flex-col gap-8 rounded-xl border border-line bg-surface p-8 shadow-sheet sm:p-12 print:max-w-none print:border-0 print:p-0 print:shadow-none">
           <header className="flex flex-col gap-1 border-b-2 border-ink pb-5">
-            <p className="text-[12px] font-semibold tracking-[.12em] text-copper-text uppercase">{firm.name || r.firm}</p>
+            <p className="text-[12px] font-semibold tracking-[.12em] text-accent uppercase">{firm.name || r.firm}</p>
             <h1 className="display-serif text-[28px] leading-tight font-semibold">{r.title}</h1>
             <p className="text-[14px] text-muted">{r.intro}</p>
           </header>

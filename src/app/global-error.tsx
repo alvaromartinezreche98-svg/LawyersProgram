@@ -26,10 +26,10 @@ export default function GlobalError({ error, retry }: { error: Error & { digest?
             <p className="mt-2 text-muted">We could not load the page. Your data has not been lost. Please try again in a few seconds.</p>
           </div>
           <div className="flex flex-wrap gap-2.5">
-            <button type="button" onClick={() => retry()} className="h-(--control-h) rounded-md bg-accent px-4 font-medium text-accent-ink">
+            <button type="button" onClick={() => retry()} className="btn-fx btn-fx-primary h-(--control-h) rounded-md bg-accent px-4 font-medium text-accent-ink hover:bg-accent-hover">
               Reintentar · Try again
             </button>
-            <Link href="/" className="inline-flex h-(--control-h) items-center rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-4 font-medium">
+            <Link href="/" className="inline-flex h-(--control-h) items-center rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-4 font-medium">
               Inicio · Home
             </Link>
           </div>

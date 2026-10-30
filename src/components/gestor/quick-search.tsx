@@ -7,12 +7,12 @@ import { FEATURES } from "@/lib/features";
 import { clientName, useAppState } from "@/lib/data/store";
 import { STATUSES } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
-import { IconTile, routeTone } from "@/components/ui/icons";
+import { IconTile } from "@/components/ui/icons";
 import { cx } from "@/components/ui/primitives";
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
-type Hit = { key: string; href: string; icon: LucideIcon; title: string; meta?: string; tone: Parameters<typeof IconTile>[0]["tone"] };
+type Hit = { key: string; href: string; icon: LucideIcon; title: string; meta?: string };
 
 /** Opens the search from anywhere in the panel: Ctrl/⌘ + K, or "/" outside a text field. */
 export function useQuickSearchKey(open: () => void) {
@@ -54,7 +54,7 @@ export function QuickSearch({ open, onClose }: { open: boolean; onClose: () => v
       [Wallet, t.side.payments, "/cobros", FEATURES.payments],
       [Settings, t.side.settings, "/ajustes/despacho", FEATURES.firmSettings],
     ];
-    return all.filter((x) => x[3]).map(([icon, title, href]): Hit => ({ key: href, href, icon, title, tone: routeTone(href) }));
+    return all.filter((x) => x[3]).map(([icon, title, href]): Hit => ({ key: href, href, icon, title }));
   }, [t]);
 
   const query = norm(q.trim());
@@ -70,7 +70,6 @@ export function QuickSearch({ open, onClose }: { open: boolean; onClose: () => v
         icon: FolderOpen,
         title: x.name,
         meta: [tr(STATUSES.find((s) => s.id === x.e.status)!.label), typeof x.e.answers.email === "string" ? x.e.answers.email : ""].filter(Boolean).join(" · "),
-        tone: "blue",
       }));
     const screens = pages.filter((p) => !query || norm(p.title).includes(query));
     return { cases, screens, flat: [...cases, ...screens] };
@@ -114,7 +113,7 @@ export function QuickSearch({ open, onClose }: { open: boolean; onClose: () => v
               onClick={() => go(h)}
               className={cx("flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left", on && "bg-accent-soft")}
             >
-              <IconTile icon={h.icon} tone={h.tone} size="xs" />
+              <IconTile icon={h.icon} size="xs" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14.5px] font-medium">{h.title}</span>
                 {h.meta && <span className="block truncate text-[12.5px] text-muted">{h.meta}</span>}

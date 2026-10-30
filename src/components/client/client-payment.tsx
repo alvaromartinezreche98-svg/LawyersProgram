@@ -30,7 +30,7 @@ export function ClientPayment() {
 
       <Card className="overflow-clip">
         {!fee ? (
-          <EmptyState inset iconTone="green" icon={CreditCard} title={t.pay.noFees} />
+          <EmptyState inset icon={CreditCard} title={t.pay.noFees} />
         ) : (
           <>
             <dl className="divide-y divide-line">

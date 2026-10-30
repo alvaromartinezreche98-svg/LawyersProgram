@@ -10,7 +10,7 @@ import { fmtTime, uid } from "@/lib/format";
 import { FileChip } from "@/components/ui/file-chip";
 import { Button, Notice, cx } from "@/components/ui/primitives";
 
-const field = "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden focus:border-focus focus:ring-4 focus:ring-focus/15";
+const field = "field h-(--control-h) text-[15px]";
 
 /** G3 · Result and approval: the gestoría sends the outcome; the client's approval shows here. */
 export function ResultPanel({ exp }: { exp: Expediente }) {
@@ -104,7 +104,7 @@ function ResultForm({ exp, initial, onDone, onCancel }: { exp: Expediente; initi
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[13.5px] font-medium">{t.resultG.file}</span>
         {file && <FileChip file={file} />}
-        <label htmlFor={id} className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13px] font-medium transition-colors">
+        <label htmlFor={id} className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13px] font-medium transition-colors">
           <Upload size={14} aria-hidden="true" />
           {busy ? t.upload.uploading : file ? t.resultG.replace : t.resultG.upload}
         </label>

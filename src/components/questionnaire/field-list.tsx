@@ -84,8 +84,8 @@ function FieldList({ fields, scope, path, idBase, itemId = null, listKey = null,
 const pinnedTasks = (exp: Expediente | undefined, field: string, item: string | null): ClientTask[] =>
   exp ? (exp.tasks ?? []).filter((x) => x.target?.field === field && (x.target.item ?? null) === item && (!x.closedAt || Date.now() - Date.parse(x.closedAt) < 14 * 864e5)) : [];
 
-const inputCls =
-  "h-(--control-h) w-full rounded-md border border-line-strong bg-surface px-3 text-[15px] outline-hidden transition-colors hover:border-muted focus:border-focus focus:ring-4 focus:ring-focus/15 disabled:bg-sunk disabled:text-muted max-w-[460px]";
+// Every text field, select and textarea spans the form column, so the questions line up (see .field in globals.css).
+const inputCls = "field";
 
 function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field: Field; scope: Answers; path: Path; id: string; itemId: string | null; listKey: string | null; depth: number }) {
   const { set, readOnly, exp, markEmpty } = useForm();
@@ -103,7 +103,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       {x.opt && <span className="font-normal text-muted">({t.common.optional.toLowerCase()})</span>}
     </>
   );
-  const labelCls = "flex max-w-[68ch] flex-wrap items-baseline gap-2 text-[14.5px] font-medium";
+  const labelCls = "flex max-w-[68ch] flex-wrap items-baseline gap-2 text-[15px] font-semibold";
 
   let control = null;
   switch (x.type) {
@@ -127,15 +127,15 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
         return "";
       };
       control = (
-        <div className={cx("flex h-(--control-h) max-w-[220px] items-center overflow-clip rounded-md border bg-surface shadow-field transition-colors focus-within:ring-4", err ? "border-2 border-bad focus-within:ring-bad/15" : "border-line-strong hover:border-muted focus-within:border-focus focus-within:ring-focus/15")}>
-          <input id={id} type="text" inputMode="decimal" disabled={readOnly} aria-invalid={!!err || undefined} aria-describedby={err ? id + "-err" : undefined} placeholder={x.type === "money" ? "0,00" : ""} value={asText(v)} onChange={(e) => { set(at, e.target.value); if (err) setErr(check(e.target.value)); }} onBlur={(e) => setErr(check(e.target.value))} className="figures h-full w-full bg-transparent px-3 text-right outline-hidden disabled:text-muted" />
-          {unit && <span className="grid h-full place-items-center border-l border-line bg-sunk px-3 text-[14px] text-muted">{unit}</span>}
+        <div data-invalid={!!err || undefined} className="field-group max-w-[260px]">
+          <input id={id} type="text" inputMode="decimal" disabled={readOnly} aria-invalid={!!err || undefined} aria-describedby={err ? id + "-err" : undefined} placeholder={x.type === "money" ? "0,00" : ""} value={asText(v)} onChange={(e) => { set(at, e.target.value); if (err) setErr(check(e.target.value)); }} onBlur={(e) => setErr(check(e.target.value))} className="figures text-right disabled:text-muted" />
+          {unit && <span className="field-unit">{unit}</span>}
         </div>
       );
       break;
     }
     case "textarea":
-      control = <textarea id={id} rows={5} disabled={readOnly} value={asText(v)} onChange={(e) => set(at, e.target.value)} className={cx(inputCls, "h-auto max-w-[680px] resize-y py-2 leading-relaxed")} />;
+      control = <textarea id={id} rows={5} disabled={readOnly} value={asText(v)} onChange={(e) => set(at, e.target.value)} className={inputCls} />;
       break;
     case "select":
       control = (
@@ -188,7 +188,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
   }
 
   return (
-    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="flex scroll-mt-40 flex-col gap-2.5 py-5 first:pt-0 last:pb-0 lg:scroll-mt-32">
+    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="flex scroll-mt-40 flex-col gap-2 py-4 first:pt-0 last:pb-0 lg:scroll-mt-32">
       {grouped ? (
         <div id={id + "-l"} className={labelCls}>
           {label}
@@ -221,9 +221,9 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
         </p>
       )}
       {markEmpty && !x.opt && x.type !== "upload" && x.type !== "repeat" && (v === undefined || v === "") && (
-        <p className="flex items-center gap-1.5 text-[13px] text-muted">
-          <span className="size-2.5 rounded-full border-[1.5px] border-current" aria-hidden="true" />
-          {t.q.unanswered}
+        <p className="flex items-center gap-1.5 text-[13px] text-muted" title={t.q.unanswered}>
+          <span className="size-2 rounded-full border-[1.5px] border-current" aria-hidden="true" />
+          {t.common.notAnswered}
         </p>
       )}
       {showsKids(x, v) && (
@@ -422,11 +422,11 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
               <span>{t.upload.reqSize}</span>
             </span>
           </div>
-          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
+          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
             <Camera size={17} aria-hidden="true" />
             {t.upload.camera}
           </label>
-          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
+          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
             <Upload size={17} aria-hidden="true" />
             {t.upload.choose}
           </label>
@@ -454,7 +454,7 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
               </span>
               {p.failed && (
                 <span className="flex gap-1">
-                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
+                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
                   <button type="button" aria-label={t.common.removeFile(p.file.name)} onClick={() => setPending((l) => l.filter((x) => x.key !== p.key))} className="grid size-8 place-items-center rounded-md text-muted hover:bg-surface hover:text-ink"><X size={16} aria-hidden="true" /></button>
                 </span>
               )}
@@ -464,7 +464,7 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
       )}
 
       {!readOnly && !empty && (
-        <label htmlFor={id} className={cx(btn, "cursor-pointer self-start border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
+        <label htmlFor={id} className={cx(btn, "cursor-pointer self-start border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
           <Upload size={17} aria-hidden="true" />
           {t.upload.addMore}
         </label>
@@ -480,7 +480,7 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
                 {later.note && <p className="text-muted">{t.upload.laterNote(later.note)}</p>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
+                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
                 <button type="button" onClick={() => { setNote(later.note); setNoting(true); }} className={cx(btn, "border-transparent text-accent hover:bg-accent-soft")}>{t.upload.changeNote}</button>
               </div>
             </div>
@@ -498,7 +498,7 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
             <label className="sr-only" htmlFor={id + "-later"}>{t.upload.notYetPh}</label>
             <input id={id + "-later"} autoFocus value={note} onChange={(ev) => setNote(ev.target.value)} placeholder={t.upload.notYetPh} className={cx(inputCls, "min-w-0 flex-1")} />
             <span className="flex gap-2">
-              <button type="submit" className={cx(btn, "border-accent bg-accent text-accent-ink hover:bg-accent-hover")}>{t.upload.notYetSave}</button>
+              <button type="submit" className={cx(btn, "btn-fx btn-fx-primary border-accent bg-accent text-accent-ink hover:bg-accent-hover")}>{t.upload.notYetSave}</button>
               <button type="button" onClick={() => setNoting(false)} className={cx(btn, "border-transparent text-muted hover:text-ink")}>{t.tasks.cancel}</button>
             </span>
           </form>
