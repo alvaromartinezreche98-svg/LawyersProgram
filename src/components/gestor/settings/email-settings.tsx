@@ -16,7 +16,11 @@ export function EmailSettings() {
   const { firm } = useAppState();
   const { t, lang: uiLang } = useI18n();
   const c = t.settings.emails;
-  const [kind, setKind] = useState<EmailKind>("invitation");
+  // "?plantilla=<kind>" (e.g. from Reminders) opens that template; this page only renders in the browser.
+  const [kind, setKind] = useState<EmailKind>(() => {
+    const k = new URLSearchParams(window.location.search).get("plantilla") as EmailKind | null;
+    return k && EMAIL_KINDS.includes(k) ? k : "invitation";
+  });
   const [lang, setLang] = useState<Lang>(uiLang);
   const [view, setView] = useState<"html" | "text">("html");
   const [origin, setOrigin] = useState("");

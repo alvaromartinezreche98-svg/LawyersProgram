@@ -48,6 +48,7 @@ $color-light: (
   "disabled": $muted,
   "line": $mist-line,
   "line-strong": $mist-line-strong,
+  "field-line": #8592a1, // field borders: softer than line-strong, still 3.1:1 on white
   "accent": $navy,
   "accent-hover": $navy-hover,
   "accent-ink": $white,
@@ -109,6 +110,7 @@ $color-dark: (
   "disabled": #6a727c,
   "line": #2c333c,
   "line-strong": #78818c,
+  "field-line": #78818c,
   "accent": #9cbde6,
   "accent-hover": #b9d1ef,
   "accent-ink": #0e1a29,

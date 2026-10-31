@@ -167,7 +167,8 @@ export interface Payment {
   method: "simulado";
 }
 
-export type Session = { role: "cliente"; expId: string } | { role: "gestoria" } | null;
+/** "admin" is the PreRenta team (X1–X4): it manages gestorías, not cases. */
+export type Session = { role: "cliente"; expId: string } | { role: "gestoria" } | { role: "admin" } | null;
 
 /* ---------- Gestoría (firm) settings · G7 ---------- */
 
@@ -213,6 +214,23 @@ export interface Firm {
   campaign?: { filing?: string; directDebit?: string };
   /** The chat's quick replies, as the gestoría wrote them. Unset: the built-in ones in the user's language. */
   replies?: QuickReply[];
+  /** G8: the plan the gestoría asked for (DEMO: no billing yet, so nothing is charged). */
+  subscription?: { planId: string | null; requestedAt: string };
+  /** G7: when clients get reminders. Saved here; the backend sends them. */
+  reminders?: Reminders;
+}
+
+export interface Reminders {
+  enabled: boolean;
+  /** Days without activity before the first reminder. */
+  afterDays: number;
+  /** Days between reminders after the first one. */
+  everyDays: number;
+  /** At most this many reminders per case. */
+  max: number;
+  channel: "email" | "sms" | "both";
+  /** What a reminder is about. */
+  when: { questionnaire: boolean; requests: boolean; approval: boolean };
 }
 
 export interface QuickReply {

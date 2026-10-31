@@ -2,7 +2,6 @@
 
 import { FolderOpen, Globe, UserRound } from "lucide-react";
 import { SCHEMA } from "@/lib/questionnaire/schema";
-import { setIn } from "@/lib/questionnaire/progress";
 import { actions } from "@/lib/data/store";
 import { LANGS } from "@/lib/i18n";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -35,7 +34,7 @@ export function ClientProfile() {
               <CardTitle aside={t.profile.autosaved}>{t.profile.contact}</CardTitle>
             </div>
           </div>
-          <QuestionnaireForm fields={CONTACT} answers={exp.answers} idBase="perfil" onChange={(path, v) => actions.setAnswers(exp.id, setIn(exp.answers, path, v))} />
+          <QuestionnaireForm fields={CONTACT} answers={exp.answers} idBase="perfil" onChange={(path, v) => actions.setAnswer(exp.id, path, v)} />
         </Card>
 
         <div className="flex flex-col gap-5">

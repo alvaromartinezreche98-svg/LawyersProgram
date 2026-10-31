@@ -1,7 +1,10 @@
 "use client";
 
 import { ClipboardList, FileText, MessageCircle } from "lucide-react";
+import { useState } from "react";
 import { collectDocs, overall } from "@/lib/questionnaire/progress";
+import { sectionBySlug } from "@/lib/questionnaire/schema";
+import { usePlatformText } from "@/lib/i18n/messages-platform";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { ChatBox } from "@/components/chat/chat-box";
 import { PageTitle } from "@/components/ui/app-shell";
@@ -13,6 +16,13 @@ import { useClientExp } from "./client-shell";
 export function ClientMessages() {
   const exp = useClientExp();
   const { t } = useI18n();
+  const { p, tr } = usePlatformText();
+  // "?sobre=<section>" (from the questionnaire guide) starts the message with the section's name.
+  // This page only renders after the store is ready in the browser, so reading the URL here is safe.
+  const [draft] = useState(() => {
+    const sec = sectionBySlug(new URLSearchParams(window.location.search).get("sobre") ?? "");
+    return sec ? p.guide.askDraft(tr(sec.short)) : "";
+  });
   const tt = overall(exp.answers);
   const missing = collectDocs(exp.answers).filter((d) => !d.files.length).length;
 
@@ -26,7 +36,7 @@ export function ClientMessages() {
       </div>
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Card className="overflow-clip">
-          <ChatBox exp={exp} side="cliente" height="h-[clamp(360px,calc(100dvh-450px),640px)]" />
+          <ChatBox exp={exp} side="cliente" height="h-[clamp(360px,calc(100dvh-450px),640px)]" initialDraft={draft} />
         </Card>
 
         <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)]">

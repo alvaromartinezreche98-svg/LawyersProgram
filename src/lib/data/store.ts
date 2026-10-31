@@ -2,13 +2,13 @@
 
 import { useSyncExternalStore } from "react";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
-import type { Answers, FileRef } from "@/lib/questionnaire/types";
+import type { AnswerValue, Answers, FileRef, Path } from "@/lib/questionnaire/types";
 import { nowIso, uid } from "@/lib/format";
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
 import { EXAMPLES, EXAMPLES_REV, EXAMPLE_FIRM } from "./examples";
 import { PREFILL_SECTIONS, carryOver } from "./years";
 import { answerChanges, bySection, logged, type Activity } from "./activity";
-import { withItemIds } from "@/lib/questionnaire/progress";
+import { getIn, setIn, withItemIds } from "@/lib/questionnaire/progress";
 import { API_MODE, LOCAL_DATA } from "@/lib/auth/config";
 import { SIMULATED_PAYMENT } from "@/lib/features";
 import { purgeFiles } from "./files";
@@ -286,6 +286,10 @@ export const actions = {
   loginGestoria() {
     setSession({ role: "gestoria" });
   },
+  /** Demo only: the PreRenta team's admin area (X1–X4). */
+  loginAdmin() {
+    setSession({ role: "admin" });
+  },
   logout() {
     setSession(null);
   },
@@ -315,6 +319,19 @@ export const actions = {
   },
 
   /** Only the client edits answers; the gestoría's "view as client" is read-only. */
+  /**
+   * Sets one answer on the case's answers as they are now, not as a component last
+   * saw them: an upload that finishes later cannot undo edits made meanwhile.
+   */
+  setAnswer(id: string, path: Path, value: AnswerValue | undefined) {
+    const cur = state.exps[id]?.answers;
+    if (cur) actions.setAnswers(id, setIn(cur, path, value));
+  },
+  /** Like setAnswer, from the current value (two uploads to different questions both keep their files). */
+  updateAnswer(id: string, path: Path, fn: (cur: AnswerValue | undefined) => AnswerValue | undefined) {
+    const cur = state.exps[id]?.answers;
+    if (cur) actions.setAnswers(id, setIn(cur, path, fn(getIn(cur, path))));
+  },
   setAnswers(id: string, answers: Answers) {
     const before = state.exps[id]?.answers;
     patchExp(id, (e) => {

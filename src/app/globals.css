@@ -31,6 +31,7 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-field-line: var(--field-line);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-ink: var(--accent-ink);

@@ -220,7 +220,7 @@ export const va: Dict = {
     pinnedResolved: "Resolt",
     because: (a) => `Perquè ha respost «${a}»`,
     unanswered: "Sense respondre. Pot deixar-ho per a després; apareixerà en «Revisar i enviar».",
-    errPct: "Escriga un número entre 1 i 100.",
+    errPct: "Escriga un percentatge major que 0 i fins a 100, per exemple 50 o 33,33.",
     errNum: "Escriga només xifres, per exemple 1.320,50.",
     requested: "Li demanen alguna cosa",
     doneShort: (n, total) => `${n} de ${total} complets`,
@@ -427,7 +427,7 @@ export const va: Dict = {
   },
   settings: {
     title: "Configuració",
-    nav: { firm: "Despatx", legal: "Documents legals", team: "Equip", fees: "Honoraris i cobrament", campaign: "Campanya", replies: "Respostes ràpides", emails: "Correus" },
+    nav: { firm: "Despatx", legal: "Documents legals", team: "Equip", fees: "Honoraris i cobrament", campaign: "Campanya", replies: "Respostes ràpides", emails: "Correus", reminders: "Recordatoris", subscription: "Subscripció" },
     navLabel: "Seccions de la configuració",
     saved: "Els canvis es guarden sols.",
     firm: {
@@ -478,12 +478,12 @@ export const va: Dict = {
       preheader: "Vista prèvia en la safata",
       previewTitle: "Vista prèvia del correu",
       note: "Vista prèvia: encara no s'envia cap correu. L'enviament el farà el back-end. Els correus no inclouen dades fiscals ni el text dels missatges: només avisen i enllacen a PreRenta.",
-      kinds: { invitation: "Invitació", newMessage: "Missatge nou", statusChange: "Canvi d'estat", taskRequested: "Petició al client", resultReady: "Resultat llest", appointmentConfirmed: "Cita confirmada" },
+      kinds: { invitation: "Invitació", newMessage: "Missatge nou", statusChange: "Canvi d'estat", taskRequested: "Petició al client", resultReady: "Resultat llest", appointmentConfirmed: "Cita confirmada", reminder: "Recordatori" },
     },
     fees: {
       title: "Honoraris",
       intro: "El que cobra la gestoria per cada declaració. El client ho veurà abans de pagar.",
-      base: "Declaració estàndard", perProperty: "Per cada immoble llogat", selfEmployed: "Amb activitat econòmica (autònom)", notes: "Condicions o notes per al client",
+      base: "Declaració estàndard", perProperty: "Per cada immoble llogat", selfEmployed: "Amb activitat econòmica", notes: "Condicions o notes per al client",
       payoutTitle: "Compte de cobrament",
       payoutBody: "Els pagaments dels clients aniran directament al compte de la gestoria per mitjà de Stripe. La connexió s'activarà quan la plataforma tinga back-end.",
       connect: "Connectar amb Stripe",

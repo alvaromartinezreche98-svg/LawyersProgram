@@ -3,7 +3,7 @@
 import { createContext, Fragment, useContext, useState, type DragEvent } from "react";
 import { ArrowRight, Camera, Check, ChevronDown, CircleAlert, Clock, FileText, Plus, RotateCw, Upload, X } from "lucide-react";
 import { ITEM_ID, type AnswerValue, type Answers, type Field, type FileRef, type Path } from "@/lib/questionnaire/types";
-import { asFiles, asItems, asText, progressOf, sectionState, showsKids } from "@/lib/questionnaire/progress";
+import { asFiles, asItems, asText, getIn, progressOf, sectionState, showsKids } from "@/lib/questionnaire/progress";
 import { actions, useAppState } from "@/lib/data/store";
 import { slotKey, type ClientTask, type Expediente } from "@/lib/data/types";
 import { ACCEPTED, MAX_FILE_BYTES, deleteFile, isAccepted, isHeic, putFile, typeOf, useFileUrl } from "@/lib/data/files";
@@ -19,12 +19,13 @@ import { FieldIcon } from "@/components/ui/field-icon";
 
 interface Ctx {
   set: (path: Path, value: AnswerValue | undefined) => void;
+  /** Changes one answer from its current stored value (uploads that finish later); falls back to `set` on the given answers. */
+  update: (path: Path, fn: (cur: AnswerValue | undefined) => AnswerValue | undefined) => void;
   readOnly: boolean;
   notify: (msg: string) => void;
   /** The client's case, when the form is the client's own questionnaire: requests pinned on fields, "No lo tengo todavía". */
   exp?: Expediente;
   section?: string;
-  /** The step already has answers: blank questions say "Sin responder" (never an error). */
 }
 const FormCtx = createContext<Ctx | null>(null);
 const useForm = () => {
@@ -34,10 +35,11 @@ const useForm = () => {
 };
 
 /** Renders a list of schema fields bound to `answers`. */
-export function QuestionnaireForm({ fields, answers, onChange, readOnly = false, notify = () => {}, idBase, exp, section }: {
+export function QuestionnaireForm({ fields, answers, onChange, onUpdate, readOnly = false, notify = () => {}, idBase, exp, section }: {
   fields: Field[];
   answers: Answers;
   onChange: (path: Path, value: AnswerValue | undefined) => void;
+  onUpdate?: (path: Path, fn: (cur: AnswerValue | undefined) => AnswerValue | undefined) => void;
   readOnly?: boolean;
   notify?: (msg: string) => void;
   idBase: string;
@@ -45,7 +47,7 @@ export function QuestionnaireForm({ fields, answers, onChange, readOnly = false,
   section?: string;
 }) {
   return (
-    <FormCtx.Provider value={{ set: onChange, readOnly, notify, exp, section }}>
+    <FormCtx.Provider value={{ set: onChange, update: onUpdate ?? ((path, fn) => onChange(path, fn(getIn(answers, path)))), readOnly, notify, exp, section }}>
       <div className="@container flex flex-col">
         <FieldList fields={fields} scope={answers} path={[]} idBase={idBase} />
       </div>
@@ -69,7 +71,7 @@ function FieldList({ fields, scope, path, idBase, itemId = null, listKey = null,
   }
   // Each group list measures its own width, so groups nested in a follow-up stay stacked.
   return <div className="@container flex flex-col">{parts.map((g, i) => (
-    <section key={i} className="grid gap-4 border-t border-line py-8 first:border-t-0 first:pt-0 last:pb-0 @[820px]:grid-cols-[220px_minmax(0,1fr)] @[820px]:gap-6">
+    <section key={i} className="grid gap-4 border-t border-line py-8 first:border-t-0 first:pt-0 last:pb-0 @[820px]:grid-cols-[250px_minmax(0,1fr)] @[820px]:gap-6">
       {g.group ? (
         <div className="flex flex-col gap-1 @[820px]:sticky @[820px]:top-[calc(var(--app-header,64px)+1.5rem)] @[820px]:self-start">
           <h3 className="text-[20px] leading-7 font-semibold">{tr(g.group.title)}</h3>
@@ -89,7 +91,7 @@ const pinnedTasks = (exp: Expediente | undefined, field: string, item: string | 
 const inputCls = "field";
 
 function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field: Field; scope: Answers; path: Path; id: string; itemId: string | null; listKey: string | null; depth: number }) {
-  const { set, readOnly, exp } = useForm();
+  const { set, update, readOnly, exp } = useForm();
   const [err, setErr] = useState("");
   const pinned = pinnedTasks(exp, x.id, itemId);
   const { firm } = useAppState();
@@ -127,9 +129,14 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       const check = (raw: string) => {
         const s = raw.trim();
         if (!s) return "";
+        // A percentage has no thousands: "50,5" and "50.5" are both fifty and a half.
+        if (x.type === "pct") {
+          if (!/^[0-9]+([.,][0-9]+)?$/.test(s)) return t.q.errPct;
+          const p = Number(s.replace(",", "."));
+          return p > 0 && p <= 100 ? "" : t.q.errPct;
+        }
+        // Amounts: dots group thousands, the comma is the decimal ("1.250,40"); "1250.40" is accepted too.
         if (!/^[0-9.\s]*(,[0-9]+)?$/.test(s) && !/^[0-9]+(\.[0-9]+)?$/.test(s)) return t.q.errNum;
-        const n = Number(s.replace(/\s|\./g, "").replace(",", "."));
-        if (x.type === "pct" && (Number.isNaN(n) || n <= 0 || n > 100)) return t.q.errPct;
         return "";
       };
       control = (
@@ -159,8 +166,9 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
     case "choice": {
       const opts = x.type === "yn" ? ([["si", t.common.yes], ["no", t.common.no]] as const) : (x.choices ?? []).map(([val, l]) => [val, tr(l)] as const);
       control = (
-        // Segmented control: one frame, equal-width options, only the chosen one filled.
-        <div role="radiogroup" aria-labelledby={id + "-l"} className={cx("max-w-full gap-1 rounded-lg border border-line-strong bg-surface p-1 shadow-field", x.type === "yn" ? "grid w-[240px] grid-cols-2" : "inline-flex flex-wrap")}>
+        // Separate option buttons, 48px tall (easy to tap): each reads as a button before it is chosen
+        // (white, field border, soft shadow); the chosen one fills navy with a check.
+        <div role="radiogroup" aria-labelledby={id + "-l"} className={cx("max-w-full gap-3", x.type === "yn" ? "grid w-[300px] grid-cols-2" : "flex flex-wrap")}>
           {opts.map(([val, l]) => {
             const on = v === val;
             return (
@@ -172,8 +180,9 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
                 disabled={readOnly}
                 onClick={() => set(at, on ? undefined : val)}
                 className={cx(
-                  "inline-flex h-[calc(var(--control-h)-10px)] min-w-[96px] flex-1 items-center justify-center gap-1.5 rounded-md px-4 text-[15.5px] font-medium whitespace-nowrap transition-colors disabled:cursor-default",
-                  on ? "bg-accent text-accent-ink shadow-sm" : "text-ink hover:bg-hover disabled:hover:bg-transparent",
+                  "inline-flex h-12 min-w-[112px] items-center justify-center gap-2 rounded-md border px-5 text-[15.5px] font-medium whitespace-nowrap shadow-field transition-[background-color,border-color,color] outline-none focus-visible:ring-4 focus-visible:ring-focus/25 disabled:cursor-default",
+                  x.type === "yn" && "w-full",
+                  on ? "border-accent bg-accent text-accent-ink" : "border-field-line bg-surface text-ink hover:border-accent hover:bg-accent-soft/50 disabled:hover:border-field-line disabled:hover:bg-surface",
                 )}
               >
                 {on && <Check size={16} strokeWidth={2.4} className="-ml-1" aria-hidden="true" />}
@@ -186,7 +195,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       break;
     }
     case "upload":
-      control = <Uploader id={id} files={asFiles(v)} onChange={(files) => set(at, files)} field={x.id} item={itemId} listKey={listKey} />;
+      control = <Uploader id={id} files={asFiles(v)} onUpdate={(fn) => update(at, (cur) => fn(asFiles(cur)))} field={x.id} item={itemId} listKey={listKey} />;
       break;
     case "repeat":
       control = <Repeater field={x} items={asItems(v)} path={at} id={id} />;
@@ -315,7 +324,7 @@ interface Pending { key: string; file: File; failed?: boolean }
  * requirements stated up front, a photo or files, each file's state (uploaded,
  * uploading, failed with a retry), and "No lo tengo todavía" with a note.
  */
-function Uploader({ id, files, onChange, field, item, listKey }: { id: string; files: FileRef[]; onChange: (files: FileRef[]) => void; field: string; item: string | null; listKey: string | null }) {
+function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; files: FileRef[]; onUpdate: (fn: (cur: FileRef[]) => FileRef[]) => void; field: string; item: string | null; listKey: string | null }) {
   const { readOnly, notify, exp, section } = useForm();
   const { t } = useI18n();
   const [pending, setPending] = useState<Pending[]>([]);
@@ -357,7 +366,8 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
   async function add(list: File[]) {
     const added = await store(list);
     if (!added.length) return;
-    onChange([...files, ...added]);
+    // added to the files there are now, not to the list this upload started from
+    onUpdate((cur) => [...cur, ...added]);
     // Uploading at the requested question answers the request.
     if (exp) {
       actions.answerSlot(exp.id, field, item, t.upload.uploadedReply(added.map((f) => f.name).join(", ")));
@@ -376,13 +386,14 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
     if (!ref) return;
     const old = files[i];
     if (old) dropFile(old);
-    onChange(files.map((f, k) => (k === i ? ref : f)));
+    onUpdate((cur) => (old ? cur.map((f) => (f.id === old.id ? ref : f)) : [...cur, ref]));
   }
 
   function remove(i: number) {
     const f = files[i];
     if (f) dropFile(f);
-    onChange(files.filter((_, k) => k !== i));
+    const gone = files[i];
+    onUpdate((cur) => cur.filter((f) => f.id !== gone?.id));
   }
 
   const onDrop = (e: DragEvent) => {

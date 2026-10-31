@@ -219,7 +219,7 @@ const es = {
     pinnedResolved: "Resuelto",
     because: (a: string) => `Porque ha respondido «${a}»`,
     unanswered: "Sin responder. Puede dejarlo para después; aparecerá en «Revisar y enviar».",
-    errPct: "Escriba un número entre 1 y 100.",
+    errPct: "Escriba un porcentaje mayor que 0 y hasta 100, por ejemplo 50 o 33,33.",
     errNum: "Escriba solo cifras, por ejemplo 1.320,50.",
     requested: "Le piden algo",
     doneShort: (n: number, total: number) => `${n} de ${total} completos`,
@@ -426,7 +426,7 @@ const es = {
   },
   settings: {
     title: "Ajustes",
-    nav: { firm: "Despacho", legal: "Documentos legales", team: "Equipo", fees: "Honorarios y cobro", campaign: "Campaña", replies: "Respuestas rápidas", emails: "Correos" },
+    nav: { firm: "Despacho", legal: "Documentos legales", team: "Equipo", fees: "Honorarios y cobro", campaign: "Campaña", replies: "Respuestas rápidas", emails: "Correos", reminders: "Recordatorios", subscription: "Suscripción" },
     navLabel: "Secciones de ajustes",
     saved: "Los cambios se guardan solos.",
     firm: {
@@ -477,12 +477,12 @@ const es = {
       preheader: "Vista previa en la bandeja",
       previewTitle: "Vista previa del correo",
       note: "Vista previa: todavía no se envía ningún correo. El envío lo hará el back-end. Los correos no incluyen datos fiscales ni el texto de los mensajes: solo avisan y enlazan a PreRenta.",
-      kinds: { invitation: "Invitación", newMessage: "Mensaje nuevo", statusChange: "Cambio de estado", taskRequested: "Petición al cliente", resultReady: "Resultado listo", appointmentConfirmed: "Cita confirmada" },
+      kinds: { invitation: "Invitación", newMessage: "Mensaje nuevo", statusChange: "Cambio de estado", taskRequested: "Petición al cliente", resultReady: "Resultado listo", appointmentConfirmed: "Cita confirmada", reminder: "Recordatorio" },
     },
     fees: {
       title: "Honorarios",
       intro: "Lo que cobra la gestoría por cada declaración. El cliente lo verá antes de pagar.",
-      base: "Declaración estándar", perProperty: "Por cada inmueble alquilado", selfEmployed: "Con actividad económica (autónomo)", notes: "Condiciones o notas para el cliente",
+      base: "Declaración estándar", perProperty: "Por cada inmueble alquilado", selfEmployed: "Con actividad económica", notes: "Condiciones o notas para el cliente",
       payoutTitle: "Cuenta de cobro",
       payoutBody: "Los pagos de los clientes irán directamente a la cuenta de la gestoría a través de Stripe. La conexión se activará cuando la plataforma tenga back-end.",
       connect: "Conectar con Stripe",
@@ -1223,7 +1223,7 @@ const en: Dict = {
     pinnedResolved: "Resolved",
     because: (a) => `Because you answered “${a}”`,
     unanswered: "Unanswered. You can leave it for later; it will show in “Review and send”.",
-    errPct: "Enter a number between 1 and 100.",
+    errPct: "Enter a percentage above 0 and up to 100, for example 50 or 33.33.",
     errNum: "Use figures only, for example 1,320.50.",
     requested: "Requested",
     doneShort: (n, total) => `${n} of ${total} complete`,
@@ -1430,7 +1430,7 @@ const en: Dict = {
   },
   settings: {
     title: "Settings",
-    nav: { firm: "Firm", legal: "Legal documents", team: "Team", fees: "Fees and payouts", campaign: "Campaign", replies: "Quick replies", emails: "Emails" },
+    nav: { firm: "Firm", legal: "Legal documents", team: "Team", fees: "Fees and payouts", campaign: "Campaign", replies: "Quick replies", emails: "Emails", reminders: "Reminders", subscription: "Subscription" },
     navLabel: "Settings sections",
     saved: "Changes are saved automatically.",
     firm: {
@@ -1481,7 +1481,7 @@ const en: Dict = {
       preheader: "Inbox preview",
       previewTitle: "Email preview",
       note: "Preview only: no email is sent yet. The backend will send them. Emails carry no tax data and no message text: they only notify and link back to PreRenta.",
-      kinds: { invitation: "Invitation", newMessage: "New message", statusChange: "Status change", taskRequested: "Request to the client", resultReady: "Result ready", appointmentConfirmed: "Appointment confirmed" },
+      kinds: { invitation: "Invitation", newMessage: "New message", statusChange: "Status change", taskRequested: "Request to the client", resultReady: "Result ready", appointmentConfirmed: "Appointment confirmed", reminder: "Reminder" },
     },
     fees: {
       title: "Fees",

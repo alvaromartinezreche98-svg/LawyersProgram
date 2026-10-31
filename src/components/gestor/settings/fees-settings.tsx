@@ -22,10 +22,10 @@ export function FeesSettings() {
       <SectionHead title={s.title} intro={s.intro} />
       <div className="flex flex-col gap-4">
         <Card className="flex flex-col gap-4 p-5 sm:p-7">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {AMOUNTS.map((k) => (
               <Field key={k} id={`fee-${k}`} label={s[k]}>
-                <div className="shadow-field flex h-(--control-h) items-center overflow-clip rounded-md border border-line-strong bg-surface transition-colors focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15">
+                <div className="shadow-field flex h-(--control-h) items-center overflow-clip rounded-md border border-field-line bg-surface transition-colors hover:border-accent focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15">
                   <input id={`fee-${k}`} type="text" inputMode="decimal" placeholder="0,00" value={firm.fees[k]} onChange={(e) => set({ [k]: e.target.value })} className="figures h-full w-full bg-transparent px-3 text-right outline-hidden" />
                   <span className="grid h-full place-items-center border-l border-line bg-sunk px-3 text-[14px] text-muted">€</span>
                 </div>

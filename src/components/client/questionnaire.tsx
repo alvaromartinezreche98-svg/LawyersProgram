@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { REVIEW_SLUG, SCHEMA, SIGN_SLUG, STEP_SLUGS, sectionBySlug } from "@/lib/questionnaire/schema";
 import { signingDone } from "@/lib/data/legal";
 import { SignStep } from "./sign-step";
-import { setIn } from "@/lib/questionnaire/progress";
 import type { AnswerValue, Path } from "@/lib/questionnaire/types";
 import { actions, openTasks, useAppState } from "@/lib/data/store";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -20,6 +19,7 @@ import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
 import { IconTile, SECTION_ICON } from "@/components/ui/icons";
 import { useClientExp } from "./client-shell";
 import { SectionTasks } from "./client-tasks";
+import { SectionGuide } from "@/components/questionnaire/section-guide";
 
 /** C3 · Cuestionario: one step per route, saved on every change. */
 /** Scrolls to a question and highlights it for a moment: unanswered questions carry no marker, so this shows which one. */
@@ -67,14 +67,16 @@ export function Questionnaire({ slug }: { slug: string }) {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const onChange = (path: Path, value: AnswerValue | undefined) => actions.setAnswers(exp.id, setIn(exp.answers, path, value));
+  // Saved against the case's answers as they are at that moment (see actions.setAnswer).
+  const onChange = (path: Path, value: AnswerValue | undefined) => actions.setAnswer(exp.id, path, value);
+  const onUpdate = (path: Path, fn: (cur: AnswerValue | undefined) => AnswerValue | undefined) => actions.updateAnswer(exp.id, path, fn);
   const send = () => {
     actions.sendToGestoria(exp.id);
     window.scrollTo(0, 0);
   };
 
   return (
-    <div className="grid items-start gap-6 min-[960px]:grid-cols-[300px_minmax(0,1fr)]">
+    <div className="grid items-start gap-6 min-[960px]:grid-cols-[320px_minmax(0,1fr)]">
       <PageTitle>{section ? tr(section.short) : isSign ? t.sign.short : t.q.review}</PageTitle>
       <StepsNav answers={exp.answers} current={slug} onSelect={go} footer={<SaveStatus idle={t.q.autosave} />} signDone={signDone} requested={new Set(openTasks(exp).map((x) => x.target?.section).filter((x): x is string => !!x))} />
       <section className="min-w-0 rounded-xl border border-line bg-surface shadow-sheet">
@@ -110,6 +112,7 @@ export function Questionnaire({ slug }: { slug: string }) {
             {section.intro && <p className="mb-2 text-ink/80">{tr(section.intro)}</p>}
             <p className="mb-6 text-[14px] text-ink/80">{t.q.reqNote}</p>
             <SectionTasks exp={exp} section={section.slug} />
+            <SectionGuide exp={exp} slug={section.slug} onGo={land} />
             {FEATURES.prefill && exp.prefill?.sections.includes(section.slug) && (
               exp.prefill.confirmed.includes(section.slug) ? (
                 <Notice tone="ok" className="mb-5">{t.years.confirmed}</Notice>
@@ -124,7 +127,7 @@ export function Questionnaire({ slug }: { slug: string }) {
                 </Notice>
               )
             )}
-            <QuestionnaireForm fields={section.fields} answers={exp.answers} onChange={onChange} notify={setToast} idBase={section.id} exp={exp} section={section.slug} />
+            <QuestionnaireForm fields={section.fields} answers={exp.answers} onChange={onChange} onUpdate={onUpdate} notify={setToast} idBase={section.id} exp={exp} section={section.slug} />
           </>
         ) : (
           <>

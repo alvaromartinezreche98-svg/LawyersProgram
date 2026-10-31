@@ -10,8 +10,8 @@ import type { Lang } from "@/lib/i18n";
  * Sign-in codes and email verification are sent by Clerk, not by these.
  */
 
-export type EmailKind = "invitation" | "newMessage" | "statusChange" | "taskRequested" | "resultReady" | "appointmentConfirmed";
-export const EMAIL_KINDS: EmailKind[] = ["invitation", "newMessage", "statusChange", "taskRequested", "resultReady", "appointmentConfirmed"];
+export type EmailKind = "invitation" | "newMessage" | "statusChange" | "taskRequested" | "resultReady" | "appointmentConfirmed" | "reminder";
+export const EMAIL_KINDS: EmailKind[] = ["invitation", "newMessage", "statusChange", "taskRequested", "resultReady", "appointmentConfirmed", "reminder"];
 
 export interface EmailData {
   firmName: string;
@@ -91,6 +91,14 @@ const COPY: Record<Lang, Copy> = {
       paragraphs: [`${d.firmName} ha confirmado su cita: ${d.kind ?? ""}, ${d.when ?? ""}.`, "Si no puede asistir, avise a su gestoría desde PreRenta."],
       cta: "Ver la cita",
     }),
+    // Settings → Reminders: sent after some days without activity. No tax data, only what is pending.
+    reminder: (d) => ({
+      subject: `Su renta ${d.year} sigue pendiente`,
+      preheader: "Puede seguir donde lo dejó: se guardó todo.",
+      heading: "Su declaración le espera",
+      paragraphs: [`Hace unos días que no avanza su declaración de la renta ${d.year} con ${d.firmName}.`, "Lo que ya rellenó está guardado. Entre en PreRenta para ver qué falta y seguir donde lo dejó."],
+      cta: "Seguir con mi declaración",
+    }),
   },
   va: {
     greeting: (n) => (n ? `Hola, ${first(n)}:` : "Hola:"),
@@ -141,6 +149,13 @@ const COPY: Record<Lang, Copy> = {
       paragraphs: [`${d.firmName} ha confirmat la seua cita: ${d.kind ?? ""}, ${d.when ?? ""}.`, "Si no hi pot anar, avise la seua gestoria des de PreRenta."],
       cta: "Veure la cita",
     }),
+    reminder: (d) => ({
+      subject: `La seua renda ${d.year} continua pendent`,
+      preheader: "Pot continuar on ho va deixar: s'ha guardat tot.",
+      heading: "La seua declaració l'espera",
+      paragraphs: [`Fa uns dies que no avança la seua declaració de la renda ${d.year} amb ${d.firmName}.`, "El que ja va omplir està guardat. Entre en PreRenta per a veure què falta i continuar on ho va deixar."],
+      cta: "Continuar amb la meua declaració",
+    }),
   },
   en: {
     greeting: (n) => (n ? `Hello ${first(n)},` : "Hello,"),
@@ -190,6 +205,13 @@ const COPY: Record<Lang, Copy> = {
       heading: "Your appointment is confirmed",
       paragraphs: [`${d.firmName} has confirmed your appointment: ${d.kind ?? ""}, ${d.when ?? ""}.`, "If you cannot make it, let your gestoría know on PreRenta."],
       cta: "See the appointment",
+    }),
+    reminder: (d) => ({
+      subject: `Your ${d.year} tax return is still pending`,
+      preheader: "Pick up where you left off: everything was saved.",
+      heading: "Your return is waiting for you",
+      paragraphs: [`Your ${d.year} income tax return with ${d.firmName} has not moved for a few days.`, "What you filled in is saved. Sign in to PreRenta to see what is missing and carry on where you left off."],
+      cta: "Continue my return",
     }),
   },
 };

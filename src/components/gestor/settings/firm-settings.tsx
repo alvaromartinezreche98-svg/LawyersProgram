@@ -1,7 +1,8 @@
 "use client";
 
 import { ImagePlus } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
+import { FieldIcon } from "@/components/ui/field-icon";
 import { actions, useAppState } from "@/lib/data/store";
 import { deleteFile, putFile, useFileUrl } from "@/lib/data/files";
 import type { Firm } from "@/lib/data/types";
@@ -11,12 +12,15 @@ import { Button, Card } from "@/components/ui/primitives";
 import { Field, SectionHead, inputCls } from "./settings-layout";
 
 const TEXT_FIELDS: { key: keyof Pick<Firm, "name" | "cif" | "address" | "phone" | "email">; type: string; ac: string; wide?: boolean }[] = [
-  { key: "name", type: "text", ac: "organization", wide: true },
+// Two even columns: name | tax ID, phone | email, then the address across both.
+  { key: "name", type: "text", ac: "organization" },
   { key: "cif", type: "text", ac: "off" },
   { key: "phone", type: "tel", ac: "tel" },
   { key: "email", type: "email", ac: "email" },
   { key: "address", type: "text", ac: "street-address", wide: true },
 ];
+
+const wrap = (k: string, el: ReactElement) => (k === "phone" ? <FieldIcon kind="tel">{el}</FieldIcon> : k === "email" ? <FieldIcon kind="email">{el}</FieldIcon> : el);
 
 /** G7 · Despacho: name, tax ID, contact details and logo. */
 export function FirmSettings() {
@@ -32,7 +36,7 @@ export function FirmSettings() {
         <div className="grid gap-4 border-t border-line pt-6 sm:grid-cols-2">
           {TEXT_FIELDS.map((x) => (
             <Field key={x.key} id={`firm-${x.key}`} label={f[x.key]} className={x.wide ? "sm:col-span-2" : undefined}>
-              <input id={`firm-${x.key}`} type={x.type} autoComplete={x.ac} value={firm[x.key]} onChange={(e) => actions.updateFirm({ [x.key]: e.target.value })} className={x.key === "cif" ? inputCls + " font-mono" : inputCls} />
+              {wrap(x.key, <input id={`firm-${x.key}`} type={x.type} autoComplete={x.ac} value={firm[x.key]} onChange={(e) => actions.updateFirm({ [x.key]: e.target.value })} className={x.key === "cif" ? inputCls + " font-mono" : inputCls} />)}
             </Field>
           ))}
         </div>

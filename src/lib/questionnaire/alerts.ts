@@ -30,9 +30,10 @@ export function alertsFor(a: Answers): Alert[] {
     const who = t("h8_nombre");
     const amt = t("h8_importe") ? `, ${t("h8_importe")} €` : "";
     add("warn", ans("unidad-familiar"), L(
-      `${who || "Un hijo o hija"}${amt} declara más de 8.000 € de ingresos en el año: compruebe si procede el mínimo por descendientes.`,
-      `${who || "A child"}${amt} earned more than €8,000 in the year: check whether the allowance for descendants applies.`,
-      `${who || "Un fill o filla"}${amt} declara més de 8.000 € d'ingressos en l'any: comprove si escau el mínim per descendents.`,
+      // Prototype wording: a firm instruction, as the question's own help says the child cannot be included.
+      `Hijo con ingresos superiores a 8.000 € (${who || "sin nombre"}${amt}): no aplicar el mínimo por descendientes.`,
+      `Child with income over €8,000 (${who || "no name"}${amt}): do not apply the allowance for descendants.`,
+      `Fill amb ingressos superiors a 8.000 € (${who || "sense nom"}${amt}): no aplicar el mínim per descendents.`,
     ));
   }
   if (t("divorcio") === "si") {

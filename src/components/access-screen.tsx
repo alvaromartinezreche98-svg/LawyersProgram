@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
-import { ArrowRight, Building2, Plus, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowRight, Building2, Landmark, Plus, ShieldCheck, UserRound } from "lucide-react";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { actions, clientName, useAppState } from "@/lib/data/store";
 import { nextPath } from "@/lib/data/use-sign-in-redirect";
 import { useI18n } from "@/lib/i18n/use-i18n";
+import { usePlatformText } from "@/lib/i18n/messages-platform";
+import { FEATURES } from "@/lib/features";
 import { CLERK_ENABLED, DEMO_LOGIN } from "@/lib/auth/config";
 import { ClerkAccess } from "@/components/auth/clerk-access";
 import { PublicShell } from "@/components/public/public-shell";
@@ -15,6 +17,7 @@ import { PageTitle } from "@/components/ui/app-shell";
 import s from "./access-screen.module.scss";
 import { Button, Eyebrow, Loading, cx } from "@/components/ui/primitives";
 import { FieldIcon } from "@/components/ui/field-icon";
+import { IconTile } from "@/components/ui/icons";
 
 type Role = "cliente" | "gestoria";
 
@@ -123,6 +126,10 @@ function DemoAccess({ gate, banner }: { gate?: ReactNode; banner?: ReactNode }) 
                   email={email}
                   setEmail={setEmail}
                   onClient={enterClient}
+                  onAdmin={() => {
+                    actions.loginAdmin();
+                    router.push("/admin/gestorias");
+                  }}
                   onCreate={create}
                 />
               )}
@@ -265,8 +272,10 @@ function DemoCard(p: {
   setEmail: (v: string) => void;
   onClient: (id: string) => void;
   onCreate: (e: FormEvent) => void;
+  onAdmin: () => void;
 }) {
   const { t } = useI18n();
+  const { p: pt } = usePlatformText();
   return (
     <details className={s.demo} open={p.open} onToggle={(e) => p.setOpen(e.currentTarget.open)}>
       <summary className={s.demoSummary}>
@@ -286,26 +295,39 @@ function DemoCard(p: {
           </li>
         ))}
       </ul>
-      {p.adding ? (
-        <form onSubmit={p.onCreate} className={s.newForm}>
-          <b className={s.newTitle}>{t.access.newClient}</b>
-          <label className="sr-only" htmlFor="nc-name">{t.access.name}</label>
-          <input id="nc-name" required autoFocus value={p.name} onChange={(e) => p.setName(e.target.value)} placeholder={t.access.name} autoComplete="name" className="field" />
-          <label className="sr-only" htmlFor="nc-email">{t.access.email}</label>
-          <FieldIcon kind="email"><input id="nc-email" type="email" value={p.email} onChange={(e) => p.setEmail(e.target.value)} placeholder={t.access.email} autoComplete="email" className="field" /></FieldIcon>
-          <Button type="submit" variant="primary">{t.access.create}</Button>
-        </form>
-      ) : (
-        <span className={s.demoActions}>
-          <button type="button" onClick={() => p.setAdding(true)} className={s.textBtn}>
-            <Plus size={15} aria-hidden="true" />
-            {t.access.newClient}
+      <div className={s.demoFoot}>
+        {p.adding ? (
+          <form onSubmit={p.onCreate} className={s.newForm}>
+            <b className={s.newTitle}>{t.access.newClient}</b>
+            <label className="sr-only" htmlFor="nc-name">{t.access.name}</label>
+            <input id="nc-name" required autoFocus value={p.name} onChange={(e) => p.setName(e.target.value)} placeholder={t.access.name} autoComplete="name" className="field" />
+            <label className="sr-only" htmlFor="nc-email">{t.access.email}</label>
+            <FieldIcon kind="email"><input id="nc-email" type="email" value={p.email} onChange={(e) => p.setEmail(e.target.value)} placeholder={t.access.email} autoComplete="email" className="field" /></FieldIcon>
+            <Button type="submit" variant="primary">{t.access.create}</Button>
+          </form>
+        ) : (
+          <span className={s.demoActions}>
+            <button type="button" onClick={() => p.setAdding(true)} className={s.textBtn}>
+              <Plus size={15} aria-hidden="true" />
+              {t.access.newClient}
+            </button>
+            <button type="button" onClick={() => actions.resetDemo()} className={s.textBtn}>
+              {t.access.reset}
+            </button>
+          </span>
+        )}
+        {/* The PreRenta team's own area (X1–X4), apart from the gestoría and its clients */}
+        {FEATURES.platformAdmin && (
+          <button type="button" onClick={p.onAdmin} className={s.adminRow}>
+            <IconTile icon={Landmark} size="sm" />
+            <span>
+              <b>{pt.access.admin}</b>
+              <span>{pt.access.adminHint}</span>
+            </span>
+            <ArrowRight size={15} className={s.caseArrow} aria-hidden="true" />
           </button>
-          <button type="button" onClick={() => actions.resetDemo()} className={s.textBtn}>
-            {t.access.reset}
-          </button>
-        </span>
-      )}
+        )}
+      </div>
     </details>
   );
 }

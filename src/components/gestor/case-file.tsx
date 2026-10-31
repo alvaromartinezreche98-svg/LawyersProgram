@@ -381,7 +381,7 @@ export function CaseFile({ id }: { id: string }) {
                     <summary className="flex min-h-[52px] cursor-pointer list-none items-center gap-3 py-2.5 font-semibold [&::-webkit-details-marker]:hidden">
                       <StepDot n={i + 1} state={st} />
                       <span className="min-w-0 flex-1">{tr(s.title)}</span>
-                      <span className={cx("text-[13px] font-medium", st === "done" ? "text-ok" : "text-muted")}>{st === "partial" ? t.q.leftN(progressOf(s.fields, a).total - progressOf(s.fields, a).done) : t.sectionState[st]}</span>
+                      <span className={cx("text-[13px] font-medium whitespace-nowrap", st === "done" ? "text-ok" : "text-muted", st === "empty" && "max-sm:sr-only")}>{st === "partial" ? t.q.leftN(progressOf(s.fields, a).total - progressOf(s.fields, a).done) : t.sectionState[st]}</span>
                       <ChevronDown size={16} className="text-muted motion-safe:transition-[rotate] motion-safe:duration-200 group-open:rotate-180" aria-hidden="true" />
                     </summary>
                     <dl className="mb-3">

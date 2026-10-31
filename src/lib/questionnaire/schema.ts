@@ -262,8 +262,9 @@ export const REVIEW_SLUG = "revisar";
 export const SIGN_SLUG = "firma";
 
 /** The signing step after personal details is part of the questionnaire only with FEATURES.signing. */
-// Steps in the order the rail shows them: every section, then signing, then review and send.
-export const STEP_SLUGS = [...SCHEMA.map((s) => s.slug), ...(FEATURES.signing ? [SIGN_SLUG] : []), REVIEW_SLUG];
+// Step order (sitemap C3): personal details, then signing the gestoría's data protection and
+// mandate (filled in with those details), then the other sections, then review and send.
+export const STEP_SLUGS = [SCHEMA[0].slug, ...(FEATURES.signing ? [SIGN_SLUG] : []), ...SCHEMA.slice(1).map((s) => s.slug), REVIEW_SLUG];
 
 export const sectionBySlug = (slug: string) => SCHEMA.find((s) => s.slug === slug);
 

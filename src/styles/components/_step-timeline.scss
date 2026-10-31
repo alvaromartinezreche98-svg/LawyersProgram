@@ -1,6 +1,6 @@
 @use "../abstracts" as *;
 
-// Cómo funciona: staged reveal per step (see useStepReveal in how-page.tsx).
+// Cómo funciona: staged reveal per step card (see useStepReveal in how-page.tsx).
 // Hidden states apply only once JS has marked the list ([data-reveal]).
 $step: ".how-steps[data-reveal] [data-step]";
 
@@ -22,7 +22,7 @@ $step: ".how-steps[data-reveal] [data-step]";
 
     .how-art {
       opacity: 0;
-      translate: 28px 0;
+      translate: 0 12px;
     }
   }
 
@@ -49,15 +49,5 @@ $step: ".how-steps[data-reveal] [data-step]";
       transition-delay: 0ms;
       transition-duration: duration(slow);
     }
-  }
-
-  .how-steps[data-reveal] .how-spine {
-    transform-origin: top;
-    transform: scaleY(0);
-    transition: transform 900ms $ease-in-out 400ms;
-  }
-
-  .how-steps[data-reveal] [data-in] .how-spine {
-    transform: scaleY(1);
   }
 }

@@ -375,20 +375,15 @@
   }
 }
 
-// Demo aids: a separate, quieter card under the sign-in (dashed edge, no elevation), folded by default.
+// Demo aids: a separate card under the sign-in, folded by default. Solid hairline and a soft
+// shadow like every card; the copper DEMO tag says what it is. Opened, it reads in three parts:
+// the head, the sample list (scrolls on its own) and a quieter footer band with the actions.
 .demo {
-  padding: space(3) space(5);
-  border: 1px dashed var(--line-strong);
+  overflow: hidden;
+  border: 1px solid var(--line);
   border-radius: radius(lg);
-  background: transparent;
-
-  &[open] {
-    display: flex;
-    flex-direction: column;
-    gap: space(3);
-    padding-bottom: space(4);
-    background: var(--surface);
-  }
+  background: var(--surface);
+  box-shadow: var(--shadow-sheet-value);
 }
 
 .demoSummary {
@@ -396,6 +391,7 @@
   align-items: center;
   gap: space(3);
   min-height: 44px;
+  padding: space(3) space(5);
   cursor: pointer;
   list-style: none;
 
@@ -448,9 +444,10 @@
 }
 
 .cases {
-  max-height: min(240px, 36dvh);
+  max-height: min(264px, 38dvh);
   overflow-y: auto;
-  border-block: 1px solid var(--line);
+  padding-inline: space(3);
+  border-top: 1px solid var(--line);
 
   li + li {
     border-top: 1px solid var(--line);
@@ -462,8 +459,9 @@
   width: 100%;
   align-items: center;
   gap: space(3);
-  min-height: 44px;
-  padding: space(2) space(1);
+  min-height: 46px;
+  padding: space(2) space(2);
+  border-radius: radius(sm);
   text-align: left;
   transition: background-color duration(fast) ease;
 
@@ -496,10 +494,55 @@
     translate duration(base) $ease-out;
 }
 
+// The footer band: kept apart from the list so it never scrolls with it.
+.demoFoot {
+  display: flex;
+  flex-direction: column;
+  gap: space(3);
+  padding: space(3) space(5) space(4);
+  border-top: 1px solid var(--line);
+  background: var(--sunk);
+}
+
 .demoActions {
   display: flex;
   flex-wrap: wrap;
   gap: 0 space(5);
+}
+
+// The PreRenta team's area: another kind of access, so its own row with the hint underneath.
+.adminRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: space(3);
+  padding: space(3);
+  border: 1px solid var(--line);
+  border-radius: radius(md);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color duration(fast) ease;
+
+  @include hover {
+    border-color: var(--line-strong);
+
+    .caseArrow {
+      color: var(--accent);
+      translate: 2px 0;
+    }
+  }
+
+  b {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  span span {
+    @include type("meta");
+    color: var(--muted);
+  }
 }
 
 .textBtn {
@@ -522,8 +565,9 @@
   flex-direction: column;
   gap: space(2);
   padding: space(4);
+  border: 1px solid var(--line);
   border-radius: radius(md);
-  background: var(--sunk);
+  background: var(--surface);
 }
 
 .newTitle {

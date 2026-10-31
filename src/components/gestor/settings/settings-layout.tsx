@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
-import { Building2, CalendarClock, Euro, FileSignature, Mail, Users, type LucideIcon, MessageSquareReply } from "lucide-react";
+import type { ComponentProps, ReactNode } from "react";
+import { BellRing, Building2, CalendarClock, CreditCard, Euro, FileSignature, Mail, Users, type LucideIcon, MessageSquareReply } from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
 import { cx } from "@/components/ui/primitives";
 import { SaveFailed, SaveStatus } from "@/components/ui/save-status";
 import { TopBar } from "../gestor-shell";
 
-type Section = "firm" | "legal" | "team" | "fees" | "campaign" | "replies" | "emails";
+type Section = "firm" | "legal" | "team" | "fees" | "campaign" | "replies" | "emails" | "reminders" | "subscription";
 const SECTIONS: { id: Section; href: string; icon: LucideIcon }[] = [
   { id: "firm", href: "/ajustes/despacho", icon: Building2 },
   { id: "legal", href: "/ajustes/documentos", icon: FileSignature },
@@ -19,6 +19,8 @@ const SECTIONS: { id: Section; href: string; icon: LucideIcon }[] = [
   { id: "campaign", href: "/ajustes/campana", icon: CalendarClock },
   { id: "replies", href: "/ajustes/respuestas", icon: MessageSquareReply },
   { id: "emails", href: "/ajustes/correos", icon: Mail },
+  { id: "reminders", href: "/ajustes/recordatorios", icon: BellRing },
+  { id: "subscription", href: "/ajustes/suscripcion", icon: CreditCard },
 ];
 
 /** G7 · Ajustes: section list on the left, the section form on the right. */
@@ -51,8 +53,8 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        {/* 820px for settings forms; a page with a side column (data-wide) gets the room for it. */}
-        <div className="min-w-0 max-w-[820px] has-[[data-wide]]:max-w-[1180px]">
+        {/* Every settings section uses the full width, like the rest of the panel; forms lay their fields out in columns. */}
+        <div className="min-w-0">
           <SaveFailed className="mb-5" />
           {children}
         </div>
@@ -83,6 +85,16 @@ export function Field({ id, label, hint, children, className }: { id: string; la
       </label>
       {children}
       {hint && <p className="text-[12.5px] text-muted">{hint}</p>}
+    </div>
+  );
+}
+
+/** A field with its unit on the right ("€", "días"), drawn as one control. */
+export function UnitField({ id, unit, className, ...input }: { id: string; unit: string; className?: string } & ComponentProps<"input">) {
+  return (
+    <div className={cx("shadow-field flex h-(--control-h) items-center overflow-clip rounded-md border border-field-line bg-surface transition-colors hover:border-accent focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15", className)}>
+      <input id={id} {...input} className="figures h-full w-full min-w-0 bg-transparent px-3 text-right outline-hidden" />
+      <span className="grid h-full place-items-center border-l border-line bg-sunk px-3 text-[14px] whitespace-nowrap text-muted">{unit}</span>
     </div>
   );
 }

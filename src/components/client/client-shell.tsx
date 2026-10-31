@@ -36,7 +36,7 @@ export function ClientShell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   // C1: until the client confirms who they are, the welcome page is the only page.
-  const mustWelcome = FEATURES.identityCheck && !!exp && !exp.identityConfirmedAt && path !== "/bienvenida";
+  const mustWelcome = FEATURES.identityCheck && !!exp && !exp.identityConfirmedAt && path !== "/bienvenida" && path !== "/verificacion";
   useEffect(() => {
     if (mustWelcome) router.replace("/bienvenida");
   }, [mustWelcome, router]);

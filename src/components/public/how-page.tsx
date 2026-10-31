@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ArrowRight, CircleCheck, CircleMinus, ClipboardCheck, FileX2, ShieldCheck } from "lucide-react";
+import { ArrowRight, CircleCheck, CircleX, ClipboardCheck, FileX2, ShieldCheck } from "lucide-react";
 import { NO_NEED_TO_UPLOAD } from "@/lib/questionnaire/schema";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
@@ -55,39 +55,42 @@ export function HowPage() {
         </div>
 
         {/*
-          The journey as an editorial timeline: a numbered spine on the left, the text,
-          and a line drawing of the moment on a paper plate. Rows are separated by
-          hairlines, not boxed, so it reads as one story.
+          The journey as a grid of step cards (4 across from 1400px, where every title fits on one line; 2 below; 1 on phones):
+          the drawing of the moment on top, then the number and what happens. The eighth cell
+          is the way in, so the grid closes even (4 + 4) instead of leaving a gap.
         */}
-        <ol ref={timeline} className="how-steps relative">
+        <ol ref={timeline} className="how-steps grid gap-4 sm:grid-cols-2 min-[1400px]:grid-cols-4">
           {h.steps.map(([title, d], i) => (
-            <li
-              key={title}
-              data-step
-              className="group relative -mx-4 grid grid-cols-[48px_minmax(0,1fr)] gap-x-5 rounded-none border-t border-line px-4 py-5 transition-colors duration-300 first:border-t-0 first:pt-2 hover:bg-surface/70 sm:-mx-6 sm:grid-cols-[56px_minmax(0,1fr)_144px] sm:items-center sm:gap-x-8 sm:px-6"
-            >
-              {/* spine: draws down to the next step once this one is on screen */}
-              {i < h.steps.length - 1 && <span className="how-spine absolute top-[3.25rem] bottom-[-1.25rem] left-[39px] w-px bg-line-strong/40 group-first:top-[2.5rem] sm:left-[51px]" aria-hidden="true" />}
-              <span className="how-num relative z-[1] grid size-12 place-items-center self-start rounded-full border border-line bg-surface transition-[background-color,border-color,scale] duration-300 group-hover:border-accent group-hover:bg-accent motion-safe:group-hover:scale-105 sm:size-14">
-                <span className="display-serif text-[20px] leading-none font-semibold text-accent transition-colors duration-300 group-hover:text-accent-ink sm:text-[22px]">{String(i + 1).padStart(2, "0")}</span>
-                <span className="absolute -right-0.5 -bottom-0.5 size-3.5 rounded-full border-2 border-bg bg-copper transition-transform duration-300 motion-safe:group-hover:scale-125" aria-hidden="true" />
-              </span>
-              <div className="how-text min-w-0 self-center">
-                {/* the number beside it already says which step this is */}
-                <h2 className="display-serif text-[20px] leading-7 font-semibold transition-[translate] duration-300 motion-safe:group-hover:translate-x-1">{title}</h2>
-                <p className="mt-1.5 max-w-[56ch] text-[15px] leading-[23px] text-muted">{d}</p>
+            <li key={title} data-step className="group flex flex-col rounded-xl border border-line bg-surface p-4 shadow-sheet transition-[border-color,box-shadow,translate] duration-300 hover:border-accent/30 hover:shadow-[0_18px_34px_-20px_rgb(var(--accent-rgb)/0.4)] motion-safe:hover:-translate-y-1">
+              <div className="how-art overflow-clip rounded-lg bg-sunk/60 px-10 py-2">
+                <SpotArt name={SPOTS[i]} className="mx-auto h-auto w-full max-w-[150px] transition-transform duration-500 ease-out motion-safe:group-hover:-rotate-1 motion-safe:group-hover:scale-[1.03]" />
               </div>
-              <div className="how-art col-start-2 mt-3 w-[128px] rounded-xl bg-surface ring-1 ring-line transition-[translate,rotate,box-shadow] duration-500 ease-out group-hover:shadow-[0_18px_34px_-18px_rgb(var(--accent-rgb)/0.45)] group-hover:ring-accent/25 sm:col-start-3 sm:mt-0 sm:w-full motion-safe:group-hover:-translate-y-1.5 motion-safe:group-hover:-rotate-1">
-                <SpotArt name={SPOTS[i]} className="h-auto w-full" />
+              <div className="mt-4 flex items-center gap-3">
+                <span className="how-num relative grid size-10 shrink-0 place-items-center rounded-full border border-line bg-surface transition-colors duration-300 group-hover:border-accent group-hover:bg-accent">
+                  <span className="display-serif text-[16px] leading-none font-semibold text-accent transition-colors duration-300 group-hover:text-accent-ink">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-surface bg-copper" aria-hidden="true" />
+                </span>
+                <h2 className="display-serif text-[18px] leading-6 font-semibold">{title}</h2>
               </div>
+              <p className="how-text mt-2.5 text-[14.5px] leading-[22px] text-muted">{d}</p>
             </li>
           ))}
+          <li className="flex flex-col justify-center gap-4 rounded-xl border border-accent bg-accent p-6 text-accent-ink on-dark">
+            <h2 className="display-serif text-[22px] leading-7 font-semibold">{t.landing.panelTitle}</h2>
+            <ButtonLink href="/acceso" variant="inverse" size="lg" className="self-start">
+              {h.cta}
+              <ArrowRight size={18} aria-hidden="true" />
+            </ButtonLink>
+            <Link href="/preguntas-frecuentes" className="text-[14.5px] font-medium text-accent-ink/85 underline-offset-4 hover:underline">
+              {h.faqLink} →
+            </Link>
+          </li>
         </ol>
 
         {/*
           Two lists that mean opposite things, so they look different: what to prepare (green
-          "ready" marks on a white card with a green edge) and what not to upload (muted marks
-          on the sunk ground, closing with why).
+          ticks on a white card with a green edge) and what not to upload (soft crosses on the
+          sunk ground, closing with why).
         */}
         <div className="grid items-stretch gap-4 md:grid-cols-2">
           <Card className="flex flex-col gap-4 border-l-[3px] border-l-ok p-5 sm:p-6">
@@ -112,7 +115,7 @@ export function HowPage() {
             <ul className="flex flex-col gap-2.5 text-[14.5px] text-muted">
               {NO_NEED_TO_UPLOAD.map((x) => (
                 <li key={x.es} className="flex items-start gap-2.5">
-                  <CircleMinus size={17} strokeWidth={2.2} className="mt-0.5 shrink-0 text-line-strong" aria-hidden="true" />
+                  <CircleX size={17} strokeWidth={2} className="mt-0.5 shrink-0 text-muted/70" aria-hidden="true" />
                   {tr(x)}
                 </li>
               ))}
@@ -124,15 +127,6 @@ export function HowPage() {
           </Card>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <ButtonLink href="/acceso" variant="primary" size="lg">
-            {h.cta}
-            <ArrowRight size={18} aria-hidden="true" />
-          </ButtonLink>
-          <Link href="/preguntas-frecuentes" className="text-[14.5px] font-medium text-accent hover:underline">
-            {h.faqLink} →
-          </Link>
-        </div>
       </div>
     </PublicShell>
   );

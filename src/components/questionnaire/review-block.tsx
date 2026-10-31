@@ -42,7 +42,8 @@ export function ReviewBlock({ answers, sent, onGo, onSend, signDone }: { answers
               ) : (
                 // Straight to the first question still open, not just to the top of the section.
                 <Button size="sm" variant="primary" onClick={() => onGo(`${s.slug}#${firstOpenAnchor(s.fields, answers) ?? ""}`)}>
-                  {st === "partial" ? t.q.finish : t.q.start}
+                  {/* phones: arrow only, so the section name keeps the line */}
+                  <span className="max-sm:sr-only">{st === "partial" ? t.q.finish : t.q.start}</span>
                   <ArrowRight size={14} aria-hidden="true" />
                 </Button>
               )}

@@ -71,7 +71,7 @@ export function Appointments() {
           ) : (
             <ul>
               {shown.map(({ e, a }) => (
-                <Row key={a.id} e={e} a={a} />
+                <Row key={`${e.id}:${a.id}`} e={e} a={a} />
               ))}
             </ul>
           )}

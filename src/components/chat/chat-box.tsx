@@ -19,10 +19,10 @@ type Entry = { at: string; m?: ChatMessage; task?: ClientTask };
 const TASK_TONE = { open: "copper", done: "warn", closed: "ok" } as const;
 
 /** Client ⇄ gestoría messages for one case. Marks messages as seen while open. */
-export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cliente" }: { exp: Expediente; side: Side; height?: string; header?: boolean }) {
+export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cliente", initialDraft = "" }: { exp: Expediente; side: Side; height?: string; header?: boolean; initialDraft?: string }) {
   const { firm } = useAppState();
   const { t, tr, locale } = useI18n();
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(initialDraft);
   // Attachments waiting to go with the next message (demo only: the API has no message attachments yet).
   const [att, setAtt] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);

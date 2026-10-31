@@ -11,6 +11,7 @@ import { LogIn, Mail, MapPin, Phone } from "lucide-react";
 import { useAppState } from "@/lib/data/store";
 import { useFileUrl } from "@/lib/data/files";
 import { PLATFORM_SITE } from "@/lib/site";
+import { usePlatformText } from "@/lib/i18n/messages-platform";
 import f from "./public-shell.module.scss";
 
 /**
@@ -20,6 +21,7 @@ import f from "./public-shell.module.scss";
  */
 export function PublicShell({ children }: { children: ReactNode }) {
   const { t, tr } = useI18n();
+  const { p } = usePlatformText();
   const { firm } = useAppState();
   const firmName = firm.name.trim() || t.landing.yourFirm;
   const logo = useFileUrl(firm.logo);
@@ -35,6 +37,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
     : [
         { href: "/como-funciona", label: t.pub.nav.how },
         { href: "/para-gestorias", label: t.pub.nav.firms },
+        { href: "/precios", label: p.pricing.title },
         { href: "/demo", label: t.pub.nav.demo },
         { href: "/preguntas-frecuentes", label: t.pub.nav.faq },
         { href: "/contacto", label: t.pub.nav.contact },

@@ -2,8 +2,8 @@
 
 // Fields: one look for every text input, select, textarea and composite field
 // (amount + unit), client side and workspace.
-//   rest      white, 1px line-strong border (3:1), 8px radius, flat
-//   hover     border darkens to ink-muted
+//   rest      white, 1px field-line border (3.1:1, the minimum for a control), 8px radius, soft shadow
+//   hover     border turns brand navy
 //   focus     2px brand border and a firm halo
 //   invalid   danger border and base line; the message under the field says what to write
 //   disabled  sunk ground, muted text
@@ -12,7 +12,7 @@
   .field,
   .field-group {
     width: 100%;
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--field-line);
     border-radius: radius(md);
     background-color: var(--surface);
     color: var(--ink);
@@ -34,7 +34,7 @@
     }
 
     &:hover:not(:disabled, :focus) {
-      border-color: var(--muted);
+      border-color: var(--accent);
     }
 
     // A clear "you are typing here": the border doubles to 2px navy, plus a wider, firmer halo.

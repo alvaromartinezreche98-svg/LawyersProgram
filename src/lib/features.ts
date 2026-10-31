@@ -25,6 +25,9 @@ const DEMO_ONLY = ON && !API;
 export const SIMULATED_PAYMENT = !CLERK_ENABLED || process.env.NEXT_PUBLIC_DEMO_PAYMENT === "1";
 
 export const FEATURES = {
+  /* Platform (PreRenta team) · kept in this browser until accounts and billing exist */
+  /** X1–X4 the PreRenta team's area, A7 gestoría sign-up and A8 onboarding. */
+  platformAdmin: DEMO_ONLY,
   /* NEXT · core platform */
   /** C1 identity confirmation before the questionnaire. */
   identityCheck: DEMO_ONLY,

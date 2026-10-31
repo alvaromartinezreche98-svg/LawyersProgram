@@ -12,7 +12,7 @@ import { Brand, ButtonLink } from "@/components/ui/primitives";
 /** Where "Go to start" leads: the user's own area when signed in, the access page otherwise. */
 export function useHomeHref() {
   const { session } = useAppState();
-  return session?.role === "gestoria" ? "/expedientes" : session?.role === "cliente" ? "/inicio" : "/";
+  return session?.role === "admin" ? "/admin/gestorias" : session?.role === "gestoria" ? "/expedientes" : session?.role === "cliente" ? "/inicio" : "/";
 }
 
 /** S1 · Full-page message for 404, errors and maintenance. */

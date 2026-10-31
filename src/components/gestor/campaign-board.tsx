@@ -156,8 +156,10 @@ export function CampaignBoard() {
 
         <section className="flex flex-col gap-2">
           <h2 className="display-tight text-[15px] font-semibold">{t.board.workload}</h2>
-          <div className="overflow-clip rounded-lg border border-line bg-surface">
-            <div className="table-head grid grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] gap-4">
+          {/* Scrolls sideways on phones rather than breaking the column titles mid-word */}
+          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+            <div className="min-w-[540px]">
+            <div className="table-head grid grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] gap-4 whitespace-nowrap">
               <span>{t.board.cols.member}</span>
               <span className="text-right">{t.board.cols.cases}</span>
               <span className="text-right">{t.board.cols.attention}</span>
@@ -171,6 +173,7 @@ export function CampaignBoard() {
                 <span className="figures text-right text-muted">{m.approval}</span>
               </div>
             ))}
+            </div>
           </div>
         </section>
       </div>
@@ -269,7 +272,8 @@ function CampaignStats({ all, filing }: { all: Triage[]; filing?: string }) {
             </span>
           </>
         );
-        const cls = "flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet";
+        // On phones the icon sits above the figure, so each label gets the whole tile width and stays on one line.
+        const cls = "flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet max-sm:flex-col max-sm:items-start max-sm:gap-2 max-sm:px-3";
         return (
           <li key={x.label}>
             {x.href ? <Link href={x.href} className={cx(cls, "transition-colors hover:border-line-strong")}>{body}</Link> : <div className={cls}>{body}</div>}

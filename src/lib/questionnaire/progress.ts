@@ -135,6 +135,16 @@ export function collectDocs(a: Answers): DocSlot[] {
 }
 
 /** Immutable set at a nested path of objects and arrays. */
+/** Reads the value at `path` (the counterpart of setIn). */
+export function getIn(obj: Answers, path: Path): AnswerValue | undefined {
+  let cur: unknown = obj;
+  for (const k of path) {
+    if (cur == null || typeof cur !== "object") return undefined;
+    cur = (cur as Record<string | number, unknown>)[k];
+  }
+  return cur as AnswerValue | undefined;
+}
+
 export function setIn(obj: Answers, path: Path, value: AnswerValue | undefined): Answers {
   const [head, ...rest] = path;
   const copy: Answers | Answers[] = Array.isArray(obj) ? [...(obj as Answers[])] : { ...obj };

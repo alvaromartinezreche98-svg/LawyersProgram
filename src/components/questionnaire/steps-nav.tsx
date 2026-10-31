@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { ChevronDown, PenLine, Send } from "lucide-react";
+import { ChevronDown, CircleAlert, PenLine, Send } from "lucide-react";
 import type { Answers } from "@/lib/questionnaire/types";
 import { REVIEW_SLUG, SCHEMA, SIGN_SLUG } from "@/lib/questionnaire/schema";
 import { progressOf, sectionState, type SectionState } from "@/lib/questionnaire/progress";
@@ -43,7 +43,27 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
     setOpen(false);
     onSelect(slug);
   };
-  const row = (slug: string, name: string, dot: ReactNode, state?: ReactNode, request?: boolean, partial?: boolean) => (
+  // The state sits on the same line as the name in every language: a short count
+  // badge ("8") or an alert icon, with the full words for screen readers and on hover.
+  const badge = (s: (typeof sections)[number]) => {
+    const text = stateText(s);
+    if (requested?.has(s.slug))
+      return (
+        <span title={text} className="inline-flex size-[22px] items-center justify-center rounded-full bg-copper-soft text-copper-text">
+          <CircleAlert size={14} aria-hidden="true" />
+          <span className="sr-only">{text}</span>
+        </span>
+      );
+    if (s.st === "partial")
+      return (
+        <span title={text} className="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-copper-soft px-1.5 text-[12.5px] font-semibold text-copper-text tabular-nums">
+          <span aria-hidden="true">{s.p.total - s.p.done}</span>
+          <span className="sr-only">{text}</span>
+        </span>
+      );
+    return <span className="sr-only">{text}</span>;
+  };
+  const row = (slug: string, name: string, dot: ReactNode, state?: ReactNode) => (
     <li key={slug}>
       <button
         type="button"
@@ -52,8 +72,8 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
         className={cx("grid w-full grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[14.5px] leading-5 transition-colors", slug === current ? "bg-copper-soft font-semibold shadow-[inset_3px_0_0_var(--copper)]" : "hover:bg-accent-soft")}
       >
         {dot}
-        <span className="min-w-0 [overflow-wrap:normal] hyphens-auto">{name}</span>
-        <span className={cx("text-right text-[13px] whitespace-nowrap", request ? "font-semibold text-copper-text" : partial ? "font-medium text-copper-text" : "font-normal text-muted", state === t.sectionState.done && "sr-only")}>{state}</span>
+        <span className="min-w-0 truncate">{name}</span>
+        {state}
       </button>
     </li>
   );
@@ -63,7 +83,7 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
       {/* Phone bar */}
       <div className="flex flex-col gap-2.5 min-[960px]:hidden">
         <div className="flex items-center justify-between gap-3">
-          <span className="t-eyebrow text-muted">{idx >= 0 ? t.q.sectionOf(idx + 1, SCHEMA.length) : curName}</span>
+          <span className="t-eyebrow min-w-0 truncate text-muted">{idx >= 0 ? t.q.sectionOf(idx + 1, SCHEMA.length) : curName}</span>
           {footer}
         </div>
         <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="flex h-(--control-h) w-full items-center justify-between gap-2 rounded-md border border-line-strong bg-surface px-3.5 text-left text-[15px] font-medium">
@@ -79,8 +99,8 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
       {/* Desktop header */}
       <div className="mb-3 hidden flex-col gap-2 min-[960px]:flex">
         <div className="flex items-center justify-between gap-2">
-          <span className="t-eyebrow text-muted">{t.home.yourReturn}</span>
-          <span className="text-[13px] text-muted">{t.q.doneShort(done, SCHEMA.length)}</span>
+          <span className="t-eyebrow whitespace-nowrap text-muted">{t.home.yourReturn}</span>
+          <span className="text-[13px] whitespace-nowrap text-muted">{t.q.doneShort(done, SCHEMA.length)}</span>
         </div>
         <SegMeter states={states} />
       </div>
@@ -88,10 +108,13 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
       <div className={cx("max-[959px]:mt-2 max-[959px]:max-h-[60dvh] max-[959px]:overflow-y-auto", open ? "block" : "max-[959px]:hidden")}>
         <ol className="flex flex-col gap-0.5">
           {/* done = green check · in progress = terracotta half-filled with what is left · not started = grey number */}
-          {sections.map((s, i) => row(s.slug, s.short, <StepDot n={i + 1} state={s.st as SectionState} />, stateText(s), requested?.has(s.slug), s.st === "partial"))}
+          {/* Signing comes right after personal details (sitemap C3), in the same order as the steps */}
+          {sections.flatMap((s, i) => [
+            row(s.slug, s.short, <StepDot n={i + 1} state={s.st as SectionState} />, badge(s)),
+            ...(i === 0 && signDone !== undefined ? [row(SIGN_SLUG, t.sign.short, <StepDot state={signDone ? "done" : "none"} icon={PenLine} tone="accent" />)] : []),
+          ])}
         </ol>
         <ul className="mt-2 flex flex-col gap-0.5 border-t border-line pt-2">
-          {signDone !== undefined && row(SIGN_SLUG, t.sign.short, <StepDot state={signDone ? "done" : "none"} icon={PenLine} tone="accent" />, signDone ? t.sectionState.done : "")}
           {row(REVIEW_SLUG, t.q.review, <StepDot state="none" icon={Send} tone="accent" />)}
         </ul>
       </div>

@@ -4,7 +4,7 @@ import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { Menu, Search, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, LogOut, Settings, Wallet, type LucideIcon, Users } from "lucide-react";
+import { Menu, Search, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, ListChecks, LogOut, Settings, Wallet, type LucideIcon } from "lucide-react";
 import { IconTile } from "@/components/ui/icons";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { actions, unreadFor, useAppState } from "@/lib/data/store";
@@ -16,6 +16,8 @@ import { Badge, Brand, Loading, cx } from "@/components/ui/primitives";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
 import { useRemoteInbox } from "@/lib/api/use-remote";
 import { QuickSearch, useQuickSearchKey } from "./quick-search";
+import { onboardingProgress } from "./onboarding";
+import { usePlatformText } from "@/lib/i18n/messages-platform";
 
 /** Gestoría panel frame: left sidebar (drawer on mobile) + content panel. */
 export function GestorShell({ children }: { children: ReactNode }) {
@@ -88,9 +90,8 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
   const path = usePathname();
   const unread = Object.values(exps).filter((e) => unreadFor(e, "gestor") > 0).length;
   const inCases = path.startsWith("/expedientes");
-  // Team has its own row: on its page that row is active, not Settings.
-  const inTeam = path.startsWith("/ajustes/equipo");
-  const inSettings = path.startsWith("/ajustes") && !inTeam;
+  // Team lives inside Settings (sitemap G7), so its page lights the Settings row.
+  const inSettings = path.startsWith("/ajustes");
   const all: [LucideIcon, string, string, boolean][] = [
     [LayoutDashboard, t.side.board, "/panel", FEATURES.campaignBoard],
     [Contact, t.side.clients, "/clientes", true],
@@ -100,6 +101,11 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
   const live = all.filter((x) => x[3]);
 
   const firmName = firm.name.trim() || "Gestoría";
+  // A8: the first-run checklist stays in the menu until its steps are done.
+  const { p } = usePlatformText();
+  const setup = onboardingProgress(firm, Object.values(exps));
+  const inSetup = path.startsWith("/alta-gestoria/inicio");
+  const showSetup = FEATURES.platformAdmin && FEATURES.firmSettings && (!setup.ready || inSetup);
 
   return (
     <nav aria-label={t.side.main} className="flex h-full flex-col bg-chrome text-chrome-ink on-dark lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
@@ -146,6 +152,15 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
         {/* Account: settings, language and sign-out, under a divider. */}
         <p className={cx("t-label mt-auto mb-2 border-t border-chrome-line px-2.5 pt-4 text-chrome-muted", compact && "lg:sr-only")}>{t.side.officeLabel}</p>
         <ul className={cx("flex flex-col gap-1.5", compact && "lg:mt-auto lg:border-t lg:border-chrome-line lg:pt-4")}>
+          {showSetup && (
+            <li>
+              <Link href="/alta-gestoria/inicio" onClick={onNavigate} title={compact ? p.onboarding.title : undefined} aria-current={inSetup ? "page" : undefined} className={item(inSetup)}>
+                <IconTile icon={ListChecks} size="xs" tone={inSetup ? "copperSolid" : "chrome"} />
+                {label(p.onboarding.title)}
+                <span className={cx("figures text-[12px] text-chrome-muted", compact && "lg:hidden")}>{setup.done}/{setup.total}</span>
+              </Link>
+            </li>
+          )}
           {FEATURES.firmSettings && (
             <li>
               <Link href="/ajustes/despacho" onClick={onNavigate} title={compact ? t.side.settings : undefined} aria-current={inSettings ? "page" : undefined} className={item(inSettings)}>
@@ -154,22 +169,6 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
               </Link>
             </li>
           )}
-          <li>
-            {FEATURES.firmSettings ? (
-              // Settings › Team works in this build: the row opens it.
-              <Link href="/ajustes/equipo" onClick={onNavigate} title={compact ? t.side.invite : undefined} aria-current={inTeam ? "page" : undefined} className={item(inTeam)}>
-                <IconTile icon={Users} size="xs" tone={inTeam ? "copperSolid" : "chrome"} />
-                {label(t.side.invite)}
-              </Link>
-            ) : (
-              // With the API, team management waits for the backend.
-              <span className={cx(item(false), "cursor-default opacity-60 hover:bg-transparent hover:text-chrome-muted")} aria-disabled="true" title={compact ? `${t.side.invite} · ${t.side.soon}` : undefined}>
-                <IconTile icon={Users} size="xs" tone="chrome" />
-                <span className={cx("flex-1", compact && "lg:sr-only")}>{t.side.invite}</span>
-                <span className={cx("rounded-sm bg-chrome-tile px-1.5 text-[11px] leading-[18px] font-medium tracking-wide text-chrome-muted", compact && "lg:hidden")}>{t.side.soon}</span>
-              </span>
-            )}
-          </li>
           <li>
             <LangMenu compact={compact} item={item} />
           </li>
@@ -186,7 +185,7 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
 }
 
 /** Language row: shows the current language by name and opens the list in place (nothing to clip, works folded too). */
-function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => string }) {
+export function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => string }) {
   const { t, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const cur = LANGS.find((l) => l.id === lang)!;
@@ -225,8 +224,10 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
   );
 }
 
-const itemCls = (on: boolean) =>
-  cx("flex min-h-11 items-center gap-3 rounded-lg px-2.5 py-1.5 text-[14.5px] transition-colors", on ? "bg-chrome-active font-semibold text-chrome-ink shadow-[inset_3px_0_0_var(--chrome-mark)]" : "font-medium text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink");
+// Active: a soft full-width ground plus a short bar set inside the row (clear of the rounded corners),
+// in the same brand terracotta as the icon tile beside it.
+export const itemCls = (on: boolean) =>
+  cx("relative flex min-h-11 items-center gap-3 rounded-lg px-2.5 py-1.5 text-[14.5px] transition-colors", on ? "bg-chrome-active font-semibold text-chrome-ink before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-r-full before:bg-copper" : "font-medium text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink");
 
 
 /** Sticky header inside the content panel: breadcrumbs on the left, actions on the right. */

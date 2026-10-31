@@ -36,7 +36,7 @@ export function ClientPreview({ id }: { id: string }) {
       ) : (
         <div className="flex flex-col gap-5 px-4 py-6 sm:px-6">
           <Notice>{t.preview.notice(name)}</Notice>
-          <div className="grid items-start gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
+          <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
             <StepsNav answers={e.answers} current={slug} onSelect={setSlug} signDone={FEATURES.signing ? signingDone(e, firm) : undefined} />
             <section className="min-w-0 rounded-xl border border-line bg-surface px-4 py-7 sm:px-8 lg:px-10">
               <Eyebrow>{t.q.stepOf(idx + 1, STEP_SLUGS.length)}</Eyebrow>
