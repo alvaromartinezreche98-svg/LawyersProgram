@@ -1,0 +1,533 @@
+// Entry page ("/" and "/acceso"): the gestoría's story on the left, sign-in on the right.
+// Tokens and mixins come from the Phase 1 design system; nothing here defines a new value
+// that is not a layout decision for this page.
+@use "sass:map";
+@use "../styles/abstracts" as *;
+
+// ---------- Page grid ----------
+// Phones and tablets: one column ordered by priority (intro → sign-in → steps → privacy).
+// From lg: two columns, the sign-in spanning the story's rows; the last row absorbs the slack
+// so the left blocks never spread apart when the panel is the taller column.
+.home {
+  display: grid;
+  grid-template-areas:
+    "intro"
+    "access"
+    "process"
+    "trust";
+  row-gap: space(7);
+  width: 100%;
+  max-width: map.get($width, "page");
+  margin-inline: auto;
+  padding: space(7) space(4) space(9);
+
+  @include from("sm") {
+    padding-inline: space(6);
+  }
+
+  @include from("lg") {
+    grid-template-areas:
+      "intro   access"
+      "process access"
+      "trust   access";
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 416px);
+    grid-template-rows: auto auto 1fr;
+    column-gap: clamp(48px, 7vw, 112px);
+    row-gap: space(7);
+    padding-block: space(9) space(10);
+  }
+}
+
+.intro {
+  grid-area: intro;
+  min-width: 0;
+}
+
+.access {
+  grid-area: access;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: space(3);
+
+  @include from("lg") {
+    align-self: start;
+    position: sticky;
+    top: calc(64px + #{space(5)}); // below the public header
+  }
+}
+
+.process {
+  grid-area: process;
+  min-width: 0;
+}
+
+.trust {
+  grid-area: trust;
+  align-self: start;
+}
+
+
+// ---------- One rhythm for the left column ----------
+// label → its content: space(3) · element → element: space(5) · block → block: the grid's row-gap, space(7).
+
+// ---------- Intro ----------
+.title {
+  @include type("display");
+  font-family: $font-serif;
+  max-width: 21ch;
+  margin-block: space(3) space(5);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+// The promise of the page, underlined in terracotta; inline, so it wraps on narrow screens.
+.mark {
+  color: var(--accent);
+  text-decoration: underline 0.065em var(--copper);
+  text-underline-offset: 0.14em;
+  text-decoration-skip-ink: none;
+}
+
+.lede {
+  @include type("body-lg");
+  max-width: 44ch;
+  color: var(--muted);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.ledger {
+  max-width: 400px;
+  margin-top: space(5);
+}
+
+// ---------- Process: one sequence, not three cards ----------
+.steps {
+  display: grid;
+  margin-top: space(3);
+
+  @include from("sm") {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: space(6);
+  }
+}
+
+// Each step hangs from the same hairline, so the three read as one path.
+.step {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  column-gap: space(3);
+  row-gap: space(1);
+  padding-block: space(4);
+  border-top: 1px solid var(--line-strong);
+
+  // side by side: each step flows on its own, so title → text is the same gap in every column
+  @include from("sm") {
+    grid-template-columns: none;
+    align-content: start;
+    padding-block: space(4) 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.stepNum {
+  grid-row: span 2;
+  font-family: $font-serif;
+  font-size: 1.375rem;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--copper-text);
+  font-variant-numeric: tabular-nums;
+
+  @include from("sm") {
+    grid-row: auto;
+    margin-bottom: space(2);
+  }
+}
+
+.stepTitle {
+  @include type("card");
+  font-size: 1rem;
+  line-height: 1.35;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.stepText {
+  @include type("body");
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+// ---------- Privacy: the same label + hairline as the process, then statement | facts ----------
+.trustBody {
+  display: grid;
+  gap: space(5);
+  margin-top: space(3);
+  padding-top: space(4);
+  border-top: 1px solid var(--line-strong);
+}
+
+.trustLead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  column-gap: space(3);
+  row-gap: space(2);
+}
+
+// A small seal: the shield on terracotta-soft, ringed like a stamp.
+.seal {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  grid-row: span 2;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--copper-soft);
+  box-shadow: inset 0 0 0 1px var(--copper), inset 0 0 0 3px var(--copper-soft), inset 0 0 0 4px rgb(var(--accent-rgb) / 0.08);
+  color: var(--copper-text);
+}
+
+.trustTitle {
+  align-self: center;
+  font-family: $font-serif;
+  @include type("section");
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+
+.trustText {
+  @include type("body");
+  line-height: 1.6;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+// The facts under the statement, aligned with its text (seal 36px + gap), like the hero's ledger.
+.trustFacts {
+  max-width: 560px;
+
+  @include from("sm") {
+    margin-left: calc(36px + #{space(3)});
+  }
+}
+
+.trustLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  text-underline-offset: 3px;
+
+  svg {
+    transition: translate duration(base) $ease-out;
+  }
+
+  @include hover {
+    text-decoration: underline;
+
+    svg {
+      translate: 2px 0;
+    }
+  }
+}
+
+// ---------- Sign-in panel ----------
+// A sheet of the page, not a floating widget: hairline border, the resting elevation
+// and a navy head rule that ties it to the header and footer bands.
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: space(5);
+  padding: space(6) space(5);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--accent);
+  border-radius: radius(lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sheet-value);
+
+  @include from("sm") {
+    padding-inline: space(6);
+  }
+}
+
+.panelTitle {
+  font-family: $font-serif;
+  @include type("section");
+  font-size: 1.625rem;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.panelHead {
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+}
+
+
+
+// The other role: a separate, full-width button at the foot of the panel.
+.switchRole {
+  display: flex;
+  align-items: center;
+  gap: space(3);
+  margin: 0 calc(-1 * #{space(5)}) calc(-1 * #{space(6)});
+  padding: space(4) space(5);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 radius(lg) radius(lg);
+  text-align: left;
+  transition: background-color duration(fast) ease;
+
+  @include from("sm") {
+    margin-inline: calc(-1 * #{space(6)});
+    padding-inline: space(6);
+  }
+
+  @include hover {
+    background: var(--hover);
+
+    .switchArrow {
+      color: var(--accent);
+      translate: 2px 0;
+    }
+  }
+}
+
+.switchIcon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: radius(md);
+  background: var(--icon-soft);
+  color: var(--icon);
+}
+
+.switchText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+
+  b {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  span {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+}
+
+.switchArrow {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition:
+    color duration(fast) ease,
+    translate duration(base) $ease-out;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  gap: space(4);
+}
+
+.lead {
+  @include type("body");
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.codeForm {
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.codeRow {
+  display: flex;
+  gap: space(2);
+
+  input {
+    min-width: 0;
+    flex: 1;
+    height: var(--control-h);
+    letter-spacing: 0.04em;
+  }
+}
+
+// Demo aids: a separate, quieter card under the sign-in (dashed edge, no elevation), folded by default.
+.demo {
+  padding: space(3) space(5);
+  border: 1px dashed var(--line-strong);
+  border-radius: radius(lg);
+  background: transparent;
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+    gap: space(3);
+    padding-bottom: space(4);
+    background: var(--surface);
+  }
+}
+
+.demoSummary {
+  display: flex;
+  align-items: center;
+  gap: space(3);
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::after {
+    content: "";
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    margin-left: auto;
+    border-right: 1.5px solid var(--muted);
+    border-bottom: 1.5px solid var(--muted);
+    rotate: 45deg;
+    translate: 0 -2px;
+    transition: rotate duration(base) $ease-out;
+  }
+
+  .demo[open] &::after {
+    rotate: 225deg;
+    translate: 0 2px;
+  }
+}
+
+.demoTitle {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.demoTag {
+  flex-shrink: 0;
+  padding: 0 6px;
+  border: 1px solid currentcolor;
+  border-radius: radius(sm);
+  @include type("label");
+  text-transform: uppercase;
+  color: var(--copper-text);
+}
+
+.demoHint {
+  @include type("meta");
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.cases {
+  max-height: min(240px, 36dvh);
+  overflow-y: auto;
+  border-block: 1px solid var(--line);
+
+  li + li {
+    border-top: 1px solid var(--line);
+  }
+}
+
+.case {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: space(3);
+  min-height: 44px;
+  padding: space(2) space(1);
+  text-align: left;
+  transition: background-color duration(fast) ease;
+
+  @include hover {
+    background: var(--hover);
+
+    .caseArrow {
+      color: var(--accent);
+      translate: 2px 0;
+    }
+  }
+}
+
+.caseName {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.caseArrow {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition:
+    color duration(fast) ease,
+    translate duration(base) $ease-out;
+}
+
+.demoActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 space(5);
+}
+
+.textBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-underline-offset: 4px;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}
+
+.newForm {
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+  padding: space(4);
+  border-radius: radius(md);
+  background: var(--sunk);
+}
+
+.newTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+

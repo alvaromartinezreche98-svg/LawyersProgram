@@ -6,12 +6,22 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { actions } from "@/lib/data/store";
 import { cx } from "./primitives";
 
-/** ES / EN toggle. Also keeps <html lang> and the tab title prefix in sync. */
-export function LangSwitch({ className }: { className?: string }) {
-  const { lang, t } = useI18n();
+/**
+ * Keeps <html lang> in step with the chosen language, so screen readers and the
+ * browser read the page in the right language. Call it from every frame that is
+ * always mounted (public shell via LangSwitch, client AppShell, gestoría sidebar).
+ */
+export function useHtmlLang() {
+  const { lang } = useI18n();
   useEffect(() => {
     document.documentElement.lang = HTML_LANG[lang];
   }, [lang]);
+}
+
+/** ES / VA / EN toggle. */
+export function LangSwitch({ className }: { className?: string }) {
+  const { lang, t } = useI18n();
+  useHtmlLang();
   return (
     <div role="group" aria-label={t.common.language} className={cx("flex h-(--control-h-sm) items-stretch gap-0.5 rounded-md border border-line-strong/50 bg-surface p-0.5", className)}>
       {LANGS.map((l) => (

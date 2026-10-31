@@ -1,0 +1,48 @@
+@use "../abstracts" as *;
+
+:root {
+  scrollbar-gutter: stable;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-feature-settings: "kern";
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+// 16px fields on touch screens, so iOS does not zoom into the page on focus.
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
+  }
+}
+
+// In the base layer, so a control that draws its own focus is not outlined twice.
+@layer base {
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="hidden"]):not(.bg-transparent), select, textarea:not(.bg-transparent)) {
+    box-shadow: var(--field-shadow);
+  }
+
+  :focus-visible {
+    @include focus-ring;
+  }
+}
+
+// Pages with a sticky foot bar (the questionnaire): a field reached with Tab or
+// scrolled into view stops above the bar instead of under it.
+@include from("rail") {
+  html:has([data-sticky-foot]) {
+    scroll-padding-bottom: 96px;
+  }
+}

@@ -29,7 +29,7 @@ export function ClientHistory() {
           <EmptyState inset icon={History} title={t.years.none} />
         ) : (
           <>
-            <div className="hidden grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] gap-4 border-b border-line bg-sunk px-5 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase sm:grid">
+            <div className="table-head hidden grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] gap-4 px-5 sm:grid">
               <span>{t.years.cols.year}</span>
               <span>{t.years.cols.status}</span>
               <span>{t.years.cols.result}</span>

@@ -24,7 +24,7 @@ export function CaseRecord({ id }: { id: string }) {
   const sigs = LEGAL_KINDS.flatMap((k) => (e.signatures?.[k] ? [{ k, s: e.signatures[k]! }] : []));
   const res = e.result;
   const ok = res?.approval && res.approval.version === res.version ? res.approval : null;
-  const th = "border-b border-line py-2 pr-4 text-left text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase";
+  const th = "t-label border-b border-line py-2 pr-4 text-left";
   const td = "border-b border-line py-2.5 pr-4 align-top text-[14px]";
 
   return (
@@ -46,7 +46,7 @@ export function CaseRecord({ id }: { id: string }) {
 
         <article className="mx-auto flex w-full max-w-[780px] flex-col gap-8 rounded-xl border border-line bg-surface p-8 shadow-sheet sm:p-12 print:max-w-none print:border-0 print:p-0 print:shadow-none">
           <header className="flex flex-col gap-1 border-b-2 border-ink pb-5">
-            <p className="text-[12px] font-semibold tracking-[.12em] text-accent uppercase">{firm.name || r.firm}</p>
+            <p className="t-eyebrow text-accent">{firm.name || r.firm}</p>
             <h1 className="display-serif text-[28px] leading-tight font-semibold">{r.title}</h1>
             <p className="text-[14px] text-muted">{r.intro}</p>
           </header>
@@ -59,7 +59,7 @@ export function CaseRecord({ id }: { id: string }) {
               [r.caseId, e.id],
             ].map(([k, v]) => (
               <div key={k} className="flex min-w-0 flex-col">
-                <dt className="text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase">{k}</dt>
+                <dt className="t-label">{k}</dt>
                 <dd className="truncate font-medium">{v}</dd>
               </div>
             ))}
@@ -98,10 +98,10 @@ export function CaseRecord({ id }: { id: string }) {
             <h2 className="text-[16px] font-semibold">{r.approval}</h2>
             {res && ok ? (
               <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-[14px] sm:grid-cols-4">
-                <div className="flex flex-col"><dt className="text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase">{r.result}</dt><dd className="figures font-medium">{t.result.kind[res.kind]} {res.amount} €</dd></div>
-                <div className="flex flex-col"><dt className="text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase">{r.version}</dt><dd className="figures font-medium">v{ok.version}</dd></div>
-                <div className="flex flex-col"><dt className="text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase">{r.approvedAt}</dt><dd className="figures font-medium">{fmtTime(ok.approvedAt, locale)}</dd></div>
-                <div className="flex flex-col"><dt className="text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase">{r.approvedBy}</dt><dd className="font-medium">{ok.approvedBy}</dd></div>
+                <div className="flex flex-col"><dt className="t-label">{r.result}</dt><dd className="figures font-medium">{t.result.kind[res.kind]} {res.amount} €</dd></div>
+                <div className="flex flex-col"><dt className="t-label">{r.version}</dt><dd className="figures font-medium">v{ok.version}</dd></div>
+                <div className="flex flex-col"><dt className="t-label">{r.approvedAt}</dt><dd className="figures font-medium">{fmtTime(ok.approvedAt, locale)}</dd></div>
+                <div className="flex flex-col"><dt className="t-label">{r.approvedBy}</dt><dd className="font-medium">{ok.approvedBy}</dd></div>
               </dl>
             ) : (
               <p className="text-[14px] text-muted">{r.noApproval}</p>

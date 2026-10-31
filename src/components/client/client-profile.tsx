@@ -57,9 +57,6 @@ export function ClientProfile() {
                   {l.label}
                 </button>
               ))}
-              <button type="button" role="radio" aria-checked={false} disabled className="h-(--control-h) rounded-md border border-line bg-surface px-4 text-[14px] font-medium opacity-50">
-                Valencià
-              </button>
             </div>
           </Card>
 

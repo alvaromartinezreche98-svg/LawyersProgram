@@ -1,0 +1,8 @@
+@use "../abstracts" as *;
+
+// The gestoría panel scrolls inside its own frame on desktop: no page scrollbar gutter beside it.
+@include from("lg") {
+  :root:has(.gestor-shell) {
+    scrollbar-gutter: auto;
+  }
+}

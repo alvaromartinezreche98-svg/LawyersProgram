@@ -3,7 +3,8 @@
 import { actions, useAppState } from "@/lib/data/store";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { Button, Card } from "@/components/ui/primitives";
-import { Field, SectionHead, inputCls } from "./settings-layout";
+import { Field, SectionHead } from "./settings-layout";
+import { DateField } from "@/components/ui/date-field";
 
 const KEYS = ["filing", "directDebit"] as const;
 
@@ -22,7 +23,7 @@ export function CampaignSettings() {
           {KEYS.map((k) => (
             <Field key={k} id={`camp-${k}`} label={c[k]}>
               <div className="flex gap-2">
-                <input id={`camp-${k}`} type="date" value={firm.campaign?.[k] ?? ""} onChange={(e) => set(k, e.target.value)} className={inputCls} />
+                <DateField id={`camp-${k}`} value={firm.campaign?.[k] ?? ""} onChange={(v) => set(k, v)} />
                 {firm.campaign?.[k] && (
                   <Button variant="ghost" onClick={() => set(k, "")}>
                     {c.clear}

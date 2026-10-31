@@ -20,7 +20,7 @@ export function PublicHome() {
     <PublicShell>
       <PageTitle>{h.title}</PageTitle>
 
-      <section className="mx-auto grid w-full max-w-[1200px] items-center gap-10 px-4 py-12 sm:px-8 md:grid-cols-[minmax(0,1fr)_320px] md:py-16 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <section className="mx-auto grid w-full max-w-page items-center gap-10 px-4 py-12 sm:px-8 md:grid-cols-[minmax(0,1fr)_320px] md:py-16 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex min-w-0 flex-col gap-5">
           <Eyebrow>{h.eyebrow}</Eyebrow>
           <h1 className="display-serif max-w-[20ch] text-[clamp(30px,4vw,44px)] leading-[1.1] font-semibold">{h.h1}</h1>
@@ -40,7 +40,7 @@ export function PublicHome() {
       </section>
 
       <section aria-labelledby="how" className="border-y border-line bg-surface">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-12 sm:px-8">
+        <div className="mx-auto flex w-full max-w-page flex-col gap-6 px-4 py-12 sm:px-8">
           <h2 id="how" className="display-tight text-[clamp(22px,2.4vw,28px)] font-semibold">{h.howTitle}</h2>
           <ol className="grid gap-4 md:grid-cols-3">
             {t.access.steps.map(([title, d], i) => (
@@ -54,7 +54,7 @@ export function PublicHome() {
         </div>
       </section>
 
-      <section aria-labelledby="clients" className="mx-auto grid w-full max-w-[1200px] items-start gap-10 px-4 py-12 sm:px-8 md:grid-cols-2">
+      <section aria-labelledby="clients" className="mx-auto grid w-full max-w-page items-start gap-10 px-4 py-12 sm:px-8 md:grid-cols-2">
         <div className="flex flex-col gap-5">
           <h2 id="clients" className="display-tight text-[clamp(22px,2.4vw,28px)] font-semibold">{h.clientsTitle}</h2>
           <ul className="flex flex-col gap-4">
@@ -73,7 +73,7 @@ export function PublicHome() {
       </section>
 
       <section aria-labelledby="gestorias" className="border-t border-line bg-surface">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-12 sm:px-8">
+        <div className="mx-auto flex w-full max-w-page flex-col gap-6 px-4 py-12 sm:px-8">
           <div className="flex flex-col gap-2">
             <Eyebrow>{h.gestoriasEyebrow}</Eyebrow>
             <h2 id="gestorias" className="display-tight text-[clamp(22px,2.4vw,28px)] font-semibold">{h.gestoriasTitle}</h2>
@@ -99,7 +99,7 @@ export function PublicHome() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-4 py-10 sm:px-8">
+      <section className="mx-auto w-full max-w-page px-4 py-10 sm:px-8">
         <p className="text-[14px] text-muted">{h.langs}</p>
       </section>
     </PublicShell>

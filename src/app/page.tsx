@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { AccessScreen } from "@/components/access-screen";
+import { PublicHome } from "@/components/public/public-home";
+import { PLATFORM_SITE } from "@/lib/site";
 
 /** Links that used to open the access page on "/" (invitations, printed QRs, ?next= return links). */
 const ACCESS_PARAMS = ["expediente", "alta", "next"];
@@ -7,8 +9,8 @@ const ACCESS_PARAMS = ["expediente", "alta", "next"];
 
 /**
  * On a firm's domain "/" is that firm's entry page, led by the firm, with
- * sign-in (blueprint routing rule: the firm is identified by its domain). The PreRenta marketing home
- * (components/public/public-home) is for the main domain.
+ * sign-in (blueprint routing rule: the firm is identified by its domain). On
+ * PreRenta's main domain (NEXT_PUBLIC_SITE=platform) it is the public home, P1.
  */
 export default async function Page(props: PageProps<"/">) {
   const sp = await props.searchParams;
@@ -17,5 +19,5 @@ export default async function Page(props: PageProps<"/">) {
     const qs = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (Array.isArray(v) ? v.map((x) => [k, x]) : v === undefined ? [] : [[k, v]])));
     redirect(`/acceso?${qs}`);
   }
-  return <AccessScreen />;
+  return PLATFORM_SITE ? <PublicHome /> : <AccessScreen />;
 }

@@ -1,0 +1,164 @@
+@use "../abstracts" as *;
+
+// Fields: one look for every text input, select, textarea and composite field
+// (amount + unit), client side and workspace.
+//   rest      white, 1px line-strong border (3:1), 8px radius, flat
+//   hover     border darkens to ink-muted
+//   focus     2px brand border and a firm halo
+//   invalid   danger border and base line; the message under the field says what to write
+//   disabled  sunk ground, muted text
+// Height comes from --control-h (40px workspace, 48px client via .client-scale).
+@layer components {
+  .field,
+  .field-group {
+    width: 100%;
+    border: 1px solid var(--line-strong);
+    border-radius: radius(md);
+    background-color: var(--surface);
+    color: var(--ink);
+    font-size: 15px;
+    box-shadow: var(--field-shadow);
+    transition:
+      border-color duration(fast) ease,
+      box-shadow duration(fast) ease,
+      background-color duration(fast) ease;
+  }
+
+  .field {
+    height: var(--control-h);
+    padding-inline: 14px;
+    outline: none;
+
+    &::placeholder {
+      color: var(--disabled);
+    }
+
+    &:hover:not(:disabled, :focus) {
+      border-color: var(--muted);
+    }
+
+    // A clear "you are typing here": the border doubles to 2px navy, plus a wider, firmer halo.
+    &:focus {
+      border-color: var(--accent);
+      box-shadow:
+        inset 0 0 0 1px var(--accent),
+        0 0 0 4px rgb(var(--accent-rgb) / 0.2);
+    }
+
+    &[aria-invalid="true"] {
+      border-color: var(--bad);
+      box-shadow: inset 0 -2px 0 var(--bad);
+    }
+
+    &:disabled {
+      background-color: var(--sunk);
+      color: var(--muted);
+      box-shadow: none;
+    }
+  }
+
+  textarea.field {
+    height: auto;
+    min-height: 7.5rem;
+    padding-block: 10px;
+    line-height: 1.55;
+    resize: vertical;
+  }
+
+  select.field {
+    appearance: none;
+    padding-right: 42px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23536273' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    cursor: pointer;
+  }
+
+  input[type="date"].field::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+
+  .field-group {
+    height: var(--control-h);
+    display: flex;
+    align-items: stretch;
+    overflow: clip;
+
+    &:hover:not(:focus-within) {
+      border-color: var(--muted);
+    }
+
+    &:focus-within {
+      border-color: var(--accent);
+      box-shadow:
+        inset 0 0 0 1px var(--accent),
+        0 0 0 4px rgb(var(--accent-rgb) / 0.2);
+    }
+
+    &[data-invalid="true"] {
+      border-color: var(--bad);
+      box-shadow: inset 0 -2px 0 var(--bad);
+    }
+
+    &:has(input:disabled) {
+      background-color: var(--sunk);
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    input {
+      min-width: 0;
+      flex: 1;
+      border: 0;
+      background: transparent;
+      padding-inline: 14px;
+      outline: none;
+      box-shadow: none;
+
+      &::placeholder {
+        color: var(--disabled);
+      }
+    }
+  }
+
+  // The unit (€, %, años): a quiet cap on the right.
+  .field-unit {
+    display: grid;
+    place-items: center;
+    padding-inline: 14px;
+    border-left: 1px solid var(--line);
+    background: var(--sunk);
+    color: var(--muted);
+    font-size: 14px;
+  }
+}
+
+// A field with a leading icon (phone, email): the icon sits inside on the left and turns
+// navy while the field has focus. Usage: <span class="field-icon"><Icon/><input class="field"/></span>
+@layer components {
+  .field-icon {
+    position: relative;
+    display: block;
+    width: 100%;
+
+    > svg {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      translate: 0 -50%;
+      color: var(--muted);
+      pointer-events: none;
+      transition: color duration(fast) ease;
+    }
+
+    > .field {
+      padding-left: 42px;
+    }
+
+    &:focus-within > svg {
+      color: var(--accent);
+    }
+  }
+}

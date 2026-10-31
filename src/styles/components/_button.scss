@@ -1,0 +1,77 @@
+@use "../abstracts" as *;
+
+// Buttons: one hover language for every button and button-like link.
+//   .btn-fx          base: colour fades, pressed scale, a trailing arrow nudges forward
+//   .btn-fx-primary  solid brand: darker fill, 1px lift and a soft brand shadow
+//   .btn-fx-soft     tonal: deeper tint, 1px lift and a thin brand outline
+//   .btn-fx-inverse  white on the navy band: brand-soft fill, lift and a dark shadow
+// Ghost and danger buttons only change their fill: they sit inside rows and toolbars.
+// Unlayered on purpose: it must win over Tailwind's transition utilities on the same element.
+.btn-fx {
+  transition-property: color, background-color, border-color, box-shadow, translate, scale;
+  transition-duration: duration(base);
+  transition-timing-function: $ease-out;
+
+  &:active:not(:disabled) {
+    translate: 0 0;
+    scale: 0.97;
+  }
+
+  // Loading: the label stays (no layout jump), a spinner sits before it.
+  &[aria-busy="true"] {
+    cursor: progress;
+  }
+}
+
+.btn-spinner {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+
+  @include motion-ok {
+    animation: btn-spin 700ms linear infinite;
+  }
+}
+
+@keyframes btn-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-fx {
+    transition-property: color, background-color, border-color, box-shadow;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-fx-primary:hover:not(:disabled) {
+    box-shadow: 0 8px 18px -8px rgb(var(--accent-rgb) / 0.65);
+  }
+
+  .btn-fx-soft:hover:not(:disabled) {
+    box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.28);
+  }
+
+  .btn-fx-inverse:hover:not(:disabled) {
+    box-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.55);
+  }
+
+  @include motion-ok {
+    .btn-fx:is(.btn-fx-primary, .btn-fx-soft, .btn-fx-inverse):hover:not(:disabled, [aria-disabled="true"]) {
+      translate: 0 -1px;
+    }
+
+    .btn-fx svg.lucide-arrow-right {
+      transition: translate duration(base) $ease-out;
+    }
+
+    .btn-fx:hover:not(:disabled) svg.lucide-arrow-right {
+      translate: 3px 0;
+    }
+  }
+}

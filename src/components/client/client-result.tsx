@@ -123,6 +123,8 @@ export function ClientResult() {
             <dd>{t.result.versionValue(r.version, fmtTime(r.sentAt, locale))}</dd>
           </dl>
           <p>{t.result.confirmBody(`${t.result.kind[r.kind].toLowerCase()} ${r.amount} €`)}</p>
+          {/* Approval is not filing: said before the person confirms. */}
+          <p className="border-l-2 border-line-strong pl-3 text-[14px] text-muted">{t.result.notFiling}</p>
           <label className="flex cursor-pointer items-start gap-3 leading-[22px]">
             <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[var(--accent)]" />
             {t.result.confirm}

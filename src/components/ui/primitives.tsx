@@ -35,8 +35,17 @@ const btnClass = (variant: Variant, size: Size, extra?: string) =>
     extra,
   );
 
-export function Button({ variant = "secondary", size = "md", className, ...p }: ComponentProps<"button"> & { variant?: Variant; size?: Size }) {
-  return <button type="button" className={btnClass(variant, size, className)} {...p} />;
+/**
+ * Variants: primary, secondary (tonal), ghost (text), danger (destructive), inverse (on the navy band).
+ * `loading` keeps the label, adds a spinner, sets aria-busy and blocks a second press.
+ */
+export function Button({ variant = "secondary", size = "md", className, loading, disabled, children, ...p }: ComponentProps<"button"> & { variant?: Variant; size?: Size; loading?: boolean }) {
+  return (
+    <button type="button" className={btnClass(variant, size, className)} disabled={disabled || loading} aria-busy={loading || undefined} {...p}>
+      {loading && <span className="btn-spinner" aria-hidden="true" />}
+      {children}
+    </button>
+  );
 }
 
 export function ButtonLink({ variant = "secondary", size = "md", className, ...p }: ComponentProps<typeof Link> & { variant?: Variant; size?: Size }) {
@@ -59,7 +68,7 @@ export function CardTitle({ children, aside }: { children: ReactNode; aside?: Re
 }
 
 export function Eyebrow({ children }: { children: ReactNode }) {
-  return <p className="text-[11.5px] font-semibold tracking-[.1em] text-accent uppercase">{children}</p>;
+  return <p className="t-eyebrow text-accent">{children}</p>;
 }
 
 export function ProgressBar({ pct, className }: { pct: number; className?: string }) {
@@ -87,7 +96,8 @@ const TONE: Record<Tone, string> = {
 /** Compact label for states and counts. Pair colour with text (and an icon where it helps). */
 export function Pill({ tone = "neutral", icon: Icon, children, className }: { tone?: Tone; icon?: LucideIcon; children: ReactNode; className?: string }) {
   return (
-    <span className={cx("inline-flex items-center gap-1 rounded-sm border px-1.5 py-px text-[12px] leading-[18px] font-medium whitespace-nowrap", TONE[tone], className)}>
+    // One fixed height and padding for every status/identity label, with or without an icon, so they line up in tables.
+    <span className={cx("inline-flex h-[22px] shrink-0 items-center gap-1 rounded-sm border px-2 align-middle text-[12px] leading-none font-medium whitespace-nowrap", TONE[tone], className)}>
       {Icon && <Icon size={12} strokeWidth={2.2} aria-hidden="true" />}
       {children}
     </span>
@@ -153,12 +163,13 @@ export function Loading({ label }: { label?: string }) {
  * Empty state (design system › Feedback): why it is empty and what fills it, in a dashed frame.
  * `inset` when it already sits inside a bordered box (a card, a table): that box is the frame.
  */
-export function EmptyState({ icon: Icon, title, children, tone = "neutral", inset }: { icon: LucideIcon; title: string; children?: ReactNode; tone?: "neutral" | "ok"; inset?: boolean }) {
+/** `center`: a whole page with nothing to show yet; larger mark, centred, room for an action under the text. */
+export function EmptyState({ icon: Icon, title, children, tone = "neutral", inset, center }: { icon: LucideIcon; title: string; children?: ReactNode; tone?: "neutral" | "ok"; inset?: boolean; center?: boolean }) {
   return (
-    <div className={cx("flex flex-col items-start gap-2 p-6 text-muted", !inset && "rounded-xl border border-dashed border-line-strong")}>
-      <IconTile icon={Icon} tone={tone === "ok" ? "ok" : "accent"} />
-      <p className="text-[15px] font-semibold text-ink">{title}</p>
-      {children && <div className="max-w-[52ch] text-[14px]">{children}</div>}
+    <div className={cx("flex flex-col gap-2 text-muted", center ? "items-center px-6 py-12 text-center sm:py-16" : "items-start p-6", !inset && "rounded-xl border border-dashed border-line-strong")}>
+      <IconTile icon={Icon} tone={tone === "ok" ? "ok" : "accent"} size={center ? "lg" : "md"} className={center ? "mb-2" : undefined} />
+      <p className={cx("font-semibold text-ink", center ? "text-[17px]" : "text-[15px]")}>{title}</p>
+      {children && <div className={cx("max-w-[52ch] text-[14px]", center && "flex flex-col items-center gap-4")}>{children}</div>}
     </div>
   );
 }
@@ -169,7 +180,7 @@ export function Brand({ sub }: { sub?: string }) {
       <b className="display-tight text-[19px] font-semibold">
         Pre<span className="text-copper-text">Renta</span>
       </b>
-      {sub && <span className="hidden text-[11.5px] tracking-[.06em] text-muted uppercase sm:inline">{sub}</span>}
+      {sub && <span className="t-label hidden font-normal sm:inline">{sub}</span>}
     </span>
   );
 }

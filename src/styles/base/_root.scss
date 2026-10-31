@@ -1,0 +1,30 @@
+@use "sass:map";
+@use "../abstracts" as *;
+
+// Design tokens as custom properties: one place, both themes.
+:root {
+  color-scheme: light;
+  @include custom-properties($color-light);
+  @include custom-properties($space, "space-");
+  @include custom-properties($width, "width-");
+  @include custom-properties($control, "control-");
+  --shadow-sheet-value: #{map.get($shadow, "sheet")};
+  --shadow-overlay-value: #{map.get($shadow, "overlay")};
+  --shadow-lift: #{map.get($shadow, "lift")};
+}
+
+// Dark theme: kept, but opt-in only until it has been tested with users.
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  @include custom-properties($color-dark);
+}
+
+// Client screens: 48px controls, comfortable on touch (the workspace keeps 40px).
+.client-scale {
+  --control-h: #{map.get($control, "h-lg")};
+}
+
+// Text and focus colours for anything sitting on the navy band.
+.on-dark {
+  --focus: var(--focus-on-dark);
+}

@@ -22,6 +22,15 @@ import { useClientExp } from "./client-shell";
 import { SectionTasks } from "./client-tasks";
 
 /** C3 · Cuestionario: one step per route, saved on every change. */
+/** Scrolls to a question and highlights it for a moment: unanswered questions carry no marker, so this shows which one. */
+function land(anchor: string) {
+  const el = document.getElementById(anchor);
+  if (!el) return;
+  el.scrollIntoView({ block: "start" });
+  el.dataset.flash = "";
+  setTimeout(() => delete el.dataset.flash, 1800);
+}
+
 export function Questionnaire({ slug }: { slug: string }) {
   const exp = useClientExp();
   const { firm } = useAppState();
@@ -38,15 +47,17 @@ export function Questionnaire({ slug }: { slug: string }) {
     return sec ? tr(sec.short) : s === SIGN_SLUG ? t.sign.short : t.q.review;
   };
   const go = (s: string) => {
-    router.push(`/declaracion/${s}`);
-    window.scrollTo(0, 0);
+    const [step, anchor] = s.split("#");
+    router.push(`/declaracion/${step}${anchor ? `#${anchor}` : ""}`);
+    if (!anchor) window.scrollTo(0, 0);
+    else if (step === slug) land(anchor);
   };
 
   // A request link ("#q-<field>[-<item>]") lands on the exact question once the step has rendered.
   useEffect(() => {
     const hash = window.location.hash.slice(1);
     if (!hash.startsWith("q-")) return;
-    const timer = setTimeout(() => document.getElementById(hash)?.scrollIntoView({ block: "start" }), 50);
+    const timer = setTimeout(() => land(hash), 50);
     return () => clearTimeout(timer);
   }, [slug]);
 
@@ -70,7 +81,7 @@ export function Questionnaire({ slug }: { slug: string }) {
         {/* Sheet head: where the client is, the save status, the step's title */}
         <header className="flex flex-col gap-1.5 border-b border-line px-4 pt-6 pb-5 sm:px-8 lg:px-10">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[12.5px] font-semibold tracking-[.04em] text-accent uppercase">
+            <span className="t-eyebrow text-accent">
               {section ? t.q.sectionOf(SCHEMA.indexOf(section) + 1, SCHEMA.length) : isSign ? t.sign.short : t.q.review}
             </span>
             <SaveStatus idle={t.q.autosave} className="max-[959px]:hidden" />
@@ -82,7 +93,8 @@ export function Questionnaire({ slug }: { slug: string }) {
         </header>
         <div className="px-4 pt-6 pb-8 sm:px-8 lg:px-10">
         <SaveFailed className="mb-5" />
-        {exp.status !== "borrador" && (
+        {/* "Your gestoría has it" once, where the client resends; Home shows it too. Not repeated on every section. */}
+        {exp.status !== "borrador" && !section && !isSign && (
           <Notice tone="info" className="mb-5" title={t.home.sentTitle}>{t.home.sentBody(status(exp.status))}</Notice>
         )}
 
@@ -94,8 +106,9 @@ export function Questionnaire({ slug }: { slug: string }) {
           </>
         ) : section ? (
           <>
-            {section.intro && <p className="mb-2 max-w-[62ch] text-muted">{tr(section.intro)}</p>}
-            <p className="mb-6 max-w-[62ch] text-[13.5px] text-muted">{t.q.reqNote}</p>
+            {/* The section's intro spans the sheet, like the questions under it. */}
+            {section.intro && <p className="mb-2 text-ink/80">{tr(section.intro)}</p>}
+            <p className="mb-6 text-[14px] text-ink/80">{t.q.reqNote}</p>
             <SectionTasks exp={exp} section={section.slug} />
             {FEATURES.prefill && exp.prefill?.sections.includes(section.slug) && (
               exp.prefill.confirmed.includes(section.slug) ? (
@@ -124,7 +137,9 @@ export function Questionnaire({ slug }: { slug: string }) {
         </div>
         {/* Sheet foot: the previous and next steps by name */}
         {slug !== REVIEW_SLUG && (
-          <footer className="flex flex-wrap items-center justify-between gap-3 rounded-b-xl border-t border-line bg-sunk px-4 py-4 sm:px-8 lg:px-10">
+          // From 960px the foot sticks to the bottom of the window, so Back / Next never need a long scroll.
+          // Solid white with a top rule and an upward shadow (no translucency: the DS rules out glass effects).
+          <footer data-sticky-foot className="z-10 flex flex-wrap items-center justify-between gap-3 rounded-b-xl border-t border-line bg-surface px-4 py-4 sm:px-8 min-[960px]:sticky min-[960px]:bottom-0 min-[960px]:shadow-[0_-10px_24px_-14px_var(--shadow)] lg:px-10">
             {idx > 0 ? (
               <Button size="lg" onClick={() => go(STEP_SLUGS[idx - 1])}>
                 <ArrowLeft size={17} aria-hidden="true" />
@@ -132,7 +147,7 @@ export function Questionnaire({ slug }: { slug: string }) {
               </Button>
             ) : <span />}
             <Button size="lg" variant="primary" onClick={() => go(STEP_SLUGS[idx + 1])}>
-              {STEP_SLUGS[idx + 1] === REVIEW_SLUG ? t.q.review : t.q.goOn(stepName(STEP_SLUGS[idx + 1]))}
+              {t.q.goOn(stepName(STEP_SLUGS[idx + 1]))}
               <ArrowRight size={17} aria-hidden="true" />
             </Button>
           </footer>

@@ -1,0 +1,220 @@
+// PreRenta design tokens: the single source of truth for every value the UI uses.
+// Compile-time only: this file emits no CSS. base/_root.scss turns the semantic maps
+// into CSS custom properties, which Tailwind (src/app/globals.css) and the components read.
+
+// ---------- Palette (raw) ----------
+// Navy and copper from the PreRenta Design Skill; neutrals are the light "mist" the
+// client approved (2026-10-30) in place of the skill's warm ivory and warm borders.
+$navy: #20364f;
+$navy-hover: #172a3e;
+// Terracotta accent (2026-10-31), replacing the brown copper. The token keeps the name
+// "copper" so every component that uses it changes with it.
+$copper: #b96549; // 4.2:1 on white: marks, fills, icons (3:1 rule), never small text
+$copper-deep: #a94f3c; // pressed/hover of a terracotta fill; 5.4:1 on white
+$white: #ffffff;
+$ink: #202a35;
+$text: #536273;
+$muted: #748091;
+
+$mist: #f7f8fa; // page ground
+$mist-raised: #fbfcfd;
+$mist-sunk: #eef1f5;
+$mist-hover: #f1f4f7;
+$mist-line: #e1e6ec;
+$mist-line-strong: #7a8796; // control borders: 3:1 on every light ground
+
+$success: #28734d;
+$warning: #98600a;
+$danger: #a43d36;
+$info: #315f8a;
+$focus: #1d5fd1;
+$focus-on-dark: #a9c8ff;
+
+// RGB triplets for translucent shadows and halos: rgb(var(--accent-rgb) / 0.2)
+$navy-rgb: 32 54 79;
+$ink-rgb: 32 42 53;
+
+// ---------- Semantic colours, light theme ----------
+// Keys become --<key>. Names are the ones the components already use.
+$color-light: (
+  "bg": $mist,
+  "surface": $white,
+  "paper-white": $mist-raised,
+  "sunk": $mist-sunk,
+  "hover": $mist-hover,
+  "chat": $mist-sunk,
+  "ink": $ink,
+  "muted": $text, // 5.9:1 on white, 5:1 on sunk
+  "disabled": $muted,
+  "line": $mist-line,
+  "line-strong": $mist-line-strong,
+  "accent": $navy,
+  "accent-hover": $navy-hover,
+  "accent-ink": $white,
+  "accent-soft": #e6ecf3,
+  "accent-soft-hover": #d6e0eb,
+  "accent-rgb": $navy-rgb,
+  "icon": $navy,
+  "icon-soft": #e8edf4,
+  "copper": $copper,
+  "copper-hover": $copper-deep,
+  "copper-text": #8f4231, // terracotta as text: 6.6:1 on white, 5.6:1 on copper-soft
+  "copper-soft": #f1e2dc,
+  "focus": $focus,
+  "focus-on-dark": $focus-on-dark,
+  "ok": $success,
+  "ok-soft": #e2f0e7,
+  "warn": $warning,
+  "warn-soft": #fbf3e2,
+  "bad": $danger,
+  "bad-soft": #f8e3e4,
+  "info": $info,
+  "info-soft": #e3ecf6,
+  "neutral-soft": #eaeef3,
+  // Brand band: footer, contact column, workspace sidebar
+  "band": $navy,
+  "band-ink": $white,
+  "band-muted": rgba(255, 255, 255, 0.72),
+  "band-line": rgba(255, 255, 255, 0.16),
+  "band-copper": #d99a80, // terracotta on navy (5.2:1): the wordmark and stamps
+  "chrome": $navy,
+  "chrome-ink": $white,
+  "chrome-muted": rgba(255, 255, 255, 0.72),
+  "chrome-line": rgba(255, 255, 255, 0.12),
+  "chrome-hover": rgba(255, 255, 255, 0.07),
+  "chrome-active": rgba(255, 255, 255, 0.13),
+  "chrome-tile": rgba(255, 255, 255, 0.1),
+  "chrome-mark": #d99a80, // active marker on the navy sidebar (5.2:1)
+  "field-shadow": 0 1px 1px rgba($ink, 0.05),
+  "shadow": rgba($ink, 0.16),
+  "shadow-sheet-c": rgba($ink, 0.06),
+  "scrim": rgba(20, 26, 33, 0.6),
+  // illustration tones (flat)
+  "glass-hi": $white,
+  "glass-lo": $mist-sunk,
+  "glass-edge": $mist-line,
+  "glass-line": $mist-line,
+);
+
+// ---------- Semantic colours, dark theme (opt-in: data-theme="dark") ----------
+$color-dark: (
+  "bg": #13171c,
+  "surface": #1b2027,
+  "paper-white": #171b21,
+  "sunk": #0f1317,
+  "hover": #232933,
+  "chat": #0f1317,
+  "ink": #ebe7df,
+  "muted": #a9b1bb,
+  "disabled": #6a727c,
+  "line": #2c333c,
+  "line-strong": #78818c,
+  "accent": #9cbde6,
+  "accent-hover": #b9d1ef,
+  "accent-ink": #0e1a29,
+  "accent-soft": #1c2a3b,
+  "accent-soft-hover": #24364b,
+  "accent-rgb": 156 189 230,
+  "icon": #9cbde6,
+  "icon-soft": #1c2a3b,
+  "field-shadow": 0 1px 2px rgba(0, 0, 0, 0.4),
+  "copper": #d99a80,
+  "copper-hover": #e3ad96,
+  "copper-text": #e8b5a1,
+  "copper-soft": #2e1d17,
+  "focus": #86b4ff,
+  "ok": #78cfa0,
+  "ok-soft": #15291f,
+  "warn": #e9bb62,
+  "warn-soft": #2d2410,
+  "bad": #f39197,
+  "bad-soft": #351a1c,
+  "info": #8dbbe8,
+  "info-soft": #172637,
+  "neutral-soft": #262c34,
+  "band": #0e1620,
+  "band-line": rgba(244, 240, 232, 0.12),
+  "shadow": rgba(0, 0, 0, 0.65),
+  "shadow-sheet-c": rgba(0, 0, 0, 0.4),
+  "scrim": rgba(0, 0, 0, 0.7),
+);
+
+// ---------- Spacing: 4px scale ----------
+$space: (
+  "1": 4px,
+  "2": 8px,
+  "3": 12px,
+  "4": 16px,
+  "5": 24px,
+  "6": 32px,
+  "7": 40px,
+  "8": 48px,
+  "9": 64px,
+  "10": 80px,
+);
+
+// ---------- Radii: small and restrained; nothing rounder than 10px except avatars ----------
+$radius: (
+  "sm": 4px, // badges, checkboxes, chips
+  "md": 8px, // buttons, inputs, selects (8px since 2026-10-31, client request)
+  "lg": 10px, // sheets, panels, dialogs
+);
+
+// ---------- Elevation: one resting elevation, one for things that float ----------
+$shadow: (
+  "sheet": (0 1px 2px var(--shadow-sheet-c), 0 6px 18px -8px rgba($ink, 0.12)),
+  "overlay": 0 12px 32px var(--shadow),
+  "lift": 0 14px 30px -14px rgb(var(--accent-rgb) / 0.35),
+);
+
+// ---------- Controls ----------
+$control: (
+  "h-sm": 2rem, // 32: compact workspace rows and filters
+  "h": 2.5rem, // 40: workspace default
+  "h-lg": 3rem, // 48: client side and primary actions
+);
+
+// ---------- Typography ----------
+// Serif (Source Serif 4) only for page titles and brand statements; IBM Plex Sans for the rest.
+$font-sans: (var(--font-plex), "Helvetica Neue", Arial, sans-serif);
+$font-serif: (var(--font-source-serif), "Source Serif Pro", Georgia, serif);
+$type: (
+  // name: (size, line-height, weight, tracking)
+  "display": (clamp(2rem, 1.4rem + 2.4vw, 3.25rem), 1.08, 600, -0.015em),
+  "title": (clamp(1.625rem, 1.3rem + 1.2vw, 2.25rem), 1.15, 600, -0.01em),
+  "section": (clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem), 1.25, 600, -0.01em),
+  "card": (1.0625rem, 1.4, 600, 0),
+  "body": (0.9375rem, 1.55, 400, 0),
+  "body-lg": (1.0625rem, 1.55, 400, 0),
+  "meta": (0.8125rem, 1.45, 400, 0),
+  "eyebrow": (0.75rem, 1.4, 600, 0.1em),
+  "label": (0.71875rem, 1.4, 600, 0.06em),
+);
+
+// ---------- Layout ----------
+$width: (
+  "page": 1420px, // public pages (client asked for 1420, 2026-10-31)
+  "client": 1420px, // client app frame, same frame as the public pages
+  "form": 720px, // a form column / reading measure
+  "rail": 320px, // side rails
+);
+
+// ---------- Breakpoints (mobile first; same values as Tailwind's sm/md/lg/xl) ----------
+$breakpoints: (
+  "sm": 640px,
+  "md": 768px,
+  "rail": 960px, // the questionnaire gets its section rail
+  "lg": 1024px,
+  "xl": 1280px,
+);
+
+// ---------- Motion ----------
+$ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+$ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+$ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+$duration: (
+  "fast": 150ms,
+  "base": 180ms,
+  "slow": 300ms,
+  "reveal": 600ms,
+);

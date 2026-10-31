@@ -1,0 +1,3 @@
+// Cascade layer order, declared once and first: component styles sit between
+// base and Tailwind's utilities, so a utility on an element can still adjust them.
+@layer theme, base, components, utilities;

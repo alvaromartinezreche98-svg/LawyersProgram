@@ -1,10 +1,14 @@
 "use client";
 
 import { Fragment, useEffect, useRef, useState } from "react";
-import { ClipboardList, MessagesSquare, SendHorizontal } from "lucide-react";
+import { ClipboardList, FileText, MessagesSquare, Paperclip, SendHorizontal, X } from "lucide-react";
 import { IconTile } from "@/components/ui/icons";
 import type { ChatMessage, ClientTask, Expediente, Side } from "@/lib/data/types";
 import { actions, clientName, useAppState } from "@/lib/data/store";
+import { ACCEPTED, MAX_FILE_BYTES, isAccepted, putFile, typeOf, useFileUrl } from "@/lib/data/files";
+import { API_MODE } from "@/lib/auth/config";
+import type { FileRef } from "@/lib/questionnaire/types";
+import { uid } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtClock } from "@/lib/format";
 import { Button, Pill, cx } from "@/components/ui/primitives";
@@ -19,6 +23,11 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
   const { firm } = useAppState();
   const { t, tr, locale } = useI18n();
   const [draft, setDraft] = useState("");
+  // Attachments waiting to go with the next message (demo only: the API has no message attachments yet).
+  const [att, setAtt] = useState<File[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [warn, setWarn] = useState("");
+  const fileIn = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const ta = useRef<HTMLTextAreaElement>(null);
   const count = exp.chat.length;
@@ -33,11 +42,33 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
     if (el) el.scrollTop = el.scrollHeight;
   }, [exp.id, side, count]);
 
-  const send = () => {
+  const pick = (list: File[]) => {
+    const ok = list.filter(isAccepted);
+    const fit = ok.filter((f) => f.size <= MAX_FILE_BYTES);
+    setWarn(ok.length < list.length ? t.upload.onlyImgPdf : fit.length < ok.length ? t.upload.tooBig : "");
+    setAtt((a) => [...a, ...fit]);
+  };
+
+  const send = async () => {
     const text = draft.trim();
-    if (!text) return;
-    actions.sendMessage(exp.id, side, text);
-    setDraft("");
+    if ((!text && !att.length) || busy) return;
+    setBusy(true);
+    try {
+      const files: FileRef[] = [];
+      for (const f of att) {
+        const ref: FileRef = { id: uid("f-"), name: f.name, size: f.size, type: typeOf(f) };
+        await putFile(ref.id, f);
+        files.push(ref);
+      }
+      actions.sendMessage(exp.id, side, text, false, files);
+      setDraft("");
+      setAtt([]);
+      setWarn("");
+    } catch {
+      setWarn(t.upload.failedShort);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const today = dayKey(new Date().toISOString());
@@ -121,7 +152,12 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
                   <div className="flex min-w-0 flex-col gap-0.5">
                     {first && <span className={cx("px-1 text-[11.5px] font-medium text-muted", mine && "text-right")}>{mine ? t.chat.you : other}</span>}
                     <div className={cx("rounded-2xl px-3.5 py-2 text-[14px] leading-snug text-ink", mine ? "rounded-br-md" : "rounded-bl-md", m.from === "gestor" ? "border border-copper/25 bg-copper-soft" : "border border-line bg-surface")}>
-                      <p className="break-words whitespace-pre-wrap">{m.text}</p>
+                      {m.text && <p className="break-words whitespace-pre-wrap">{m.text}</p>}
+                      {m.files?.length ? (
+                        <ul className={cx("flex flex-col gap-1", m.text && "mt-2")}>
+                          {m.files.map((f) => <li key={f.id}><Attachment file={f} /></li>)}
+                        </ul>
+                      ) : null}
                       <time dateTime={m.at} className="mt-1 block text-right text-[11px] text-muted">
                         {fmtClock(m.at, locale)}
                       </time>
@@ -144,7 +180,29 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
             ))}
           </div>
         )}
+        {att.length > 0 && (
+          <ul className="mb-2 flex flex-wrap gap-1.5" aria-label={t.chat.attach}>
+            {att.map((f, i) => (
+              <li key={i} className="flex max-w-full items-center gap-1.5 rounded-md border border-line bg-sunk py-1 pr-1 pl-2 text-[13px]">
+                <FileText size={14} className="shrink-0 text-muted" aria-hidden="true" />
+                <span className="truncate">{f.name}</span>
+                <button type="button" onClick={() => setAtt((a) => a.filter((_, j) => j !== i))} aria-label={t.common.removeFile(f.name)} className="grid size-6 shrink-0 place-items-center rounded text-muted hover:bg-hover hover:text-ink">
+                  <X size={13} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {warn && <p role="alert" className="mb-2 text-[13px] text-bad">{warn}</p>}
         <div className="shadow-field flex items-end gap-2 rounded-xl border border-line-strong bg-surface p-1.5 pl-3 transition-colors focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15">
+          {!API_MODE && (
+            <>
+              <input ref={fileIn} type="file" accept={ACCEPTED} multiple className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(e) => { pick([...(e.target.files ?? [])]); e.target.value = ""; }} />
+              <button type="button" onClick={() => fileIn.current?.click()} aria-label={t.chat.attach} title={t.chat.attach} className="-ml-1.5 grid size-10 shrink-0 place-items-center rounded-lg text-muted transition-colors hover:bg-hover hover:text-ink">
+                <Paperclip size={18} aria-hidden="true" />
+              </button>
+            </>
+          )}
           <textarea
             ref={ta}
             rows={1}
@@ -160,7 +218,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
             placeholder={side === "cliente" ? t.chat.phClient : t.chat.phGestor}
             className="max-h-40 min-h-[40px] min-w-0 flex-1 resize-none bg-transparent py-2 text-[14.5px] outline-hidden [field-sizing:content]"
           />
-          <Button variant="primary" onClick={send} disabled={!draft.trim()} aria-label={t.chat.send}>
+          <Button variant="primary" onClick={send} disabled={(!draft.trim() && !att.length) || busy} loading={busy} aria-label={t.chat.send}>
             <SendHorizontal size={16} aria-hidden="true" />
             <span className="hidden sm:inline">{t.chat.send}</span>
           </Button>
@@ -168,6 +226,23 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
         <p className="mt-1.5 hidden px-1 text-[11.5px] text-muted sm:block">{t.chat.hint}</p>
       </div>
     </div>
+  );
+}
+
+/** A file in a message: opens in a new tab (downloads for HEIC, which browsers cannot show). */
+function Attachment({ file }: { file: FileRef }) {
+  const url = useFileUrl(file);
+  const body = (
+    <>
+      <FileText size={15} className="shrink-0" aria-hidden="true" />
+      <span className="truncate">{file.name}</span>
+    </>
+  );
+  const cls = "flex max-w-full items-center gap-1.5 rounded-md border border-line bg-surface px-2 py-1.5 text-[13px] font-medium";
+  return url ? (
+    <a href={url} target="_blank" rel="noopener" download={/\.hei[cf]$/i.test(file.name) ? file.name : undefined} className={cx(cls, "text-accent hover:underline")}>{body}</a>
+  ) : (
+    <span className={cx(cls, "text-muted")}>{body}</span>
   );
 }
 

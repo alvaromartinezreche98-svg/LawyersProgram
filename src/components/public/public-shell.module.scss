@@ -1,0 +1,346 @@
+// Institutional footer: the navy band, the brand statement set large, links in two quiet
+// groups, the gestoría's details, then the PreRenta wordmark as an architectural watermark
+// that the copyright row sits on.
+@use "sass:map";
+@use "../../styles/abstracts" as *;
+
+.footer {
+  position: relative;
+  overflow: hidden; // the watermark is cropped at the band's edges, never the page
+  background: var(--band);
+  color: var(--band-ink);
+}
+
+.inner {
+  width: 100%;
+  max-width: map.get($width, "page");
+  margin-inline: auto;
+  padding-inline: space(4);
+
+  @include from("sm") {
+    padding-inline: space(6);
+  }
+}
+
+.main {
+  display: grid;
+  gap: space(6) space(7);
+  padding-block: space(8) space(7);
+
+  @include from("lg") {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    padding-block: space(9) space(8);
+  }
+}
+
+// The wordmark heads the band on its own row, so the statement and the link groups
+// below it start on the same line.
+.wordmark {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+
+  @include from("lg") {
+    grid-column: 1 / -1;
+    margin-bottom: calc(-1 * #{space(4)});
+  }
+
+  span {
+    color: var(--band-copper);
+  }
+}
+
+.statement {
+  display: flex;
+  flex-direction: column;
+  gap: space(5);
+
+  @include from("lg") {
+    grid-column: span 7;
+  }
+}
+
+.tagline {
+  @include type("title");
+  font-family: $font-serif;
+  max-width: 17ch;
+  font-size: clamp(1.75rem, 1.2rem + 1.8vw, 2.625rem);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.about {
+  max-width: 44ch;
+  @include type("body");
+  color: var(--band-muted);
+}
+
+.links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: space(6) space(6);
+  align-content: start;
+
+  // tablet: product, legal and the gestoría side by side under the statement
+  @include from("md") {
+    grid-template-columns: 1fr 1fr 1.2fr;
+  }
+
+  @include from("lg") {
+    grid-column: span 5;
+    grid-template-columns: 1fr 1fr;
+    padding-top: space(2); // first link title sits on the tagline's cap height
+  }
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: space(4);
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  a {
+    font-size: 0.9375rem;
+    color: var(--band-ink);
+    text-underline-offset: 4px;
+
+    @include hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.groupTitle {
+  @include type("eyebrow");
+  text-transform: uppercase;
+  color: var(--band-muted);
+}
+
+
+
+.firmDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(1) space(5);
+  color: var(--band-muted);
+
+  a {
+    color: inherit;
+    text-underline-offset: 3px;
+
+    @include hover {
+      color: var(--band-ink);
+      text-decoration: underline;
+    }
+  }
+}
+
+// The wordmark: oversized, monochrome, cropped at its baseline so it reads as part
+// of the band's architecture. Purely decorative: aria-hidden, no pointer events.
+.watermark {
+  height: 0.7em;
+  overflow: hidden;
+  margin-top: space(2);
+  // the word spans the content width (≈4.1em wide), no wider
+  font-size: min(calc((100vw - #{2 * space(4)}) / 4.1), 17rem);
+
+  @include from("sm") {
+    font-size: min(calc((100vw - #{2 * space(6)}) / 4.1), 17rem);
+  }
+  line-height: 0.86;
+  pointer-events: none;
+  user-select: none;
+
+  span {
+    display: block;
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    margin-left: -0.06em; // optical: the P's stem on the container edge
+    white-space: nowrap;
+    color: var(--band-ink);
+    opacity: 0.07;
+  }
+}
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+  padding-block: space(5);
+  border-top: 1px solid var(--band-line);
+  font-size: 0.8125rem;
+  color: var(--band-muted);
+
+  @include from("sm") {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+// ---------- Header ----------
+.brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: space(3);
+}
+
+
+
+.navLink {
+  padding: 6px space(3);
+  border-radius: radius(md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color duration(fast) ease;
+
+  @include hover {
+    color: var(--ink);
+  }
+}
+
+.navActive {
+  color: var(--ink);
+  text-decoration: underline 2px var(--copper);
+  text-underline-offset: 8px;
+}
+
+// ---------- A gestoría's site: the gestoría leads ----------
+.firmMark {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border-radius: radius(md);
+  background: var(--accent);
+  box-shadow: inset 0 -3px 0 var(--copper);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent-ink);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--surface);
+  }
+}
+
+.firmBrand {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.2;
+
+  b {
+    overflow: hidden;
+    font-size: 1rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+}
+
+// "con PreRenta": the platform, credited quietly under the gestoría's name.
+.withPreRenta {
+  font-size: 0.75rem;
+  color: var(--muted);
+
+  span {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  em {
+    font-style: normal;
+    color: var(--copper-text);
+  }
+}
+
+.firmTitle {
+  @include type("title");
+  font-family: $font-serif;
+  max-width: 20ch;
+  margin-top: -0.2em; // optical: the cap height starts level with the column titles
+  font-size: clamp(1.625rem, 1.2rem + 1.2vw, 2.125rem);
+  line-height: 1.12;
+}
+
+.wordmarkSmall {
+  font-weight: 600;
+  color: var(--band-ink);
+
+  span {
+    color: var(--band-copper);
+  }
+}
+
+// The gestoría's footer: three columns that start level and share the width
+// (the gestoría a little wider), so nothing floats at one edge.
+.mainFirm {
+  display: grid;
+  gap: space(7) space(8);
+  padding-block: space(8) space(7);
+
+  @include from("sm") {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include from("lg") {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+    padding-block: space(9) space(8);
+  }
+}
+
+.firmCol {
+  display: flex;
+  flex-direction: column;
+  gap: space(4);
+
+  @include from("sm") {
+    grid-column: 1 / -1;
+  }
+
+  @include from("lg") {
+    grid-column: auto;
+  }
+}
+
+.firmContact {
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+  font-size: 0.9375rem;
+  color: var(--band-muted);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: space(2);
+  }
+
+  svg {
+    flex-shrink: 0;
+    color: var(--band-copper);
+  }
+
+  a {
+    color: var(--band-ink);
+    text-underline-offset: 3px;
+
+    @include hover {
+      text-decoration: underline;
+    }
+  }
+}

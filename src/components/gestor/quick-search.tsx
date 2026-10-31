@@ -99,7 +99,7 @@ export function QuickSearch({ open, onClose }: { open: boolean; onClose: () => v
   const group = (label: string, list: Hit[], offset: number) =>
     list.length > 0 && (
       <div role="group" aria-label={label} className="flex flex-col gap-0.5">
-        <p className="px-3 pt-2 pb-1 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase">{label}</p>
+        <p className="t-label px-3 pt-2 pb-1">{label}</p>
         {list.map((h, i) => {
           const on = offset + i === at;
           return (

@@ -2,10 +2,10 @@
 
 import { useSyncExternalStore } from "react";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
-import type { Answers } from "@/lib/questionnaire/types";
+import type { Answers, FileRef } from "@/lib/questionnaire/types";
 import { nowIso, uid } from "@/lib/format";
 import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
-import { EXAMPLES, EXAMPLE_FIRM } from "./examples";
+import { EXAMPLES, EXAMPLES_REV, EXAMPLE_FIRM } from "./examples";
 import { PREFILL_SECTIONS, carryOver } from "./years";
 import { answerChanges, bySection, logged, type Activity } from "./activity";
 import { withItemIds } from "@/lib/questionnaire/progress";
@@ -50,10 +50,11 @@ export interface AppState {
  */
 export type SaveState = { status: "idle" | "saving" | "saved" | "merged" | "failed"; at: string | null };
 
-/** The firm this deployment serves. The API has no firm endpoint yet, so its name comes from the deployment's env; nothing from the demo firm is shown to real users. */
+/** The firm this deployment serves outside the demo. The API has no firm endpoint yet, so its name comes from the deployment's env (NEXT_PUBLIC_FIRM_NAME); nothing from the demo firm is shown to real users. */
 const API_FIRM: Firm = { ...structuredClone(EXAMPLE_FIRM), name: process.env.NEXT_PUBLIC_FIRM_NAME ?? "", address: "", team: [] };
 
-const SERVER_STATE: AppState = { ready: false, lang: DEFAULT_LANG, session: null, exps: {}, firm: API_MODE ? API_FIRM : EXAMPLE_FIRM, save: { status: "idle", at: null }, signedOut: false };
+// Real accounts never see the demo firm, not even in the server-rendered first paint.
+const SERVER_STATE: AppState = { ready: false, lang: DEFAULT_LANG, session: null, exps: {}, firm: LOCAL_DATA ? EXAMPLE_FIRM : API_FIRM, save: { status: "idle", at: null }, signedOut: false };
 let state: AppState = SERVER_STATE;
 const listeners = new Set<() => void>();
 
@@ -66,21 +67,40 @@ const LEGACY_STATUS: Record<string, Status> = { conformidad: "revision", conform
 const normalise = (exps: Record<string, Expediente>) =>
   Object.fromEntries(Object.entries(exps).map(([id, e]) => [id, { ...e, status: LEGACY_STATUS[e.status] ?? e.status, answers: withItemIds(e.answers) }]));
 
+const REV_KEY = "prerenta:examples:rev";
+/** Whether this browser saved its demo data before the current set of examples. */
+const examplesBehind = () => {
+  try {
+    return Number(localStorage.getItem(REV_KEY) ?? 1) < EXAMPLES_REV;
+  } catch {
+    return false;
+  }
+};
+
 function readData(): Record<string, Expediente> {
   if (!LOCAL_DATA) return {};
   try {
     const raw = localStorage.getItem(DATA_KEY);
-    if (raw) return normalise(JSON.parse(raw) as Record<string, Expediente>);
+    if (raw) {
+      const saved = JSON.parse(raw) as Record<string, Expediente>;
+      // New example cases join saved data once; the user's own cases and edits stay as they are.
+      return normalise(examplesBehind() ? { ...seed(), ...saved } : saved);
+    }
   } catch {}
   return normalise(seed());
 }
 
 function readFirm(): Firm {
-  if (API_MODE) return structuredClone(API_FIRM);
-  if (!LOCAL_DATA) return structuredClone(EXAMPLE_FIRM);
+  if (!LOCAL_DATA) return structuredClone(API_FIRM);
   try {
     const raw = localStorage.getItem(FIRM_KEY);
-    if (raw) return { ...structuredClone(EXAMPLE_FIRM), ...(JSON.parse(raw) as Partial<Firm>) };
+    if (raw) {
+      const saved = JSON.parse(raw) as Partial<Firm>;
+      const firm = { ...structuredClone(EXAMPLE_FIRM), ...saved };
+      // New example team members join once, like the example cases.
+      if (examplesBehind() && saved.team) firm.team = [...saved.team, ...EXAMPLE_FIRM.team.filter((m) => !saved.team!.some((x) => x.id === m.id))];
+      return firm;
+    }
   } catch {}
   return structuredClone(EXAMPLE_FIRM);
 }
@@ -105,6 +125,13 @@ function init() {
   if (state.ready || typeof window === "undefined") return;
   if (!LOCAL_DATA) purgeLocalData();
   state = { ready: true, lang: readLang(), session: readSession(), exps: readData(), firm: readFirm(), save: { status: "idle", at: null }, signedOut: false };
+  // The merged examples are written straight away, and only then marked as done, so a reload keeps them.
+  if (LOCAL_DATA && examplesBehind())
+    try {
+      if (localStorage.getItem(DATA_KEY)) localStorage.setItem(DATA_KEY, JSON.stringify(state.exps));
+      if (localStorage.getItem(FIRM_KEY)) localStorage.setItem(FIRM_KEY, JSON.stringify(state.firm));
+      localStorage.setItem(REV_KEY, String(EXAMPLES_REV));
+    } catch {}
   window.addEventListener("storage", (e) => {
     if (e.key === FIRM_KEY) state = { ...state, firm: readFirm() };
     else if (e.key === DATA_KEY) state = { ...state, exps: readData() };
@@ -321,8 +348,8 @@ export const actions = {
     patchExp(id, (e) => (e.status === status ? {} : { status, ...logged(e, { by: "gestor", kind: "status", from: e.status, to: status }) }), false);
   },
 
-  sendMessage(id: string, from: Side, text: string, request = false) {
-    const msg: ChatMessage = { id: uid(API_MODE ? "tmp-" : "m"), from, text, at: nowIso(), ...(request ? { request: true } : {}) };
+  sendMessage(id: string, from: Side, text: string, request = false, files?: FileRef[]) {
+    const msg: ChatMessage = { id: uid(API_MODE ? "tmp-" : "m"), from, text, at: nowIso(), ...(request ? { request: true } : {}), ...(files?.length ? { files } : {}) };
     patchExp(id, (e) => ({
       chat: [...e.chat, msg],
       ...(from === "cliente" ? { clientSeen: msg.at } : { gestorSeen: msg.at }),
@@ -370,6 +397,11 @@ export const actions = {
     patchExp(id, (e) => ({ appointments: [...(e.appointments ?? []), { ...a, id: uid("ap-"), status: "solicitada", createdAt: nowIso() }], ...logged(e, { by: "cliente", kind: "apRequested" }) }));
   },
   /** G5: the gestoría confirms, sets a time and (optionally) an accountant. */
+  /** An appointment the gestoría agreed with the client another way: confirmed from the start, shown in the client's portal. */
+  scheduleAppointment(id: string, a: Pick<Appointment, "kind" | "date" | "note"> & { time: string; assignee: string | null }) {
+    const slot: Appointment["slot"] = a.time < "14:00" ? "manana" : "tarde";
+    patchExp(id, (e) => ({ appointments: [...(e.appointments ?? []), { ...a, slot, id: uid("ap-"), status: "confirmada", createdAt: nowIso() }], ...logged(e, { by: "gestor", kind: "apConfirmed" }) }), false);
+  },
   confirmAppointment(id: string, apId: string, time: string, assignee: string | null) {
     patchExp(id, (e) => ({ appointments: (e.appointments ?? []).map((a) => (a.id === apId ? { ...a, status: "confirmada", time, assignee } : a)), ...logged(e, { by: "gestor", kind: "apConfirmed" }) }), false);
   },

@@ -1,0 +1,66 @@
+// C4 · Documentos: what was asked, what is in, what is missing, and where to upload it.
+@use "../../styles/abstracts" as *;
+
+// Three figures set like a register, on hairlines.
+.register {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: radius(md);
+  background: var(--surface);
+
+  > div {
+    padding: space(3) space(4);
+
+    & + div {
+      border-left: 1px solid var(--line);
+    }
+  }
+
+  dt {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  dd {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+
+  [data-missing] dd {
+    color: var(--warn);
+  }
+}
+
+.allDone {
+  display: flex;
+  align-items: center;
+  gap: space(2);
+  font-size: 0.9375rem;
+  color: var(--ok);
+}
+
+.missingCell {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: space(3);
+}
+
+// Goes straight to the upload question in the questionnaire.
+.uploadLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-underline-offset: 3px;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}

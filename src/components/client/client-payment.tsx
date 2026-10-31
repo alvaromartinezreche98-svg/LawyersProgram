@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleCheck, CreditCard } from "lucide-react";
+import { CircleCheck, CreditCard, MessageCircle } from "lucide-react";
 import { SIMULATED_PAYMENT } from "@/lib/features";
 import { actions, useAppState } from "@/lib/data/store";
 import { feeFor, fmtEuros } from "@/lib/data/fees";
@@ -8,7 +8,7 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
 import { IconTile } from "@/components/ui/icons";
-import { Button, Card, EmptyState, Eyebrow, Notice } from "@/components/ui/primitives";
+import { Button, ButtonLink, Card, EmptyState, Eyebrow, Notice } from "@/components/ui/primitives";
 import { useClientExp } from "./client-shell";
 
 /** C7 · Pago: the gestoría's fee, broken down, and the (simulated) payment. */
@@ -30,7 +30,13 @@ export function ClientPayment() {
 
       <Card className="overflow-clip">
         {!fee ? (
-          <EmptyState inset icon={CreditCard} title={t.pay.noFees} />
+          <EmptyState inset center icon={CreditCard} title={t.pay.nothingYet}>
+            <p>{t.pay.noFees}</p>
+            <ButtonLink href="/mensajes" size="sm">
+              <MessageCircle size={15} aria-hidden="true" />
+              {t.pay.askFirm}
+            </ButtonLink>
+          </EmptyState>
         ) : (
           <>
             <dl className="divide-y divide-line">

@@ -77,7 +77,7 @@ function Seg<T extends string>({ label, value, onChange, options }: { label: str
       <span className="text-[14px] font-medium">{label}</span>
       <div className="flex rounded-md border border-line bg-sunk p-0.5">
         {options.map(([v, l]) => (
-          <button key={v} type="button" aria-pressed={value === v} onClick={() => onChange(v)} className={cx("h-(--control-h-sm) rounded-sm px-3 text-[13px] font-medium transition-colors", value === v ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink")}>
+          <button key={v} type="button" aria-pressed={value === v} onClick={() => onChange(v)} className={cx("h-[calc(var(--control-h)-6px)] rounded-sm px-3 text-[13px] font-medium transition-colors", value === v ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink")}>
             {l}
           </button>
         ))}

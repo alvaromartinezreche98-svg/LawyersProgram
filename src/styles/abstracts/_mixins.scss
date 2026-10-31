@@ -1,0 +1,48 @@
+@use "sass:map";
+@use "sass:list";
+@use "tokens";
+
+/// Emits every key of a map as a custom property: (bg: #fff) → --bg: #fff.
+@mixin custom-properties($map, $prefix: "") {
+  @each $key, $value in $map {
+    --#{$prefix}#{$key}: #{$value};
+  }
+}
+
+/// Mobile first: styles from a breakpoint up.
+@mixin from($name) {
+  @media (min-width: map.get(tokens.$breakpoints, $name)) {
+    @content;
+  }
+}
+
+/// Only where hover is real (no sticky hover after a tap).
+@mixin hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+/// Movement only for people who have not asked for less motion.
+@mixin motion-ok {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+/// The product's keyboard focus ring.
+@mixin focus-ring($color: var(--focus)) {
+  outline: 2px solid $color;
+  outline-offset: 2px;
+}
+
+/// A type style from tokens.$type.
+@mixin type($name) {
+  $t: map.get(tokens.$type, $name);
+  font-size: list.nth($t, 1);
+  line-height: list.nth($t, 2);
+  font-weight: list.nth($t, 3);
+  letter-spacing: list.nth($t, 4);
+}

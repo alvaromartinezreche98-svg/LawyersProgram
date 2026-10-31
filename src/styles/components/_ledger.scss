@@ -1,0 +1,44 @@
+@use "../abstracts" as *;
+
+// Ledger: label and value joined by a dotted leader, like a filled-in line on a tax form.
+// <dl class="ledger"><div><dt>Ejercicio</dt><dd>2026</dd></div>…</dl>
+@layer components {
+  .ledger {
+    display: grid;
+    gap: space(3);
+
+    > div {
+      display: flex;
+      align-items: baseline;
+      gap: space(2);
+      min-width: 0;
+    }
+
+    > div::after {
+      content: "";
+      order: 1;
+      flex: 1;
+      min-width: space(5);
+      border-bottom: 1px dotted var(--line-strong);
+      translate: 0 -0.3em;
+    }
+
+    dt {
+      flex-shrink: 0;
+      white-space: nowrap;
+      @include type("label");
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    dd {
+      order: 2;
+      min-width: 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--ink);
+      overflow-wrap: anywhere;
+      text-align: right;
+    }
+  }
+}

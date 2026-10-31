@@ -1,0 +1,23 @@
+@use "../abstracts" as *;
+
+// <details class="accordion">: animates its height where the browser can (Chrome); elsewhere it just opens.
+.accordion {
+  interpolate-size: allow-keywords;
+
+  &::details-content {
+    height: 0;
+    overflow: clip;
+  }
+
+  &[open]::details-content {
+    height: auto;
+  }
+
+  @include motion-ok {
+    &::details-content {
+      transition:
+        height 0.3s $ease-out,
+        content-visibility 0.3s allow-discrete;
+    }
+  }
+}

@@ -1,0 +1,40 @@
+@use "../abstracts" as *;
+
+// Landing headline: words rise in, then a terracotta rule draws under the closing phrase.
+@include motion-ok {
+  .hero-word {
+    display: inline-block;
+    animation: hero-in 720ms $ease-out var(--d, 0ms) both;
+  }
+
+  .hero-rise {
+    animation: hero-in 640ms $ease-out var(--d, 0ms) both;
+  }
+
+  .hero-rule {
+    transform-origin: left center;
+    animation: hero-rule 700ms $ease-in-out var(--d, 0ms) both;
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-rule {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}

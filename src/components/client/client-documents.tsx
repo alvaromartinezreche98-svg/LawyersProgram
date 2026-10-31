@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FolderOpen } from "lucide-react";
+import { CircleCheck, FolderOpen, Upload } from "lucide-react";
 import { SCHEMA } from "@/lib/questionnaire/schema";
 import { collectDocs } from "@/lib/questionnaire/progress";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -11,6 +11,7 @@ import { Card, Eyebrow, Notice, Pill } from "@/components/ui/primitives";
 import { openTasks } from "@/lib/data/store";
 import { IconTile, SECTION_ICON } from "@/components/ui/icons";
 import { useClientExp } from "./client-shell";
+import d from "./client-documents.module.scss";
 
 /** C4 · Mis documentos: every document the answers ask for, grouped by step. */
 export function ClientDocuments() {
@@ -29,6 +30,15 @@ export function ClientDocuments() {
         <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold">{t.docs.title}</h1>
         <p className="mt-2 max-w-[62ch] text-muted">{t.docs.summary(uploaded, missing)}</p>
       </div>
+      {docs.length > 0 && (
+        // What was asked, what is in, what is still missing. "All done" only when nothing is missing.
+        <dl className={d.register}>
+          <div><dt>{t.docs.reg.asked}</dt><dd>{docs.length}</dd></div>
+          <div><dt>{t.docs.reg.uploaded}</dt><dd>{docs.length - missing}</dd></div>
+          <div data-missing={missing > 0 || undefined}><dt>{t.docs.reg.missing}</dt><dd>{missing}</dd></div>
+        </dl>
+      )}
+      {docs.length > 0 && missing === 0 && <p className={d.allDone}><CircleCheck size={16} aria-hidden="true" />{t.docs.reg.allDone}</p>}
       {asked.length > 0 && (
         <Notice tone="warn">
           <span className="font-medium">{t.tasks.yours}:</span>
@@ -66,15 +76,15 @@ export function ClientDocuments() {
               </Link>
             </div>
             <ul className="flex flex-col">
-              {list.map((d, i) => (
+              {list.map((d0, i) => (
                 <li key={i} className="flex flex-col gap-2 border-t border-line py-3 first:border-t-0 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
-                    {d.context && <div className="text-xs text-muted">{tr(d.context)}</div>}
-                    <div className="text-[14.5px] font-medium">{tr(d.label)}</div>
+                    {d0.context && <div className="text-xs text-muted">{tr(d0.context)}</div>}
+                    <div className="text-[14.5px] font-medium">{tr(d0.label)}</div>
                   </div>
-                  {d.files.length ? (
+                  {d0.files.length ? (
                     <ul className="flex flex-wrap gap-2 sm:justify-end">
-                      {d.files.map((f) => (
+                      {d0.files.map((f) => (
                         <li key={f.id} className="flex max-w-[240px] items-center gap-2 rounded-md border border-line bg-sunk py-1 pr-2.5 pl-1 text-xs">
                           <FileThumb file={f} size={28} />
                           <span className="truncate">{f.name}</span>
@@ -82,7 +92,13 @@ export function ClientDocuments() {
                       ))}
                     </ul>
                   ) : (
-                    <Pill tone="warn">{t.common.missing}</Pill>
+                    <span className={d.missingCell}>
+                      <Pill tone="warn">{t.common.missing}</Pill>
+                      <Link href={`/declaracion/${d0.section}#q-${d0.field}${d0.item ? `-${d0.item}` : ""}`} className={d.uploadLink}>
+                        <Upload size={14} aria-hidden="true" />
+                        {t.docs.reg.upload}
+                      </Link>
+                    </span>
                   )}
                 </li>
               ))}

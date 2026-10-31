@@ -1,0 +1,60 @@
+@use "sass:map";
+@use "../abstracts" as *;
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+// Text styles. Serif only for .t-display and .t-title (page titles, brand statements).
+// Colour is left to the context (text-ink, text-muted, text-accent…).
+@layer components {
+  .t-display,
+  .t-title {
+    font-family: $font-serif;
+    text-wrap: balance;
+  }
+
+  .t-display {
+    @include type("display");
+  }
+
+  .t-title {
+    @include type("title");
+  }
+
+  .t-section {
+    @include type("section");
+  }
+
+  .t-card {
+    @include type("card");
+  }
+
+  .t-body {
+    @include type("body");
+  }
+
+  .t-body-lg {
+    @include type("body-lg");
+  }
+
+  .t-meta {
+    @include type("meta");
+  }
+
+  // Small uppercase lead-in above a title. Short strings only (never long localized text).
+  .t-eyebrow {
+    @include type("eyebrow");
+    text-transform: uppercase;
+  }
+
+  // Column heads, definition terms: quieter than an eyebrow.
+  .t-label {
+    @include type("label");
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}

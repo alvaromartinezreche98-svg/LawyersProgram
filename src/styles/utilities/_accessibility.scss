@@ -1,0 +1,11 @@
+@use "../abstracts" as *;
+
+// Last line of defence for reduced motion: anything left animating runs instantly.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+  }
+}

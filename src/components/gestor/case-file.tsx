@@ -48,6 +48,20 @@ export function CaseFile({ id }: { id: string }) {
   const prevId = idx > 0 ? order[idx - 1] : null;
   const nextId = idx >= 0 && idx < order.length - 1 ? order[idx + 1] : null;
 
+  // Links to "#sec-<section>" (alerts, requests, other pages) open that section even when it starts folded.
+  useEffect(() => {
+    const go = () => {
+      const h = window.location.hash.slice(1);
+      if (h.startsWith("sec-")) openSection(h.slice(4));
+    };
+    const raf = requestAnimationFrame(go);
+    window.addEventListener("hashchange", go);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("hashchange", go);
+    };
+  }, []);
+
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if (typing(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -186,6 +200,32 @@ export function CaseFile({ id }: { id: string }) {
               <span className="text-sm">{fmtTime(e.createdAt, locale)}</span>
             </Prop>
           </dl>
+          {/* The questionnaire's sections, always at hand in the sticky column: one click opens the section and goes there. */}
+          <nav aria-label={t.file.sectionsNav} className="mt-6 border-t border-line pt-5">
+            <h2 className="mb-2 text-[13px] font-semibold text-muted">{t.file.sectionsNav}</h2>
+            <ol className="flex flex-col">
+              {SCHEMA.map((s, i) => {
+                const p = progressOf(s.fields, a);
+                const st = sectionState(p);
+                return (
+                  <li key={s.slug}>
+                    <a
+                      href={`#sec-${s.slug}`}
+                      onClick={(ev) => {
+                        ev.preventDefault();
+                        openSection(s.slug);
+                      }}
+                      className="-mx-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13.5px] transition-colors hover:bg-hover"
+                    >
+                      <StepDot n={i + 1} state={st} size={20} />
+                      <span className="min-w-0 flex-1 truncate">{tr(s.short)}</span>
+                      {st === "partial" && <span className="text-[12px] font-medium text-copper-text">{t.q.leftN(p.total - p.done)}</span>}
+                    </a>
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
           {FEATURES.prefill && <div className="mt-5 flex flex-col gap-2 border-t border-line pt-4">
             <span className="text-xs text-muted">{t.years.otherYears}</span>
             {years.filter((y) => y.id !== e.id).map((y) => (
@@ -321,12 +361,23 @@ export function CaseFile({ id }: { id: string }) {
             <TaskPanel exp={e} />
           </Block>
 
-          <Block id="respuestas" icon={ListChecks} title={t.file.answers}>
+          <Block
+            id="respuestas"
+            icon={ListChecks}
+            title={t.file.answers}
+            aside={
+              <span className="flex gap-3">
+                <button type="button" onClick={() => foldAll(true)} className="font-medium text-accent hover:underline">{t.file.expandAll}</button>
+                <button type="button" onClick={() => foldAll(false)} className="font-medium text-accent hover:underline">{t.file.collapseAll}</button>
+              </span>
+            }
+          >
             <div className="-my-2">
               {SCHEMA.map((s, i) => {
                 const st = sectionState(progressOf(s.fields, a));
+                // Only sections with questions still open start unfolded: complete and empty ones stay folded.
                 return (
-                  <details key={s.slug} id={`sec-${s.slug}`} open={st !== "empty"} className="group scroll-mt-16 border-t border-line first-of-type:border-t-0">
+                  <details key={s.slug} id={`sec-${s.slug}`} open={st === "partial"} className="group scroll-mt-[124px] border-t border-line first-of-type:border-t-0">
                     <summary className="flex min-h-[52px] cursor-pointer list-none items-center gap-3 py-2.5 font-semibold [&::-webkit-details-marker]:hidden">
                       <StepDot n={i + 1} state={st} />
                       <span className="min-w-0 flex-1">{tr(s.title)}</span>
@@ -345,7 +396,7 @@ export function CaseFile({ id }: { id: string }) {
           <Block id="documentos" icon={FileText} title={t.file.docs} aside={<span className="flex flex-wrap items-center gap-3">{t.file.docsAside(nDocs, nPend)}<DownloadAll exp={e} /></span>}>
             {docs.length ? (
               <div className="@container -mx-4 -my-4">
-                <div className="hidden grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto_minmax(0,1.2fr)] gap-4 border-b border-line bg-sunk px-4 py-2 text-[11.5px] font-semibold tracking-[.06em] text-muted uppercase @2xl:grid">
+                <div className="table-head hidden grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto_minmax(0,1.2fr)] gap-4 @2xl:grid">
                   <span>{t.file.docCols.doc}</span>
                   <span>{t.file.docCols.where}</span>
                   <span>{t.file.docCols.state}</span>
@@ -404,6 +455,17 @@ const docTask = (label: Text, context: Text | null) => {
 };
 
 /** One section of the case as a panel (design system › Panel): header with icon, title and note, then the content. */
+/** Opens a questionnaire section on the case page and scrolls to it (closed <details> do not open on their own). */
+function openSection(slug: string) {
+  const el = document.getElementById(`sec-${slug}`);
+  if (!(el instanceof HTMLDetailsElement)) return;
+  el.open = true;
+  history.replaceState(null, "", `#sec-${slug}`);
+  el.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
+const foldAll = (open: boolean) => document.querySelectorAll<HTMLDetailsElement>("#respuestas details").forEach((d) => (d.open = open));
+
 function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: string; icon: LucideIcon; title: string; aside?: ReactNode; htmlFor?: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-28 rounded-xl border border-line bg-surface lg:scroll-mt-24">

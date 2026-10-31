@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Building2, CalendarDays, Phone } from "lucide-react";
-import { actions, clientName, useAppState } from "@/lib/data/store";
+import { useState, type FormEvent } from "react";
+import { Building2, CalendarDays, CalendarPlus, Phone, X } from "lucide-react";
+import { actions, caseOrder, clientName, useAppState } from "@/lib/data/store";
 import type { Appointment, Expediente } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDate, fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
-import { Button, EmptyState, Pill } from "@/components/ui/primitives";
+import { Button, EmptyState, Notice, Pill, cx } from "@/components/ui/primitives";
 import { AP_TONE } from "@/components/client/client-appointment";
 import { Chip, Chips, PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
+import { DateField } from "@/components/ui/date-field";
 
 type Filter = "solicitada" | "confirmada" | "all";
 const ctl = "field w-auto h-(--control-h-sm) text-[13px]";
@@ -21,6 +22,8 @@ export function Appointments() {
   const { exps } = useAppState();
   const { t } = useI18n();
   const [filter, setFilter] = useState<Filter>("solicitada");
+  const [adding, setAdding] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
   const all = Object.values(exps).flatMap((e) => (e.appointments ?? []).map((a) => ({ e, a })));
   const count = (f: Filter) => (f === "all" ? all.length : all.filter((x) => x.a.status === f).length);
   const shown = all.filter((x) => filter === "all" || x.a.status === filter).sort((x, y) => x.a.date.localeCompare(y.a.date) || x.a.slot.localeCompare(y.a.slot));
@@ -30,7 +33,29 @@ export function Appointments() {
       <PageTitle>{t.titles.citas}</PageTitle>
       <TopBar crumbs={[{ label: t.citas.title }]} />
       <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
-        <PageHead title={t.citas.title} intro={t.citas.intro} />
+        <PageHead
+          title={t.citas.title}
+          intro={t.citas.intro}
+          actions={
+            !adding && (
+              <Button size="sm" onClick={() => { setAdding(true); setSaved(null); }}>
+                <CalendarPlus size={15} aria-hidden="true" />
+                {t.citas.newBtn}
+              </Button>
+            )
+          }
+        />
+        {saved && <Notice tone="ok">{saved}</Notice>}
+        {adding && (
+          <NewAppointment
+            onClose={() => setAdding(false)}
+            onSaved={(n) => {
+              setAdding(false);
+              setSaved(t.citas.saved(n));
+              setFilter("confirmada");
+            }}
+          />
+        )}
         <Chips label={t.citas.title}>
           {(["solicitada", "confirmada", "all"] as const).map((f) => (
             <Chip key={f} on={filter === f} count={count(f)} alert={f === "solicitada"} onClick={() => setFilter(f)}>
@@ -40,7 +65,9 @@ export function Appointments() {
         </Chips>
         <div className="overflow-clip rounded-lg border border-line bg-surface">
           {shown.length === 0 ? (
-            <EmptyState inset icon={CalendarDays} title={t.citas.none} />
+            <EmptyState inset icon={CalendarDays} title={t.citas.none}>
+              {all.length === 0 && <p>{t.citas.emptyHelp}</p>}
+            </EmptyState>
           ) : (
             <ul>
               {shown.map(({ e, a }) => (
@@ -100,5 +127,88 @@ function Row({ e, a }: { e: Expediente; a: Appointment }) {
         <span className="text-[13px] text-muted lg:text-right">{a.status === "confirmada" ? firm.team.find((m) => m.id === a.assignee)?.name ?? t.list.unassigned : ""}</span>
       )}
     </li>
+  );
+}
+
+/** "Nueva cita": schedule a visit or call agreed with the client another way; it is saved as confirmed. */
+function NewAppointment({ onClose, onSaved }: { onClose: () => void; onSaved: (name: string) => void }) {
+  const { exps, firm } = useAppState();
+  const { t } = useI18n();
+  const cases = caseOrder(exps);
+  const [caseId, setCaseId] = useState(cases[0]?.id ?? "");
+  const [kind, setKind] = useState<Appointment["kind"]>("presencial");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("10:00");
+  const [who, setWho] = useState(exps[cases[0]?.id ?? ""]?.assignee ?? "");
+  const [note, setNote] = useState("");
+  const field = "field h-(--control-h) text-[14px]";
+  const label = "flex flex-col gap-1.5 text-[13px] font-semibold text-ink";
+
+  const save = (ev: FormEvent) => {
+    ev.preventDefault();
+    if (!caseId || !date || !time) return;
+    actions.scheduleAppointment(caseId, { kind, date, time, note: note.trim(), assignee: who || null });
+    onSaved(clientName(exps[caseId]) || t.common.unnamedClient);
+  };
+
+  return (
+    <form onSubmit={save} aria-labelledby="ap-new" className="flex flex-col gap-4 rounded-lg border border-line border-t-[3px] border-t-copper bg-surface p-5 shadow-sheet">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 id="ap-new" className="text-[16px] font-semibold">{t.citas.newTitle}</h2>
+          <p className="mt-0.5 max-w-[68ch] text-[13.5px] text-muted">{t.citas.newIntro}</p>
+        </div>
+        <button type="button" onClick={onClose} aria-label={t.citas.cancel} className="grid size-8 shrink-0 place-items-center rounded-md text-muted hover:bg-hover hover:text-ink">
+          <X size={16} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <label className={cx(label, "sm:col-span-2")}>
+          {t.citas.client}
+          <select required value={caseId} onChange={(e) => { setCaseId(e.target.value); setWho(exps[e.target.value]?.assignee ?? ""); }} className={field}>
+            {cases.map((e) => <option key={e.id} value={e.id}>{clientName(e) || t.common.unnamedClient}</option>)}
+          </select>
+        </label>
+        <fieldset className="flex flex-col gap-1.5 sm:col-span-2">
+          <legend className="mb-1.5 text-[13px] font-semibold text-ink">{t.citas.kindLabel}</legend>
+          <div className="grid grid-cols-2 gap-2">
+            {(["presencial", "llamada"] as const).map((k) => (
+              <label key={k} className={cx("flex h-(--control-h) cursor-pointer items-center justify-center gap-2 rounded-md border text-[14px] font-medium transition-colors", kind === k ? "border-accent bg-accent-soft text-accent" : "border-line-strong hover:bg-hover")}>
+                <input type="radio" name="ap-kind" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
+                {k === "llamada" ? <Phone size={15} aria-hidden="true" /> : <Building2 size={15} aria-hidden="true" />}
+                {t.cita.kind[k]}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <label className={label}>
+          {t.citas.date}
+          <DateField required value={date} onChange={setDate} className="font-normal" />
+        </label>
+        <label className={label}>
+          {t.citas.time}
+          <input type="time" required value={time} onChange={(e) => setTime(e.target.value)} className={field} />
+        </label>
+        <label className={cx(label, "sm:col-span-2")}>
+          {t.citas.assignee}
+          <select value={who} onChange={(e) => setWho(e.target.value)} className={field}>
+            <option value="">{t.list.unassigned}</option>
+            {firm.team.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+          </select>
+        </label>
+        <label className={cx(label, "sm:col-span-2 xl:col-span-4")}>
+          {t.citas.note}
+          <input value={note} onChange={(e) => setNote(e.target.value)} className={field} />
+        </label>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" variant="primary" disabled={!caseId}>
+          {t.citas.save}
+        </Button>
+        <Button onClick={onClose}>{t.citas.cancel}</Button>
+      </div>
+    </form>
   );
 }

@@ -30,6 +30,8 @@ export interface ChatMessage {
   sys?: "sent" | "resent" | "result" | "approved";
   /** API: the firm's request for missing information (kind information_request). */
   request?: boolean;
+  /** Files attached to the message (demo: stored in this browser; the API has no message attachments yet). */
+  files?: FileRef[];
 }
 
 /** What the API adds to a case it served (API mode only). */

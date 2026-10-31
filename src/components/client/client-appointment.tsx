@@ -9,6 +9,7 @@ import { fmtDate } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
 import { Button, Card, CardTitle, EmptyState, Eyebrow, Notice, Pill, cx } from "@/components/ui/primitives";
 import { useClientExp } from "./client-shell";
+import { DateField } from "@/components/ui/date-field";
 
 export const AP_TONE = { solicitada: "warn", confirmada: "ok", cancelada: "neutral" } as const;
 const today = () => new Date().toISOString().slice(0, 10);
@@ -57,7 +58,7 @@ export function ClientAppointment() {
             <div className="grid gap-4 sm:grid-cols-[220px_minmax(0,1fr)]">
               <label className="flex flex-col gap-1.5 text-[14px] font-medium">
                 {t.cita.date}
-                <input type="date" min={today()} value={date} onChange={(e) => { setDate(e.target.value); setError(""); }} className="field h-(--control-h) w-auto font-normal" />
+                <DateField min={today()} value={date} onChange={(v) => { setDate(v); setError(""); }} className="font-normal" />
               </label>
               <div className="flex flex-col gap-1.5">
                 <span className="text-[14px] font-medium">{t.cita.slotLabel}</span>

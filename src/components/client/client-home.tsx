@@ -2,23 +2,24 @@
 
 import { FEATURES } from "@/lib/features";
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { ArrowRight, CalendarClock, ChevronRight, CircleCheck, ClipboardList, FileText, MessageCircle, PenLine, Send, type LucideIcon } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { ArrowRight, CalendarClock, Check, ChevronDown, ChevronRight, CircleCheck, ClipboardList, FileText, MessageCircle, PenLine, Send, type LucideIcon } from "lucide-react";
 import { SCHEMA, REVIEW_SLUG, SIGN_SLUG } from "@/lib/questionnaire/schema";
 import { collectDocs, progressOf, sectionState } from "@/lib/questionnaire/progress";
 import { signingDone } from "@/lib/data/legal";
 import { feeFor, fmtEuros } from "@/lib/data/fees";
 import { clientName, openTasks, unreadFor, useAppState } from "@/lib/data/store";
-import { awaitingApproval, resultApproved, type Expediente, type Status } from "@/lib/data/types";
+import { awaitingApproval, resultApproved } from "@/lib/data/types";
 import { useFileUrl } from "@/lib/data/files";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDate, fmtDayMonth, fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
-import { ButtonLink, EmptyState, Notice, Pill, cx } from "@/components/ui/primitives";
-import { SegMeter, StepDot } from "@/components/ui/progress";
+import { Badge, ButtonLink, EmptyState, Pill, cx } from "@/components/ui/primitives";
+import { StepDot } from "@/components/ui/progress";
 import { useClientExp } from "./client-shell";
 import { AP_TONE } from "./client-appointment";
 import { ClientTasks, hrefOf } from "./client-tasks";
+import h from "./client-home.module.scss";
 
 /** Initials for the gestoría's mark ("Gestoría Turia" → "GT"). */
 const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "G";
@@ -45,6 +46,7 @@ export function ClientHome() {
   const exp = useClientExp();
   const { firm } = useAppState();
   const { t, tr, locale, status } = useI18n();
+  const [showDone, setShowDone] = useState(false);
   const a = exp.answers;
   const firmName = firm.name.trim() || t.home.yourFirm;
   const mark = initials(firmName);
@@ -52,7 +54,6 @@ export function ClientHome() {
   const open = sections.filter((x) => x.st !== "done");
   const docs = collectDocs(a);
   const missing = docs.filter((d) => !d.files.length).length;
-  const uploaded = docs.reduce((n, d) => n + d.files.length, 0);
   const unread = unreadFor(exp, "cliente");
   const lastFromFirm = [...exp.chat].reverse().find((m) => m.from === "gestor" && !m.sys);
   const tasks = openTasks(exp);
@@ -71,7 +72,7 @@ export function ClientHome() {
   for (const x of tasks)
     list.push({ key: x.id, kind: "request", icon: FileText, label: t.home.requestWho, title: tr(x.text), meta: [x.target && tr(SCHEMA.find((s) => s.slug === x.target!.section)?.short ?? { es: "", en: "" }), t.tasks.askedOn(fmtTime(x.createdAt, locale))].filter(Boolean).join(" · "), href: hrefOf(x) });
   if (toSign) list.push({ key: "sign", kind: "request", icon: PenLine, label: t.home.signKind, title: t.home.signTask, href: `/declaracion/${SIGN_SLUG}` });
-  if (unread && lastFromFirm) list.push({ key: "unread", kind: "message", icon: MessageCircle, label: t.home.unreadKind, title: `«${lastFromFirm.text.length > 90 ? lastFromFirm.text.slice(0, 88) + "…" : lastFromFirm.text}»`, meta: `${firmName} · ${fmtTime(lastFromFirm.at, locale)}`, href: "/mensajes" });
+  if (unread && lastFromFirm) list.push({ key: "unread", kind: "message", icon: MessageCircle, label: t.home.unreadKind, title: lastFromFirm.text ? `«${lastFromFirm.text.length > 90 ? lastFromFirm.text.slice(0, 88) + "…" : lastFromFirm.text}»` : `${t.chat.attach}: ${lastFromFirm.files?.map((f) => f.name).join(", ") ?? ""}`, meta: `${firmName} · ${fmtTime(lastFromFirm.at, locale)}`, href: "/mensajes" });
   // Requests the client answered stay listed until the gestoría checks them; resolved ones for two weeks.
   const nowMs = new Date(today).getTime();
   const recent = (iso?: string) => !!iso && nowMs - Date.parse(iso) < 15 * 864e5;
@@ -84,36 +85,78 @@ export function ClientHome() {
   // Answered or resolved requests never lead the page: they are information, not a next step.
   const actionable = list.filter((x) => x.kind !== "sent" && x.kind !== "resolved");
   const lead = actionable[0];
-  const rest = list.filter((x) => x !== lead);
+  // "Sections to finish" is the "Su declaración" list itself, so it only appears as the lead, never again under "Para hacer".
+  const rest = list.filter((x) => x !== lead && x.key !== "continue");
   const leadTask = lead?.kind === "request" ? tasks.find((x) => x.id === lead.key) : undefined;
 
+  // Five distinct stages, each from its own data: never one blended percentage.
+  const pendingAnswers = sections.reduce((n, x) => n + (x.p.total - x.p.done), 0);
+  const tr_ = t.home.track;
+  const stages: Stage[] = [
+    {
+      key: "questionnaire",
+      state: open.length ? "now" : "done",
+      fact: open.length ? tr_.qLeft(sections.length - open.length, sections.length, pendingAnswers) : tr_.qDone(sections.length),
+      href: open.length ? `/declaracion/${open[0].s.slug}` : `/declaracion/${REVIEW_SLUG}`,
+    },
+    {
+      key: "documents",
+      state: !docs.length ? "todo" : missing ? "now" : "done",
+      fact: !docs.length ? tr_.dNone : missing ? tr_.dMissing(missing, docs.length - missing) : tr_.dAll(docs.length),
+      href: "/documentos",
+    },
+    {
+      key: "review",
+      state: exp.status === "listo" || !!exp.result ? "done" : exp.status === "borrador" ? "todo" : "now",
+      fact: exp.status === "listo" || !!exp.result ? tr_.rDone : exp.status === "borrador" ? tr_.rWait : exp.status === "enviado" ? tr_.rReceived : tr_.rDoing,
+    },
+    ...(FEATURES.resultApproval
+      ? [
+          {
+            key: "approval" as const,
+            state: resultApproved(exp) ? ("done" as const) : approval ? ("now" as const) : ("todo" as const),
+            fact: resultApproved(exp) && exp.result?.approval ? tr_.aDone(fmtDayMonth(exp.result.approval.approvedAt)) : approval ? tr_.aNow : tr_.aWait,
+            href: exp.result ? "/resultado" : undefined,
+          },
+        ]
+      : []),
+    { key: "filing", state: exp.status === "listo" ? "now" : "todo", fact: exp.status === "listo" ? tr_.fReady : tr_.fWait },
+  ];
+  const current = [...stages].reverse().find((x) => x.state === "now");
+  const resumeSlug = open.find((x) => !requested.has(x.s.slug))?.s.slug;
+  const doneN = sections.filter((x) => x.st === "done" && !requested.has(x.s.slug)).length;
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className={h.home}>
       <PageTitle>{t.titles.home}</PageTitle>
 
-      <header className="flex flex-col gap-1.5">
-        <p className="flex items-center gap-2.5 text-[13px] font-semibold tracking-[.06em] text-accent uppercase">
-          <span className="h-[3px] w-6 rounded-full bg-copper" aria-hidden="true" />
+      <header className={h.header}>
+        <p className={cx("eyebrow-tag", h.eyebrow)}>
           {t.home.eyebrow(exp.ejercicio)} · {firmName}
         </p>
-        <h1 className="display-serif text-[clamp(28px,3vw,36px)] leading-tight font-semibold">{first ? t.home.hello(first) : t.titles.home}</h1>
+        <h1 className={h.title}>{first ? t.home.hello(first) : t.titles.home}</h1>
+        {current && <p className={h.statusLine}>{tr_.now(tr_.name[current.key])}</p>}
       </header>
 
-      <div className="grid items-start gap-8 min-[900px]:grid-cols-[minmax(0,1fr)_320px] lg:gap-12">
-        <div className="flex min-w-0 flex-col gap-8">
-          {/* Lo siguiente */}
+      <div className={h.layout}>
+        <div className={h.main}>
+          {/* 1 · Lo siguiente: the one thing to do now */}
           {!lead ? (
             <EmptyState icon={CircleCheck} tone="ok" title={t.home.allClear} />
           ) : lead.kind === "approval" && approval ? (
-            <section aria-labelledby="nx" className="flex flex-col gap-4 rounded-xl border-2 border-accent bg-surface p-6 sm:p-8">
-              <Pill tone="accent" icon={PenLine} className="self-start">{t.home.pendingApproval}</Pill>
-              <h2 id="nx" className="text-[22px] leading-[30px] font-semibold">{t.home.readyTitle}</h2>
+            <section aria-labelledby="nx" className={h.lead} data-kind="approval">
+              <p className={h.leadKind}>
+                <PenLine size={15} aria-hidden="true" />
+                {t.home.pendingApproval}
+              </p>
+              <h2 id="nx" className={h.leadTitle}>{t.home.readyTitle}</h2>
               <div>
-                <p className="text-[13px] text-muted">{t.home.resultMeta(approval.version, fmtDayMonth(approval.sentAt))}</p>
-                <p className="figures text-[clamp(26px,3vw,32px)] font-semibold">{t.result.kind[approval.kind]} {approval.amount} €</p>
+                <p className={h.leadMeta}>{t.home.resultMeta(approval.version, fmtDayMonth(approval.sentAt))}</p>
+                <p className={h.amount}>{t.result.kind[approval.kind]} {approval.amount} €</p>
               </div>
-              <p className="max-w-[60ch] text-[17px] leading-[26px]">{t.home.approvalBody(firmName)}</p>
-              <div className="flex flex-wrap gap-2">
+              <p className={h.leadBody}>{t.home.approvalBody(firmName)}</p>
+              <p className={h.leadNote}>{t.result.notFiling}</p>
+              <div className={h.actions}>
                 <ButtonLink href="/resultado" variant="primary" size="lg">{t.home.approveCta}<ArrowRight size={18} aria-hidden="true" /></ButtonLink>
                 <ButtonLink href="/mensajes" size="lg"><MessageCircle size={17} aria-hidden="true" />{t.home.doubts}</ButtonLink>
               </div>
@@ -122,128 +165,137 @@ export function ClientHome() {
             // A general request is answered here, with an optional comment.
             <div id="peticiones" className="scroll-mt-24"><ClientTasks exp={exp} /></div>
           ) : (
-            <section aria-labelledby="nx" className={cx("flex flex-col gap-4 rounded-xl p-6 sm:p-8", lead.kind === "request" ? "bg-copper-soft" : "border border-line bg-surface shadow-sheet")}>
-              {lead.kind === "request" ? (
-                <p className="flex flex-wrap items-center gap-2 text-[15px] font-semibold text-copper-text">
-                  <FirmMark mark={mark} />
-                  {lead.label}
-                  {leadTask && <time className="font-normal text-muted">{fmtDayMonth(leadTask.createdAt)}</time>}
-                </p>
-              ) : (
-                <p className="flex items-center gap-2.5 text-[13px] font-semibold text-muted">
-                  {lead.icon && <span className={cx("grid size-10 place-items-center rounded-lg ring-1 ring-current/15 ring-inset", TASK_ICON[lead.kind])}><lead.icon size={19} strokeWidth={2.1} aria-hidden="true" /></span>}
-                  {lead.label}
-                </p>
-              )}
-              <h2 id="nx" className="max-w-[34ch] text-[22px] leading-[30px] font-semibold">{lead.title}</h2>
-              {lead.meta && <p className="max-w-[60ch] text-[15px] text-muted">{lead.meta}</p>}
-              <div className="flex flex-wrap gap-2">
+            <section aria-labelledby="nx" className={h.lead} data-kind={lead.kind}>
+              <p className={h.leadKind}>
+                {lead.kind === "request" ? <FirmMark mark={mark} /> : lead.icon && <lead.icon size={15} aria-hidden="true" />}
+                {lead.label}
+                {leadTask && <time className={h.leadTime}>{fmtDayMonth(leadTask.createdAt)}</time>}
+              </p>
+              <h2 id="nx" className={h.leadTitle}>{lead.title}</h2>
+              {lead.meta && <p className={h.leadMeta}>{lead.meta}</p>}
+              <div className={h.actions}>
                 <ButtonLink href={lead.href} variant="primary" size="lg">
                   {lead.kind === "request" && leadTask?.target?.kind === "docs" ? t.home.uploadIt : lead.kind === "request" ? t.home.goField : lead.kind === "message" ? t.home.readReply : lead.key === "continue" ? t.home.continue(tr(open[0].s.short)) : t.home.review}
                   <ArrowRight size={18} aria-hidden="true" />
                 </ButtonLink>
                 {lead.kind === "request" && leadTask?.target?.kind === "docs" && <ButtonLink href={lead.href} size="lg">{t.upload.notYet}</ButtonLink>}
               </div>
+              {/* Nothing requested: one quiet line here instead of an empty "Para hacer" section */}
+              {!tasks.length && !rest.length && <p className={h.leadQuiet}><CircleCheck size={15} aria-hidden="true" />{t.home.noRequests}</p>}
             </section>
           )}
-          {sent && <Notice tone="info" title={t.home.sentTitle}>{t.home.sentBody(status(exp.status))}</Notice>}
 
-          {/* Para hacer */}
-          <section aria-labelledby="todo" className="flex flex-col gap-3">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 id="todo" className="text-[20px] font-semibold">{t.home.todo}</h2>
-              {rest.length > 0 && <span className="text-[14px] text-muted">{t.home.things(rest.length)}</span>}
-            </div>
-            {rest.length > 0 && (
-              <ul className="flex flex-col overflow-clip rounded-xl border border-line bg-surface">
-                {rest.map((x) => <TaskRow key={x.key} task={x} />)}
-              </ul>
-            )}
-            {!tasks.length && (
-              <EmptyState icon={CircleCheck} tone="ok" title={t.home.noRequests}>{t.home.noRequestsBody}</EmptyState>
-            )}
+          {/* 2 · Where the return is: five stages, each with its own fact */}
+          <section aria-labelledby="track" className={h.trackWrap}>
+            <h2 id="track" className={h.sectionTitle}>{tr_.label}</h2>
+            <ol className={h.track}>
+              {stages.map((x) => {
+                const body = (
+                  <>
+                    <span className={h.marker} aria-hidden="true">{x.state === "done" && <Check size={13} strokeWidth={3} />}</span>
+                    <span className={h.stageName}>
+                      {tr_.name[x.key]}
+                      <span className="sr-only"> · {tr_.state[x.state]}</span>
+                    </span>
+                    <span className={h.stageFact}>{x.fact}</span>
+                  </>
+                );
+                return (
+                  <li key={x.key} className={h.stage} data-state={x.state} aria-current={x === current ? "step" : undefined}>
+                    {x.href ? <Link href={x.href} className={h.stageLink}>{body}</Link> : <div className={h.stageLink}>{body}</div>}
+                  </li>
+                );
+              })}
+            </ol>
+            {sent && <p className={h.trackNote}>{t.home.sentBody(status(exp.status))}</p>}
           </section>
 
-          {/* Su declaración */}
-          <section aria-labelledby="secs" className="flex flex-col gap-3">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 id="secs" className="text-[20px] font-semibold">{t.home.yourReturn}</h2>
-              <span className="text-[14px] text-muted">{t.q.sectionsDone(sections.length - open.length, sections.length)}</span>
+          {/* 3 · Waiting for you: requests, messages, answered and resolved items */}
+          {rest.length > 0 && (
+            <section aria-labelledby="todo" className={h.block}>
+              <div className={h.blockHead}>
+                <h2 id="todo" className={h.sectionTitle}>{t.home.todo}</h2>
+                <span className={h.count}>{t.home.things(rest.length)}</span>
+              </div>
+              <ul className={h.list}>
+                {rest.map((x) => <TaskRow key={x.key} task={x} />)}
+              </ul>
+            </section>
+          )}
+
+          {/* 4 · The questionnaire, section by section */}
+          <section aria-labelledby="secs" className={h.block}>
+            <div className={h.blockHead}>
+              <h2 id="secs" className={h.sectionTitle}>{t.home.yourReturn}</h2>
+              <span className={h.count}>{t.q.sectionsDone(sections.length - open.length, sections.length)}</span>
             </div>
-            <SegMeter states={sections.map((x) => x.st)} />
-            <ul className="mt-1 flex flex-col overflow-clip rounded-xl border border-line bg-surface">
+            <ul className={h.list} id="sec-list">
               {sections.map(({ s, p, st }, i) => {
                 const req = requested.has(s.slug);
+                const resume = s.slug === resumeSlug;
+                // Completed sections fold away by default: the list shows what is left to do.
+                if (st === "done" && !req && !showDone) return null;
                 return (
-                  <SectionRow key={s.slug} href={`/declaracion/${s.slug}`} dot={<StepDot n={i + 1} state={st} />} name={tr(s.short)} request={req}>
-                    {req ? t.q.requested : st === "partial" ? t.q.leftN(p.total - p.done) : t.sectionState[st]}
+                  <SectionRow key={s.slug} href={`/declaracion/${s.slug}`} dot={<StepDot n={i + 1} state={st} />} name={tr(s.short)} tone={req ? "request" : resume ? "resume" : st}>
+                    {req ? t.q.requested : resume ? t.home.resumeHere : st === "partial" ? t.q.leftN(p.total - p.done) : t.sectionState[st]}
                   </SectionRow>
                 );
               })}
               <SectionRow href={`/declaracion/${REVIEW_SLUG}`} dot={<StepDot state="none" icon={Send} />} name={sent ? t.home.reviewResend : t.home.review} />
             </ul>
+            {doneN > 0 && (
+              <button type="button" aria-expanded={showDone} aria-controls="sec-list" onClick={() => setShowDone(!showDone)} className={h.foldBtn}>
+                <ChevronDown size={15} className={cx("motion-safe:transition-transform", showDone && "rotate-180")} aria-hidden="true" />
+                {showDone ? t.home.hideDone : t.home.showDone(doneN)}
+              </button>
+            )}
           </section>
         </div>
 
-        {/* Side column */}
-        <aside className="flex min-w-0 flex-col gap-5">
-          <Panel title={t.home.how}>
-            <Timeline status={exp.status} exp={exp} />
-          </Panel>
-
-          <Panel title={t.home.yourFirm}>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <FirmLogo mark={mark} />
-                <div className="min-w-0">
-                  <p className="truncate font-semibold">{firmName}</p>
-                  <p className="text-[13px] text-muted">
-                    {[firm.address, exp.assignee && firm.team.find((m) => m.id === exp.assignee)?.name && t.home.attends(firm.team.find((m) => m.id === exp.assignee)!.name)].filter(Boolean).join(" · ")}
-                  </p>
-                </div>
+        {/* Side column: who is preparing the return */}
+        <aside className={h.aside}>
+          <section className={h.firm} aria-labelledby="firm">
+            <h2 id="firm" className={cx("t-label", h.asideLabel)}>{t.home.yourFirm}</h2>
+            <div className={h.firmId}>
+              <FirmLogo mark={mark} />
+              <div className={h.firmText}>
+                <p className={h.firmName}>{firmName}</p>
+                <p className={h.firmMeta}>
+                  {[firm.address, exp.assignee && firm.team.find((m) => m.id === exp.assignee)?.name && t.home.attends(firm.team.find((m) => m.id === exp.assignee)!.name)].filter(Boolean).join(" · ")}
+                </p>
               </div>
-              <div className="flex flex-col gap-1">
-                <ButtonLink href="/mensajes" className="w-full"><MessageCircle size={16} aria-hidden="true" />{t.home.write}</ButtonLink>
-                {FEATURES.appointments && <ButtonLink href="/cita" variant="ghost" className="w-full"><CalendarClock size={16} aria-hidden="true" />{t.home.bookCall}</ButtonLink>}
-              </div>
-              {nextAp && (
-                <Link href="/cita" className="group flex flex-col gap-1 border-t border-line pt-3">
-                  <span className="flex items-center justify-between gap-2">
-                    <b className="text-[14px] font-semibold">{t.home.nextAp}</b>
-                    <Pill tone={AP_TONE[nextAp.status]}>{t.cita.status[nextAp.status]}</Pill>
-                  </span>
-                  <span className="figures text-[13.5px] text-muted group-hover:text-ink">{t.cita.kind[nextAp.kind]} · {t.cita.when(fmtDate(nextAp.date), t.cita.slot[nextAp.slot], nextAp.time)}</span>
-                </Link>
-              )}
             </div>
-          </Panel>
-
-          <div className="rounded-xl border border-line bg-surface p-4">
-            <dl className="grid grid-cols-[minmax(110px,40%)_1fr] gap-x-3 gap-y-1.5 text-[14.5px]">
-              <dt className="text-muted">{t.nav.documents}</dt>
-              <dd className="figures"><Link href="/documentos" className="hover:text-accent hover:underline">{t.home.docsSum(uploaded, missing)}</Link></dd>
-              {FEATURES.payments && (
-                <>
-                  <dt className="text-muted">{t.home.fees}</dt>
-                  <dd className={cx("figures", !fee && "text-muted")}>{fee ? fmtEuros(fee.total, locale) : t.home.feesNone}</dd>
-                </>
-              )}
-            </dl>
-          </div>
+            <div className={h.firmActions}>
+              <ButtonLink href="/mensajes" className="w-full">
+                <MessageCircle size={16} aria-hidden="true" />
+                {t.home.write}
+                {unread > 0 && <Badge n={unread} />}
+              </ButtonLink>
+              {FEATURES.appointments && <ButtonLink href="/cita" variant="ghost" className="w-full"><CalendarClock size={16} aria-hidden="true" />{t.home.bookCall}</ButtonLink>}
+            </div>
+            {nextAp && (
+              <Link href="/cita" className={h.appointment}>
+                <span className={h.apHead}>
+                  <b>{t.home.nextAp}</b>
+                  <Pill tone={AP_TONE[nextAp.status]}>{t.cita.status[nextAp.status]}</Pill>
+                </span>
+                <span className="figures">{t.cita.kind[nextAp.kind]} · {t.cita.when(fmtDate(nextAp.date), t.cita.slot[nextAp.slot], nextAp.time)}</span>
+              </Link>
+            )}
+            {FEATURES.payments && (
+              <dl className={h.fees}>
+                <dt>{t.home.fees}</dt>
+                <dd className={cx("figures", !fee && h.mutedText)}>{fee ? fmtEuros(fee.total, locale) : t.home.feesNone}</dd>
+              </dl>
+            )}
+          </section>
         </aside>
       </div>
     </div>
   );
 }
 
-function Panel({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="rounded-xl border border-line bg-surface">
-      <h2 className="flex min-h-[52px] items-center border-b border-line px-4 py-3 text-[17px] font-semibold">{title}</h2>
-      <div className="p-4">{children}</div>
-    </section>
-  );
-}
+type Stage = { key: "questionnaire" | "documents" | "review" | "approval" | "filing"; state: "done" | "now" | "todo"; fact: string; href?: string };
 
 /** The gestoría's voice: its initials on copper. */
 function FirmMark({ mark }: { mark: string }) {
@@ -260,66 +312,31 @@ function FirmLogo({ mark }: { mark: string }) {
   return <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[inset_0_-3px_0_var(--copper)]" aria-hidden="true">{mark}</span>;
 }
 
-const TASK_ICON: Record<Kind, string> = {
-  approval: "bg-accent text-accent-ink",
-  request: "bg-copper-soft text-copper-text",
-  message: "bg-icon-soft text-icon",
-  plain: "bg-icon-soft text-icon",
-  sent: "bg-info-soft text-info",
-  resolved: "bg-ok-soft text-ok",
-};
 
 function TaskRow({ task: x }: { task: Task }) {
   return (
-    <li className="border-t border-line first:border-t-0">
-      <Link href={x.href} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 p-4 transition-colors hover:bg-hover">
-        <span className={cx("grid size-10 place-items-center rounded-lg ring-1 ring-current/15 ring-inset", TASK_ICON[x.kind])}>
-          {x.icon ? <x.icon size={19} strokeWidth={2.1} aria-hidden="true" /> : <span className="size-2.5 rounded-full border-[1.5px] border-accent bg-[linear-gradient(90deg,var(--accent)_50%,transparent_50%)]" aria-hidden="true" />}
+    <li>
+      <Link href={x.href} className={h.row} data-kind={x.kind}>
+        <span className={h.rowMain}>
+          <span className={h.rowKind}>{x.label}</span>
+          <span className={h.rowTitle}>{x.title}</span>
+          {x.meta && <span className={h.rowMeta}>{x.meta}</span>}
         </span>
-        <span className="min-w-0">
-          <span className={cx("block text-[13px] leading-[18px] font-semibold", x.kind === "request" ? "text-copper-text" : x.kind === "sent" ? "text-info" : x.kind === "resolved" ? "text-ok" : "text-muted")}>{x.label}</span>
-          <span className="block text-[17px] leading-6 font-medium">{x.title}</span>
-          {x.meta && <span className="block text-[13px] leading-[18px] text-muted">{x.meta}</span>}
-        </span>
-        <ChevronRight size={18} className="text-muted" aria-hidden="true" />
+        <ChevronRight size={18} className={h.chev} aria-hidden="true" />
       </Link>
     </li>
   );
 }
 
-function SectionRow({ href, dot, name, request, children }: { href: string; dot: ReactNode; name: string; request?: boolean; children?: ReactNode }) {
+function SectionRow({ href, dot, name, tone, children }: { href: string; dot: ReactNode; name: string; tone?: string; children?: ReactNode }) {
   return (
-    <li className="border-t border-line first:border-t-0">
-      <Link href={href} className="grid min-h-[52px] grid-cols-[24px_minmax(0,1fr)_auto_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-hover">
+    <li>
+      <Link href={href} className={h.secRow} data-tone={tone}>
         {dot}
-        <span className="text-[15px] font-medium">{name}</span>
-        <span className={cx("text-right text-[14px] whitespace-nowrap", request ? "font-semibold text-copper-text" : "text-muted")}>{children}</span>
-        <ChevronRight size={16} className="text-muted" aria-hidden="true" />
+        <span className={h.secName}>{name}</span>
+        <span className={h.secState}>{children}</span>
+        <ChevronRight size={16} className={h.chev} aria-hidden="true" />
       </Link>
     </li>
-  );
-}
-
-/** "Cómo va": the four stages of the process and where this case is. */
-function Timeline({ status, exp }: { status: Status; exp: Expediente }) {
-  const { t } = useI18n();
-  const at = status === "listo" || resultApproved(exp) ? 3 : FEATURES.resultApproval && awaitingApproval(exp) ? 2 : status === "borrador" ? 0 : 1;
-  return (
-    <ol className="flex flex-col">
-      {t.home.timeline.map(([title, sub], i) => {
-        const done = i < at;
-        const now = i === at;
-        return (
-          <li key={title} aria-current={now ? "step" : undefined} className="relative grid grid-cols-[20px_minmax(0,1fr)] gap-3 pb-4 text-[15px] leading-5 last:pb-0">
-            {i < 3 && <span className="absolute top-5 bottom-0 left-[9px] w-0.5 bg-line" aria-hidden="true" />}
-            <span className={cx("relative size-5 rounded-full border-2", done ? "border-ok bg-ok" : now ? "border-accent bg-accent shadow-[inset_0_0_0_3px_var(--surface)]" : "border-line-strong bg-surface")} aria-hidden="true" />
-            <span>
-              {now ? <b className="font-semibold text-accent">{title}</b> : <span className={done ? "" : "text-muted"}>{title}</span>}
-              {sub && <small className="block text-[13px] text-muted">{sub}</small>}
-            </span>
-          </li>
-        );
-      })}
-    </ol>
   );
 }

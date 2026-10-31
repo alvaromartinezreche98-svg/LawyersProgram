@@ -1,19 +1,21 @@
 "use client";
 
 import { createContext, Fragment, useContext, useState, type DragEvent } from "react";
-import { ArrowRight, Camera, Check, ChevronDown, CircleAlert, Clock, FileText, RotateCw, Upload, X } from "lucide-react";
+import { ArrowRight, Camera, Check, ChevronDown, CircleAlert, Clock, FileText, Plus, RotateCw, Upload, X } from "lucide-react";
 import { ITEM_ID, type AnswerValue, type Answers, type Field, type FileRef, type Path } from "@/lib/questionnaire/types";
 import { asFiles, asItems, asText, progressOf, sectionState, showsKids } from "@/lib/questionnaire/progress";
 import { actions, useAppState } from "@/lib/data/store";
 import { slotKey, type ClientTask, type Expediente } from "@/lib/data/types";
 import { ACCEPTED, MAX_FILE_BYTES, deleteFile, isAccepted, isHeic, putFile, typeOf, useFileUrl } from "@/lib/data/files";
 import { useI18n } from "@/lib/i18n/use-i18n";
-import { fmtDayMonth, fmtSize, uid } from "@/lib/format";
+import { fmtDayMonth, uid } from "@/lib/format";
 import { FileThumb } from "@/components/ui/file-chip";
 import { StepDot } from "@/components/ui/progress";
 import { API_MODE } from "@/lib/auth/config";
 import { sectionKey, slotPath } from "@/lib/api/mapping";
 import { Pill, cx } from "@/components/ui/primitives";
+import { DateField } from "@/components/ui/date-field";
+import { FieldIcon } from "@/components/ui/field-icon";
 
 interface Ctx {
   set: (path: Path, value: AnswerValue | undefined) => void;
@@ -23,7 +25,6 @@ interface Ctx {
   exp?: Expediente;
   section?: string;
   /** The step already has answers: blank questions say "Sin responder" (never an error). */
-  markEmpty: boolean;
 }
 const FormCtx = createContext<Ctx | null>(null);
 const useForm = () => {
@@ -44,7 +45,7 @@ export function QuestionnaireForm({ fields, answers, onChange, readOnly = false,
   section?: string;
 }) {
   return (
-    <FormCtx.Provider value={{ set: onChange, readOnly, notify, exp, section, markEmpty: !readOnly && !!exp && progressOf(fields, answers).done > 0 }}>
+    <FormCtx.Provider value={{ set: onChange, readOnly, notify, exp, section }}>
       <div className="@container flex flex-col">
         <FieldList fields={fields} scope={answers} path={[]} idBase={idBase} />
       </div>
@@ -88,7 +89,7 @@ const pinnedTasks = (exp: Expediente | undefined, field: string, item: string | 
 const inputCls = "field";
 
 function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field: Field; scope: Answers; path: Path; id: string; itemId: string | null; listKey: string | null; depth: number }) {
-  const { set, readOnly, exp, markEmpty } = useForm();
+  const { set, readOnly, exp } = useForm();
   const [err, setErr] = useState("");
   const pinned = pinnedTasks(exp, x.id, itemId);
   const { firm } = useAppState();
@@ -110,8 +111,13 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
     case "text":
     case "tel":
     case "email":
-    case "date":
       control = <input id={id} type={x.type} autoComplete={x.ac ?? "off"} disabled={readOnly} value={asText(v)} onChange={(e) => set(at, e.target.value)} className={cx(inputCls, x.mono && "font-mono")} />;
+      // phone and email carry their icon inside the field
+      if (x.type === "tel" || x.type === "email") control = <FieldIcon kind={x.type}>{control}</FieldIcon>;
+      break;
+    case "date":
+      // dd/mm/yyyy with a calendar; the answer is still stored as yyyy-mm-dd.
+      control = <DateField id={id} disabled={readOnly} value={asText(v)} onChange={(iso) => set(at, iso)} className="max-w-[240px]" />;
       break;
     case "money":
     case "number":
@@ -188,7 +194,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
   }
 
   return (
-    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="flex scroll-mt-40 flex-col gap-2 py-4 first:pt-0 last:pb-0 lg:scroll-mt-32">
+    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="-mx-3 flex scroll-mt-40 flex-col gap-2 rounded-md px-3 py-4 transition-[background-color,box-shadow] duration-700 first:pt-0 last:pb-0 data-[flash]:bg-copper-soft/70 data-[flash]:shadow-[inset_3px_0_0_var(--copper)] data-[flash]:duration-150 lg:scroll-mt-32">
       {grouped ? (
         <div id={id + "-l"} className={labelCls}>
           {label}
@@ -198,7 +204,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
           {label}
         </label>
       )}
-      {x.help && <p className="-mt-1 max-w-[68ch] text-[13px] text-muted">{tr(x.help)}</p>}
+      {x.help && <p className="-mt-1 max-w-[68ch] text-[14px] leading-5 text-ink/80">{tr(x.help)}</p>}
       {/* The gestoría's request, pinned on the question it concerns (design system › Request, inline). */}
       {pinned.map((task) => (
         <div key={task.id} className={cx("grid max-w-[620px] grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 rounded-md px-4 py-3", task.closedAt ? "bg-sunk" : task.doneAt ? "bg-info-soft" : "bg-copper-soft")}>
@@ -218,12 +224,6 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
         <p id={id + "-err"} className="flex items-center gap-1.5 text-[14px] font-medium text-bad">
           <CircleAlert size={15} aria-hidden="true" />
           {err}
-        </p>
-      )}
-      {markEmpty && !x.opt && x.type !== "upload" && x.type !== "repeat" && (v === undefined || v === "") && (
-        <p className="flex items-center gap-1.5 text-[13px] text-muted" title={t.q.unanswered}>
-          <span className="size-2 rounded-full border-[1.5px] border-current" aria-hidden="true" />
-          {t.common.notAnswered}
         </p>
       )}
       {showsKids(x, v) && (
@@ -433,13 +433,15 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
         </div>
       )}
 
-      {(files.length > 0 || pending.length > 0) && (
-        <ul className="flex flex-col gap-2">
+      {/* Uploaded files: one sheet, a row per file on hairlines, "Add more" as its last row. */}
+      {!empty && (
+        <div className="overflow-hidden rounded-md border border-line bg-surface">
+        <ul className="divide-y divide-line">
           {files.map((fl, i) => (
             <FileRow key={fl.id} file={fl} inputId={`${id}-r${i}`} readOnly={readOnly} onReplace={(f) => replace(i, f)} onRemove={() => remove(i)} />
           ))}
           {pending.map((p) => (
-            <li key={p.key} role={p.failed ? "alert" : undefined} className={cx("grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border py-2 pr-2 pl-3", p.failed ? "border-bad bg-bad-soft" : "border-line bg-surface")}>
+            <li key={p.key} role={p.failed ? "alert" : undefined} className={cx("grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-2.5 pr-2 pl-3", p.failed && "bg-bad-soft")}>
               <span className="grid size-9 place-items-center rounded-sm bg-sunk text-[11px] font-semibold text-muted uppercase">{p.file.name.split(".").pop()?.slice(0, 4)}</span>
               <span className="min-w-0">
                 <span className="block truncate font-medium">{p.file.name}</span>
@@ -461,13 +463,14 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
             </li>
           ))}
         </ul>
-      )}
 
-      {!readOnly && !empty && (
-        <label htmlFor={id} className={cx(btn, "cursor-pointer self-start border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
-          <Upload size={17} aria-hidden="true" />
-          {t.upload.addMore}
-        </label>
+          {!readOnly && (
+            <label htmlFor={id} className="flex min-h-11 cursor-pointer items-center gap-2 border-t border-line px-3 text-[14px] font-medium text-accent transition-colors hover:bg-accent-soft">
+              <Plus size={16} aria-hidden="true" />
+              {t.upload.addMore}
+            </label>
+          )}
+        </div>
       )}
 
       {exp && !readOnly && !files.length && (
@@ -511,18 +514,18 @@ function Uploader({ id, files, onChange, field, item, listKey }: { id: string; f
   );
 }
 
-/** An uploaded file: type, name, "Subido · size", and Ver / Sustituir / Quitar. */
+/** An uploaded file: type, name, "Subido", and Ver / Sustituir / Quitar. */
 function FileRow({ file, inputId, readOnly, onReplace, onRemove }: { file: FileRef; inputId: string; readOnly: boolean; onReplace: (f: File | undefined) => void; onRemove: () => void }) {
   const { t } = useI18n();
   const url = useFileUrl(file);
   const quiet = "inline-flex h-(--control-h-sm) items-center rounded-md px-2.5 text-[14px] font-medium text-accent hover:bg-accent-soft";
   return (
-    <li className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-line bg-surface py-2 pr-2 pl-3">
+    <li className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-2.5 pr-2 pl-3">
       <FileThumb file={file} size={36} />
       <span className="min-w-0">
         <span className="block truncate font-medium" title={file.name}>{file.name}</span>
         <span className="flex flex-wrap items-center gap-1.5 text-[13px] leading-[18px] text-muted">
-          <span className="inline-flex items-center gap-1 text-ok"><Check size={13} strokeWidth={2.4} aria-hidden="true" />{t.upload.done}</span>· {fmtSize(file.size)}
+          <span className="inline-flex items-center gap-1 text-ok"><Check size={13} strokeWidth={2.4} aria-hidden="true" />{t.upload.done}</span>
         </span>
       </span>
       <span className="flex items-center gap-0.5">

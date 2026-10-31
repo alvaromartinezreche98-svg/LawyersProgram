@@ -4,11 +4,12 @@ import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { Menu, Search, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, LogOut, Settings, UserPlus, Wallet, type LucideIcon } from "lucide-react";
+import { Menu, Search, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, LogOut, Settings, Wallet, type LucideIcon, Users } from "lucide-react";
 import { IconTile } from "@/components/ui/icons";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { actions, unreadFor, useAppState } from "@/lib/data/store";
-import { HTML_LANG, LANGS } from "@/lib/i18n";
+import { LANGS } from "@/lib/i18n";
+import { useHtmlLang } from "@/components/ui/lang-switch";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { Badge, Brand, Loading, cx } from "@/components/ui/primitives";
@@ -87,7 +88,9 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
   const path = usePathname();
   const unread = Object.values(exps).filter((e) => unreadFor(e, "gestor") > 0).length;
   const inCases = path.startsWith("/expedientes");
-  const inSettings = path.startsWith("/ajustes");
+  // Team has its own row: on its page that row is active, not Settings.
+  const inTeam = path.startsWith("/ajustes/equipo");
+  const inSettings = path.startsWith("/ajustes") && !inTeam;
   const all: [LucideIcon, string, string, boolean][] = [
     [LayoutDashboard, t.side.board, "/panel", FEATURES.campaignBoard],
     [Contact, t.side.clients, "/clientes", true],
@@ -99,7 +102,7 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
   const firmName = firm.name.trim() || "Gestoría";
 
   return (
-    <nav aria-label={t.side.main} className="flex h-full flex-col bg-chrome text-chrome-ink [--focus:#a9c8ff] lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
+    <nav aria-label={t.side.main} className="flex h-full flex-col bg-chrome text-chrome-ink on-dark lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
       {/* Who is signed in: the gestoría, at the top. */}
       <div className={cx("mx-3 flex items-center gap-3 border-b border-chrome-line px-2 pt-4 pb-4", compact && "lg:mx-2 lg:justify-center lg:px-0")}>
         <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[inset_0_-3px_0_var(--copper)]" title={compact ? firmName : undefined} aria-hidden={!compact}>
@@ -120,6 +123,8 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
           <span className={cx("flex-1", compact && "lg:sr-only")}>{t.extra.search.open}</span>
           <kbd className={cx("rounded border border-chrome-line px-1 font-mono text-[10.5px]", compact && "lg:hidden")}>Ctrl K</kbd>
         </button>
+        {/* Primary: the daily work. Secondary (below the rule): the office and the account. */}
+        <p className={cx("t-label mb-2 px-2.5 text-chrome-muted", compact && "lg:sr-only")}>{t.side.workLabel}</p>
         <ul className="flex flex-col gap-1.5">
           <li>
             <Link href="/expedientes" onClick={onNavigate} title={compact ? t.nav.cases : undefined} aria-current={inCases ? "page" : undefined} className={cx(item(inCases), "relative")}>
@@ -139,7 +144,8 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
         </ul>
 
         {/* Account: settings, language and sign-out, under a divider. */}
-        <ul className="mt-auto flex flex-col gap-1.5 border-t border-chrome-line pt-4">
+        <p className={cx("t-label mt-auto mb-2 border-t border-chrome-line px-2.5 pt-4 text-chrome-muted", compact && "lg:sr-only")}>{t.side.officeLabel}</p>
+        <ul className={cx("flex flex-col gap-1.5", compact && "lg:mt-auto lg:border-t lg:border-chrome-line lg:pt-4")}>
           {FEATURES.firmSettings && (
             <li>
               <Link href="/ajustes/despacho" onClick={onNavigate} title={compact ? t.side.settings : undefined} aria-current={inSettings ? "page" : undefined} className={item(inSettings)}>
@@ -149,13 +155,20 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
             </li>
           )}
           <li>
-            <span className={cx(item(false), "cursor-default opacity-60 hover:bg-transparent hover:text-chrome-muted")} aria-disabled="true" title={compact ? `${t.side.invite} · ${t.side.soon}` : undefined}>
-              <IconTile icon={UserPlus} size="xs" tone="chrome" />
-              <span className={cx("flex-1 leading-[18px]", compact && "lg:sr-only")}>
-                {t.side.invite}{" "}
-                <span className="ml-0.5 inline-block rounded-sm bg-chrome-tile px-1.5 align-[1px] text-[10.5px] leading-4 font-medium tracking-wide text-chrome-muted">{t.side.soon}</span>
+            {FEATURES.firmSettings ? (
+              // Settings › Team works in this build: the row opens it.
+              <Link href="/ajustes/equipo" onClick={onNavigate} title={compact ? t.side.invite : undefined} aria-current={inTeam ? "page" : undefined} className={item(inTeam)}>
+                <IconTile icon={Users} size="xs" tone={inTeam ? "copperSolid" : "chrome"} />
+                {label(t.side.invite)}
+              </Link>
+            ) : (
+              // With the API, team management waits for the backend.
+              <span className={cx(item(false), "cursor-default opacity-60 hover:bg-transparent hover:text-chrome-muted")} aria-disabled="true" title={compact ? `${t.side.invite} · ${t.side.soon}` : undefined}>
+                <IconTile icon={Users} size="xs" tone="chrome" />
+                <span className={cx("flex-1", compact && "lg:sr-only")}>{t.side.invite}</span>
+                <span className={cx("rounded-sm bg-chrome-tile px-1.5 text-[11px] leading-[18px] font-medium tracking-wide text-chrome-muted", compact && "lg:hidden")}>{t.side.soon}</span>
               </span>
-            </span>
+            )}
           </li>
           <li>
             <LangMenu compact={compact} item={item} />
@@ -177,10 +190,7 @@ function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => 
   const { t, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const cur = LANGS.find((l) => l.id === lang)!;
-  // Keeps <html lang> in step, as the header language switch does elsewhere.
-  useEffect(() => {
-    document.documentElement.lang = HTML_LANG[lang];
-  }, [lang]);
+  useHtmlLang();
   return (
     <>
       <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} title={compact ? `${t.common.language}: ${cur.label}` : undefined} className={cx(item(false), "w-full text-left")}>
@@ -221,6 +231,8 @@ const itemCls = (on: boolean) =>
 
 /** Sticky header inside the content panel: breadcrumbs on the left, actions on the right. */
 export function TopBar({ crumbs, right }: { crumbs: { label: string; href?: string }[]; right?: ReactNode }) {
+  // A lone crumb only repeats the page title below it: show the bar only when it adds a path or actions.
+  if (crumbs.length < 2 && !right) return null;
   return (
     <div className="sticky top-14 z-10 flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1 border-b border-line bg-surface px-4 py-2 sm:px-6 lg:top-0 lg:rounded-t-[14px]">
       <ol className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">

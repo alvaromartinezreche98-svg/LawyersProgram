@@ -9,6 +9,7 @@ import { IconTile } from "@/components/ui/icons";
 import { Notice, cx } from "@/components/ui/primitives";
 import { Labeled, field } from "./contact-page";
 import { PublicShell } from "./public-shell";
+import { FieldIcon } from "@/components/ui/field-icon";
 
 const SEE_ICONS = [QrCode, ClipboardList, TriangleAlert, LayoutDashboard];
 
@@ -47,10 +48,10 @@ export function DemoPage() {
   return (
     <PublicShell>
       <PageTitle>{c.title}</PageTitle>
-      <div className="mx-auto grid w-full max-w-[1200px] items-start gap-x-16 gap-y-12 px-4 pt-14 pb-20 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:pt-20">
+      <div className="mx-auto grid w-full max-w-page items-start gap-x-16 gap-y-12 px-4 pt-14 pb-20 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:pt-20">
         <div className="flex min-w-0 flex-col">
           <header className="border-b border-line pb-10">
-            <p className="text-[12.5px] font-semibold tracking-[.14em] text-accent uppercase">{c.eyebrow}</p>
+            <p className="t-eyebrow text-accent">{c.eyebrow}</p>
             <h1 className="display-serif mt-4 text-[clamp(40px,5.4vw,64px)] leading-[1] font-semibold tracking-[-0.02em]">{c.title}</h1>
             <p className="mt-6 max-w-[48ch] text-[17px] leading-[27px] text-muted">{c.intro}</p>
           </header>
@@ -64,10 +65,10 @@ export function DemoPage() {
                 <input id="dm-firm" required value={f.firm} onChange={set("firm")} autoComplete="organization" className={field} />
               </Labeled>
               <Labeled id="dm-email" label={c.email}>
-                <input id="dm-email" type="email" required value={f.email} onChange={set("email")} autoComplete="email" className={field} />
+                <FieldIcon kind="email"><input id="dm-email" type="email" required value={f.email} onChange={set("email")} autoComplete="email" className={field} /></FieldIcon>
               </Labeled>
               <Labeled id="dm-phone" label={c.phone}>
-                <input id="dm-phone" type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" className={field} />
+                <FieldIcon kind="tel"><input id="dm-phone" type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" className={field} /></FieldIcon>
               </Labeled>
             </div>
             <Labeled id="dm-size" label={c.size}>

@@ -57,7 +57,7 @@ export function InvitationPage({ token }: { token: string }) {
             <InvitationSignIn />
           </div>
         ) : (
-          <Button variant="primary" size="lg" className="self-start" disabled={busy} onClick={() => accept(inv.caseId)}>
+          <Button variant="primary" size="lg" className="self-start" loading={busy} onClick={() => accept(inv.caseId)}>
             {i.accept}
           </Button>
         )}

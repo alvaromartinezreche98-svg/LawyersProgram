@@ -1,0 +1,14 @@
+@use "../abstracts" as *;
+
+// Table head row for the grid-based tables (cases, clients, payments…).
+// The grid template stays on the element; this gives the shared look.
+@layer components {
+  .table-head {
+    @include type("label");
+    padding: space(2) space(4);
+    border-bottom: 1px solid var(--line);
+    background: var(--sunk);
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+}

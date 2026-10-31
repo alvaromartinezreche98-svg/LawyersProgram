@@ -1,0 +1,17 @@
+@use "sass:map";
+@use "tokens";
+
+/// A spacing step from the 4px scale: space(4) → 16px.
+@function space($step) {
+  @return map.get(tokens.$space, "#{$step}");
+}
+
+/// A radius token: radius(md) → 6px.
+@function radius($name) {
+  @return map.get(tokens.$radius, "#{$name}");
+}
+
+/// A duration token: duration(base) → 180ms.
+@function duration($name) {
+  @return map.get(tokens.$duration, "#{$name}");
+}

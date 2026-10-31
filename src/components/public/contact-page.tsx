@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
 import { ButtonLink, Notice, cx } from "@/components/ui/primitives";
 import { PublicShell } from "./public-shell";
+import { FieldIcon } from "@/components/ui/field-icon";
 
 type Kind = "gestoria" | "cliente" | "otro";
 
@@ -52,11 +53,11 @@ export function ContactPage() {
   return (
     <PublicShell>
       <PageTitle>{c.title}</PageTitle>
-      <div className="mx-auto grid w-full max-w-[1200px] items-start gap-x-16 gap-y-12 px-4 pt-14 pb-20 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:pt-20">
+      <div className="mx-auto grid w-full max-w-page items-start gap-x-16 gap-y-12 px-4 pt-14 pb-20 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:pt-20">
         {/* Introduction and form: the main column */}
         <div className="flex min-w-0 flex-col">
           <header className="border-b border-line pb-10">
-            <p className="text-[12.5px] font-semibold tracking-[.14em] text-accent uppercase">{c.eyebrow}</p>
+            <p className="t-eyebrow text-accent">{c.eyebrow}</p>
             <h1 className="display-serif mt-4 text-[clamp(44px,6vw,72px)] leading-[0.98] font-semibold tracking-[-0.02em]">{c.title}</h1>
             <p className="mt-6 max-w-[48ch] text-[17px] leading-[27px] text-muted">{c.intro}</p>
           </header>
@@ -88,7 +89,7 @@ export function ContactPage() {
                 <input id="ct-name" required value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" className={field} />
               </Labeled>
               <Labeled id="ct-email" label={c.email}>
-                <input id="ct-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className={field} />
+                <FieldIcon kind="email"><input id="ct-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className={field} /></FieldIcon>
               </Labeled>
             </div>
             {kind === "gestoria" && (
@@ -116,8 +117,8 @@ export function ContactPage() {
         </div>
 
         {/* Company details: an editorial navy column */}
-        <aside className="rounded-xl bg-[var(--band)] px-7 py-9 text-[var(--band-ink)] [--focus:#a9c8ff] sm:px-9 lg:sticky lg:top-24">
-          <p className="text-[12px] font-semibold tracking-[.14em] text-[var(--band-muted)] uppercase">{c.details}</p>
+        <aside className="rounded-xl bg-[var(--band)] px-7 py-9 text-[var(--band-ink)] on-dark sm:px-9 lg:sticky lg:top-24">
+          <p className="t-eyebrow text-[var(--band-muted)]">{c.details}</p>
           <dl className="mt-6">
             <Detail icon={Building2} label={c.company}>{COMPANY.name || <PendingOnDark k="name" />}</Detail>
             <Detail icon={Mail} label={c.email}>

@@ -1,0 +1,768 @@
+// G2 · Expedientes: the gestoría's working list.
+// Overview ledger (real counts, each a filter) → toolbar → active filters → cases.
+// The cases area answers to its own width (container query), since the sidebar takes room too.
+@use "../../styles/abstracts" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: space(5);
+  padding: space(5) space(4) space(7);
+
+  @include from("sm") {
+    padding-inline: space(5);
+  }
+
+  @include from("xl") {
+    padding-inline: space(6);
+  }
+}
+
+// ---------- Overview ledger ----------
+// Two groups of counts set like a register, separated by hairlines, not boxed in cards.
+.overview {
+  display: grid;
+  border: 1px solid var(--line);
+  border-radius: radius(md);
+  background: var(--surface);
+}
+
+// One slim row per group: its title on the left, the four counts beside it (title on top on phones).
+.ledger {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  gap: space(1) space(4);
+  padding: space(2) space(4);
+
+  @include from("md") {
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+  }
+
+  & + & {
+    border-top: 1px solid var(--line);
+  }
+}
+
+.ledgerTitle {
+  @include type("label");
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ledgerItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-inline: calc(-1 * #{space(2)});
+
+  @include from("sm") {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+// Compact: the figure and its label on one line, so the overview stays a slim band above the work.
+.ledgerItem {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: baseline;
+  gap: space(2);
+  padding: space(2);
+  border-bottom: 2px solid transparent;
+  border-radius: radius(sm) radius(sm) 0 0;
+  text-align: left;
+  transition:
+    background-color duration(fast) ease,
+    border-color duration(fast) ease;
+
+  @include hover {
+    background: var(--hover);
+  }
+
+  &[aria-pressed="true"] {
+    border-bottom-color: var(--accent);
+    background: var(--accent-soft);
+  }
+}
+
+.ledgerN {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+
+  // something is waiting on the gestoría: the number takes the accent
+  .ledgerItem[data-hot] & {
+    color: var(--copper-text);
+  }
+
+  // nothing here: the figure steps back so the counts that need attention stand out
+  .ledgerItem[data-zero] & {
+    color: var(--line-strong);
+    font-weight: 400;
+  }
+}
+
+.ledgerLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  color: var(--muted);
+
+  // from 1440px every label fits on one line in ES/EN/VA: keep it there so both rows stay level
+  @media (min-width: 1440px) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ledgerItem[data-zero] & {
+    color: var(--disabled);
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--line-strong);
+
+  &[data-status="enviado"] {
+    background: var(--info);
+  }
+
+  &[data-status="revision"] {
+    background: var(--accent);
+  }
+
+  &[data-status="listo"] {
+    background: var(--ok);
+  }
+
+  .ledgerItem[data-zero] & {
+    opacity: 0.45;
+  }
+}
+
+// ---------- Toolbar ----------
+// One row that wraps, one 8px gap throughout: views, search (takes the free space), filters, order.
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: space(2);
+}
+
+.search {
+  position: relative;
+  min-width: min(100%, 10rem);
+  flex: 1 1 10rem; // fills the free space, so every gap in the row is the same 8px
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    translate: 0 -50%;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  input {
+    padding-left: 36px;
+  }
+}
+
+// Phones: each filter takes the full row (same width, easy to tap); from sm they sit inline.
+.select {
+  display: flex;
+  flex: 1 1 100%;
+  align-items: center;
+  gap: space(2);
+  min-width: 0;
+
+  select {
+    width: 100%;
+    font-size: 0.875rem;
+  }
+
+  @include from("sm") {
+    flex: 0 1 auto;
+
+    select {
+      width: auto;
+      max-width: 100%;
+    }
+  }
+}
+
+.sort {
+  font-size: 0.875rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+// ---------- Active filters and result line ----------
+.resultBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: space(2) space(4);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.activeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(2);
+}
+
+.activeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 space(2) 0 10px;
+  border: 1px solid var(--accent);
+  border-radius: radius(sm);
+  background: var(--accent-soft);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent);
+  transition: background-color duration(fast) ease;
+
+  @include hover {
+    background: var(--accent-soft-hover);
+  }
+}
+
+.resultCount {
+  font-variant-numeric: tabular-nums;
+}
+
+.textAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-weight: 500;
+  color: var(--accent);
+  text-underline-offset: 3px;
+
+  &:last-child {
+    margin-left: auto;
+  }
+
+  @include hover {
+    text-decoration: underline;
+  }
+}
+
+// ---------- Cases ----------
+.table {
+  container: cases / inline-size;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: radius(md);
+  background: var(--surface);
+}
+
+.head {
+  display: none;
+  gap: space(4);
+}
+
+.right {
+  text-align: right;
+}
+
+// Phone and narrow: each case is a compact entry —
+//   name ............ status
+//   next step and its specifics
+//   progress ........ updated
+.row {
+  position: relative;
+  display: grid;
+  align-items: center;
+  grid-template-areas:
+    "client state"
+    "next   next"
+    "progress updated";
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: space(3) space(4);
+  padding: space(4);
+  border-top: 1px solid var(--line);
+  transition: background-color duration(fast) ease;
+
+  &:first-child {
+    border-top: 0;
+  }
+
+  // the gestoría has to act: a terracotta edge, readable at a glance down the list
+  &[data-tone="act"] {
+    box-shadow: inset 3px 0 0 var(--copper);
+  }
+
+  @include hover {
+    background: var(--hover);
+  }
+
+  &:has(.rowLink:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
+  }
+}
+
+.client {
+  grid-area: client;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nameLine {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: space(2);
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--info);
+}
+
+// The name's link covers the whole row; other links in the row sit above it.
+.rowLink {
+  overflow: hidden;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  @include hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+// Quiet marker after the name ("Ejemplo", a past year): set apart from it, never read as part of it.
+.tag {
+  flex-shrink: 0;
+  margin-left: space(1);
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: radius(sm);
+  background: var(--sunk);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.tagYear {
+  border-color: rgb(var(--accent-rgb) / 0.25);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.contact {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.state {
+  grid-area: state;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+// Narrow: the step line already says who acts (arrow or clock), so the name gets the room.
+.waiting {
+  display: none;
+}
+
+.progress {
+  grid-area: progress;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meter {
+  display: block;
+  width: 100%;
+  max-width: 140px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+
+    &[data-done] {
+      background: var(--ok);
+    }
+  }
+}
+
+.progressText {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.next {
+  grid-area: next;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step,
+.signal {
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+  max-width: 100%;
+  text-underline-offset: 3px;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  .row[data-tone="wait"] & {
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .row[data-tone="done"] & {
+    color: var(--ok);
+  }
+}
+
+// Alerts as two counts (missing / to check); the texts are in the tooltip and the case file.
+.signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px space(4);
+  padding-left: 20px;
+}
+
+.signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.assignee {
+  display: none;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mutedText {
+  color: var(--muted);
+}
+
+.updated {
+  grid-area: updated;
+  align-self: end;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--muted);
+}
+
+// ---------- Wide: a true table ----------
+// Cliente | Estado | Cuestionario | Siguiente paso | (Gestor) | Actualizado
+$cols: minmax(0, 1.15fr) 168px 150px minmax(0, 1.85fr) 108px;
+$cols-assignee: minmax(0, 1.1fr) 160px 140px minmax(0, 1.7fr) 120px 108px;
+
+@container cases (min-width: 56rem) {
+  .head,
+  .row {
+    display: grid;
+    grid-template-areas: none;
+    grid-template-columns: $cols;
+    column-gap: space(4);
+  }
+
+  .table[data-assignee] .head,
+  .table[data-assignee] .row {
+    grid-template-columns: $cols-assignee;
+  }
+
+  // every row the same height, whether or not it has alert counts under the next step
+  .row {
+    min-height: 78px;
+  }
+
+  .row {
+    align-items: center;
+    padding-block: space(3);
+  }
+
+  .client,
+  .state,
+  .progress,
+  .next,
+  .updated {
+    grid-area: auto;
+  }
+
+  .state {
+    align-items: flex-start;
+  }
+
+  .waiting {
+    display: block;
+  }
+
+  .assignee {
+    display: block;
+  }
+
+  .updated {
+    align-self: center;
+  }
+}
+
+// ---------- Overview folded / toggle ----------
+.ledgerHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px space(3);
+
+  @include from("md") {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.overviewToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-underline-offset: 3px;
+
+  @include hover {
+    text-decoration: underline;
+  }
+}
+
+.overviewFolded {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: space(2) space(4);
+  min-height: 44px;
+  padding: space(2) space(4);
+  border: 1px solid var(--line);
+  border-radius: radius(md);
+  background: var(--surface);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+// ---------- Filters menu ----------
+.filterMenu {
+  position: relative;
+}
+
+.filterBtn {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  gap: space(2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+
+  svg {
+    color: var(--muted);
+  }
+
+  &[data-on] {
+    border-color: var(--accent);
+  }
+}
+
+.filterCount {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+  color: var(--accent-ink);
+}
+
+.menuPanel {
+  position: absolute;
+  top: calc(100% + #{space(1)});
+  right: 0;
+  z-index: 20;
+  display: flex;
+  width: max-content;
+  min-width: 260px;
+  flex-direction: column;
+  gap: space(3);
+  padding: space(4);
+  border: 1px solid var(--line);
+  border-radius: radius(lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-overlay-value);
+
+  @media (max-width: 639px) {
+    right: auto;
+    left: 0;
+  }
+}
+
+.menuField {
+  display: flex;
+  flex-direction: column;
+  gap: space(1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+
+  select {
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+}
+
+// ---------- Closing line under a short list ----------
+.endNote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: space(2) space(4);
+  padding: space(4);
+  border-top: 1px solid var(--line);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+// ---------- Pages ----------
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: space(2) space(4);
+  padding: space(3) space(4);
+  border-top: 1px solid var(--line);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.pagerSize {
+  display: flex;
+  align-items: center;
+  gap: space(2);
+  margin-right: auto;
+
+  select {
+    width: auto;
+    height: var(--control-h-sm);
+    padding-block: 0;
+    font-size: 0.875rem;
+  }
+}
+
+.pagerRange {
+  font-variant-numeric: tabular-nums;
+}
+
+.pagerNav {
+  display: flex;
+  gap: space(1);
+}
+
+.pagerBtn {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: radius(md);
+  background: var(--surface);
+  color: var(--ink);
+  transition: background-color duration(fast) ease;
+
+  @include hover {
+    background: var(--hover);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}

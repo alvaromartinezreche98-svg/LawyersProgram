@@ -53,6 +53,31 @@ export function progressOf(fields: Field[], scope: Answers): Progress {
   return { total, done };
 }
 
+/**
+ * Anchor of the first required question still unanswered ("q-<field>" or
+ * "q-<field>-<item>" inside a repeated group), counted the same way as progressOf.
+ */
+export function firstOpenAnchor(fields: Field[], scope: Answers, item?: string): string | null {
+  const id = (f: string) => `q-${f}${item ? `-${item}` : ""}`;
+  for (const x of fields) {
+    if (x.type === "repeat") {
+      const items = asItems(scope[x.id]);
+      if (!items.length) return id(x.id);
+      for (const it of items) {
+        const hit = firstOpenAnchor(x.fields ?? [], it, typeof it[ITEM_ID] === "string" ? (it[ITEM_ID] as string) : undefined);
+        if (hit) return hit;
+      }
+      continue;
+    }
+    if (!x.opt && !isFilled(x, scope[x.id])) return id(x.id);
+    if (showsKids(x, scope[x.id])) {
+      const hit = firstOpenAnchor(x.kids ?? [], scope, item);
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
+
 export type SectionState = "done" | "partial" | "empty";
 export const sectionState = (p: Progress): SectionState =>
   p.total === 0 || p.done === p.total ? "done" : p.done > 0 ? "partial" : "empty";

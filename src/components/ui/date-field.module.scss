@@ -1,0 +1,227 @@
+// DateField: a dd/mm/yyyy text field with a calendar popover (see date-field.tsx).
+// Navy marks the chosen day, terracotta marks today ("you are here"), mist for the rest.
+@use "../../styles/abstracts" as *;
+
+.root {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.control {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  padding-right: 44px;
+  font-variant-numeric: tabular-nums;
+}
+
+.trigger {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  translate: 0 -50%;
+  border-radius: radius(md);
+  color: var(--muted);
+  transition:
+    background-color duration(fast) ease,
+    color duration(fast) ease;
+
+  @include hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+
+  &[aria-expanded="true"] {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+// ---------- Popover ----------
+.panel {
+  position: absolute;
+  top: calc(100% + #{space(2)});
+  left: 0;
+  z-index: 30;
+  width: 296px;
+  padding: space(3);
+  border: 1px solid var(--line);
+  border-radius: radius(lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-overlay-value);
+
+  @include motion-ok {
+    animation: dp-in duration(base) $ease-out both;
+  }
+}
+
+.up {
+  top: auto;
+  bottom: calc(100% + #{space(2)});
+}
+
+@keyframes dp-in {
+  from {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+}
+
+.head {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 32px;
+  align-items: center;
+  margin-bottom: space(2);
+}
+
+.title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--ink);
+}
+
+.nav {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: radius(md);
+  color: var(--muted);
+  transition:
+    background-color duration(fast) ease,
+    color duration(fast) ease;
+
+  @include hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.weekday {
+  padding-block: space(1);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  text-transform: capitalize;
+  color: var(--muted);
+}
+
+.day {
+  position: relative;
+  display: grid;
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 38px;
+  place-items: center;
+  border-radius: radius(md);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  transition:
+    background-color duration(fast) ease,
+    color duration(fast) ease;
+
+  @include hover {
+    background: var(--hover);
+  }
+
+  &[data-outside] {
+    color: var(--disabled);
+  }
+
+  // today: a terracotta mark under the number
+  &[data-today]::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: var(--copper);
+  }
+
+  &[data-today] {
+    font-weight: 600;
+  }
+
+  &[data-selected] {
+    background: var(--accent);
+    font-weight: 600;
+    color: var(--accent-ink);
+
+    &::after {
+      background: var(--accent-ink);
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--disabled);
+    text-decoration: line-through;
+    opacity: 0.55;
+
+    @include hover {
+      background: transparent;
+    }
+  }
+}
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: space(2);
+  padding-top: space(2);
+  border-top: 1px solid var(--line);
+}
+
+.footBtn {
+  min-height: 32px;
+  padding-inline: space(2);
+  border-radius: radius(md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition:
+    background-color duration(fast) ease,
+    color duration(fast) ease;
+
+  @include hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.footToday {
+  font-weight: 600;
+  color: var(--accent);
+}

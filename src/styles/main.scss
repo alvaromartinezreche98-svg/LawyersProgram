@@ -1,0 +1,10 @@
+// PreRenta styles: tokens, base, layout and components in Sass modules.
+// Tailwind (src/app/globals.css) maps these custom properties to utilities;
+// this file is loaded after it.
+@use "base/layers";
+@use "base/root";
+@use "base/global";
+@use "base/typography";
+@use "layout/shell";
+@use "components";
+@use "utilities/accessibility";

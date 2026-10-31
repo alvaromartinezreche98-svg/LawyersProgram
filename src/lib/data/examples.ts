@@ -1,6 +1,6 @@
 import { EJERCICIO } from "@/lib/questionnaire/schema";
-import type { FileRef } from "@/lib/questionnaire/types";
-import type { Expediente, Firm } from "./types";
+import type { Answers, FileRef } from "@/lib/questionnaire/types";
+import type { Appointment, Expediente, Firm } from "./types";
 
 const doc = (name: string): FileRef => ({
   id: "ex-" + name,
@@ -13,7 +13,7 @@ const doc = (name: string): FileRef => ({
 const base = { ejercicio: EJERCICIO, notes: "", clientSeen: "", gestorSeen: "", example: true } as const;
 
 /** The three example cases from the Beta prototype. */
-export const EXAMPLES: Expediente[] = [
+const TEMPLATES: Expediente[] = [
   {
     ...base,
     id: "ex-sonia",
@@ -99,6 +99,98 @@ export const EXAMPLES: Expediente[] = [
 ];
 
 /** The demo gestoría. Fictional; edit it in Ajustes. */
+/*
+ * More example cases, so the gestoría panel can be tried with a realistic
+ * volume (sitemap G2: example cases so a new gestoría can try the panel).
+ * Fictional people built from the three prototype cases, with varied status,
+ * progress, accountant, unread messages, requests, appointments and payments.
+ * All marked as examples; emails use the reserved example.com domain and no
+ * phone numbers are invented.
+ */
+type Spec = {
+  id: string;
+  name: string;
+  from: "ex-sonia" | "ex-javier" | "ex-marta";
+  status: Expediente["status"];
+  day: number;
+  assignee?: string;
+  /** "min": only name, email and ID; "part": drops the later sections. */
+  fill?: "full" | "part" | "min";
+  msg?: { from: "cliente" | "gestor"; text: string; unread?: boolean };
+  task?: string;
+  appointment?: Appointment["kind"];
+  paid?: number;
+};
+
+const SPECS: Spec[] = [
+  { id: "ex-lucia", name: "Lucía Navarro Bosch", from: "ex-sonia", status: "borrador", day: 29, assignee: "u-ex-hector", fill: "part" },
+  { id: "ex-andres", name: "Andrés Climent Roig", from: "ex-javier", status: "enviado", day: 28, msg: { from: "cliente", text: "Ya lo he enviado todo. ¿Me confirman que les ha llegado?", unread: true } },
+  { id: "ex-carmen", name: "Carmen Vidal Esteve", from: "ex-marta", status: "revision", day: 26, assignee: "u-titular", task: "Suba el modelo 130 del tercer trimestre." },
+  { id: "ex-pablo", name: "Pablo Sanchis Ferrer", from: "ex-javier", status: "listo", day: 19, assignee: "u-ex-paula", paid: 120 },
+  { id: "ex-elena", name: "Elena Martí Soler", from: "ex-sonia", status: "borrador", day: 25, fill: "part", task: "Suba el título de familia monoparental vigente." },
+  { id: "ex-david", name: "David Ribes Camps", from: "ex-javier", status: "revision", day: 27, assignee: "u-ex-hector", msg: { from: "cliente", text: "¿Necesitan algo más del piso alquilado?", unread: true } },
+  { id: "ex-nuria", name: "Nuria Peris Lloret", from: "ex-marta", status: "enviado", day: 24, assignee: "u-ex-paula" },
+  { id: "ex-sergio", name: "Sergio Alonso Vera", from: "ex-sonia", status: "borrador", day: 30, fill: "min" },
+  { id: "ex-irene", name: "Irene Folch Mestre", from: "ex-javier", status: "listo", day: 17, assignee: "u-titular", paid: 150 },
+  { id: "ex-raul", name: "Raúl Domingo Sales", from: "ex-marta", status: "borrador", day: 23, fill: "part", appointment: "llamada" },
+  { id: "ex-marc", name: "Marc Torres Albert", from: "ex-javier", status: "enviado", day: 29, msg: { from: "cliente", text: "Les adjunto en el cuestionario el contrato nuevo del inquilino.", unread: true } },
+  { id: "ex-beatriz", name: "Beatriz Moll Pardo", from: "ex-sonia", status: "revision", day: 22, assignee: "u-ex-paula", msg: { from: "gestor", text: "Beatriz, estamos revisando la deducción por maternidad. Le escribimos si falta algo." } },
+  { id: "ex-oscar", name: "Óscar Llopis Gimeno", from: "ex-marta", status: "borrador", day: 21, assignee: "u-ex-hector", fill: "part", task: "Indique la cuota del colegio profesional pagada en el año." },
+  { id: "ex-rosa", name: "Rosa Cabedo Ibáñez", from: "ex-javier", status: "listo", day: 15, assignee: "u-ex-hector", paid: 135 },
+  { id: "ex-victor", name: "Víctor Mira Ortells", from: "ex-sonia", status: "enviado", day: 27, appointment: "presencial" },
+  { id: "ex-alba", name: "Alba Romero Puig", from: "ex-marta", status: "revision", day: 20, assignee: "u-titular" },
+  { id: "ex-joan", name: "Joan Ferrando Bellver", from: "ex-javier", status: "borrador", day: 28, fill: "part" },
+];
+
+/** Sections dropped from a "part" case: the later ones, so it reads as half done. */
+const LATER = ["cuota", "cuota_ent", "cuota_imp", "defensa", "autonomo", "auto_paga", "tiene_inm", "inm", "actividad", "doc_ling", "doc_lgas", "doc_130", "venta_inm", "cripto", "acciones", "acc", "otras", "gym", "gym_imp", "dentista", "dentista_imp", "optica", "mental", "musica", "vehiculo", "alq_viv", "placas", "obs"];
+const at = (day: number, hm: string) => `2026-10-${String(day).padStart(2, "0")}T${hm}:00`;
+
+function build(x: Spec): Expediente {
+  const tpl = TEMPLATES.find((e) => e.id === x.from)!;
+  const [first, last] = x.name.split(" ").map((w) => w.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
+  const email = `${first}.${last}@example.com`;
+  let answers: Expediente["answers"] = structuredClone(tpl.answers);
+  delete answers.telefono;
+  answers.nombre = x.name;
+  answers.email = email;
+  const members = answers.miembros as Answers[] | undefined;
+  if (members?.length) answers.miembros = members.map((m, i) => (i === 0 ? { ...m, nombre: x.name } : m));
+  if (x.fill === "part") LATER.forEach((k) => delete answers[k]);
+  // Ready to file: nothing missing any more (the repair invoices from the template are in).
+  if (x.status === "listo" && Array.isArray(answers.inm)) answers.inm = (answers.inm as Answers[]).map((h) => (Array.isArray(h.doc_rep) ? { ...h, doc_rep: [doc("facturas_reparacion.pdf")] } : h));
+  if (x.fill === "min") answers = { nombre: x.name, email, doc_dni: [doc(`dni_${first}.jpg`)] };
+  const created = at(Math.max(1, x.day - 3), "10:00");
+  const updated = at(x.day, "17:20");
+  const sent = x.status !== "borrador";
+  const chat: Expediente["chat"] = x.msg ? [{ id: "m1", from: x.msg.from, text: x.msg.text, at: updated }] : [];
+  return {
+    ...base,
+    id: x.id,
+    status: x.status,
+    sentAt: sent ? at(x.day, "12:00") : null,
+    createdAt: created,
+    updatedAt: updated,
+    acceptedAt: created,
+    identityConfirmedAt: created,
+    assignee: x.assignee ?? null,
+    answers,
+    chat,
+    // read by the other side, unless the message is meant to show as unread
+    gestorSeen: x.msg?.from === "cliente" && !x.msg.unread ? updated : "",
+    clientSeen: x.msg?.from === "gestor" ? updated : "",
+    ...(x.task ? { tasks: [{ id: "t1", text: { es: x.task, en: x.task }, target: null, createdAt: at(x.day, "09:30") }] } : {}),
+    ...(x.appointment ? { appointments: [{ id: "ap1", kind: x.appointment, date: "2026-11-06", slot: "manana" as const, note: "", status: "solicitada" as const, createdAt: at(x.day, "11:00") }] } : {}),
+    ...(x.paid ? { payment: { amount: x.paid, status: "pagado" as const, paidAt: at(x.day, "16:00"), method: "simulado" as const } } : {}),
+  };
+}
+
+/** Prototype cases first, then the generated ones. */
+export const EXAMPLES: Expediente[] = [...TEMPLATES, ...SPECS.map(build)];
+
+/** Bump when example cases or members are added, so browsers with saved data get the new ones once. */
+export const EXAMPLES_REV = 3;
+
 export const EXAMPLE_FIRM: Firm = {
   name: "Gestoría Turia",
   cif: "",
@@ -107,6 +199,10 @@ export const EXAMPLE_FIRM: Firm = {
   email: "",
   logo: null,
   docs: { privacy: null, mandate: null },
-  team: [{ id: "u-titular", name: "Laura Navarro Puig", email: "laura@gestoriaturia.example", role: "titular" }],
+  team: [
+    { id: "u-titular", name: "Laura Navarro Puig", email: "laura@gestoriaturia.example", role: "titular" },
+    { id: "u-ex-hector", name: "Héctor Sala Vives", email: "hector@gestoriaturia.example", role: "gestor" },
+    { id: "u-ex-paula", name: "Paula Ferrandis Roca", email: "paula@gestoriaturia.example", role: "gestor" },
+  ],
   fees: { base: "", perProperty: "", selfEmployed: "", notes: "" },
 };

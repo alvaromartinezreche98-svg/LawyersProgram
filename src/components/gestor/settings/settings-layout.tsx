@@ -51,7 +51,8 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="min-w-0 max-w-[820px]">
+        {/* 820px for settings forms; a page with a side column (data-wide) gets the room for it. */}
+        <div className="min-w-0 max-w-[820px] has-[[data-wide]]:max-w-[1180px]">
           <SaveFailed className="mb-5" />
           {children}
         </div>

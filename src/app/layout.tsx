@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import "./globals.css";
+import "@/styles/main.scss";
 
 // latin-ext covers Valencian (l·l, à, è, ò, ç) alongside Spanish and English.
 const plex = IBM_Plex_Sans({ variable: "--font-plex", subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"] });

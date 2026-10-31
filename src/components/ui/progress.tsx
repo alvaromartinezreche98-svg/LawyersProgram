@@ -13,7 +13,7 @@ export function StepDot({ n, state, icon: Icon, size = 24, tone }: { n?: number;
         "grid shrink-0 place-items-center rounded-full border-[1.5px] text-[12px] font-semibold",
         state === "done" ? "border-ok bg-ok text-surface"
         : state === "partial" && tone ? cx("border-current", TILE[tone])
-        : state === "partial" ? "border-accent bg-[linear-gradient(90deg,var(--accent-soft)_50%,var(--surface)_50%)] text-accent"
+        : state === "partial" ? "border-copper bg-[linear-gradient(90deg,var(--copper-soft)_50%,var(--surface)_50%)] text-copper-text"
         : tone ? cx("border-current/40", TILE[tone])
         : "border-line-strong bg-surface text-muted",
       )}
@@ -23,12 +23,12 @@ export function StepDot({ n, state, icon: Icon, size = 24, tone }: { n?: number;
   );
 }
 
-/** One segment per section: green done, navy in progress, line not started. */
+/** One segment per section: green done, terracotta in progress, line not started. */
 export function SegMeter({ states, className }: { states: SectionState[]; className?: string }) {
   return (
     <div className={cx("flex gap-[3px]", className)} aria-hidden="true">
       {states.map((st, i) => (
-        <i key={i} className={cx("h-1.5 flex-1 rounded-[3px]", st === "done" ? "bg-ok" : st === "partial" ? "bg-accent" : "bg-line")} />
+        <i key={i} className={cx("h-1.5 flex-1 rounded-[3px]", st === "done" ? "bg-ok" : st === "partial" ? "bg-copper" : "bg-line")} />
       ))}
     </div>
   );

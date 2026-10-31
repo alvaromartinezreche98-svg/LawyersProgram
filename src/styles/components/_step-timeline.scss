@@ -1,0 +1,63 @@
+@use "../abstracts" as *;
+
+// Cómo funciona: staged reveal per step (see useStepReveal in how-page.tsx).
+// Hidden states apply only once JS has marked the list ([data-reveal]).
+$step: ".how-steps[data-reveal] [data-step]";
+
+@include motion-ok {
+  #{$step} :is(.how-num, .how-text, .how-art) {
+    transition-property: opacity, translate, scale, rotate, background-color, border-color, box-shadow;
+  }
+
+  #{$step}:not([data-in]) {
+    .how-num {
+      opacity: 0;
+      scale: 0.6;
+    }
+
+    .how-text {
+      opacity: 0;
+      translate: 0 18px;
+    }
+
+    .how-art {
+      opacity: 0;
+      translate: 28px 0;
+    }
+  }
+
+  #{$step}[data-in] {
+    .how-num {
+      transition-duration: 500ms;
+      transition-timing-function: $ease-spring;
+    }
+
+    .how-text {
+      transition-duration: duration(reveal);
+      transition-delay: 120ms;
+      transition-timing-function: $ease-out;
+    }
+
+    .how-art {
+      transition-duration: 700ms;
+      transition-delay: 240ms;
+      transition-timing-function: $ease-out;
+    }
+
+    // once in, hover effects run at their own quick pace
+    &:hover :is(.how-num, .how-text, .how-art) {
+      transition-delay: 0ms;
+      transition-duration: duration(slow);
+    }
+  }
+
+  .how-steps[data-reveal] .how-spine {
+    transform-origin: top;
+    transform: scaleY(0);
+    transition: transform 900ms $ease-in-out 400ms;
+  }
+
+  .how-steps[data-reveal] [data-in] .how-spine {
+    transform: scaleY(1);
+  }
+}

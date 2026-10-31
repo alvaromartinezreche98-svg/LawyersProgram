@@ -10,7 +10,7 @@ import { useFileUrl } from "@/lib/data/files";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
-import { LangSwitch } from "./lang-switch";
+import { LangSwitch, useHtmlLang } from "./lang-switch";
 import { Badge, Brand, Button, cx } from "./primitives";
 
 export interface NavItem {
@@ -35,6 +35,8 @@ export interface NavItem {
 export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: string; org?: string; children: ReactNode }) {
   const path = usePathname();
   const { t } = useI18n();
+  // The language switch lives in the account menu (not always mounted), so the frame keeps <html lang>.
+  useHtmlLang();
   const isOn = (n: NavItem) => path === n.href || (!!n.match && path.startsWith(n.match));
   const tabs = nav.slice(0, 4);
   const more = nav.slice(4);
@@ -51,7 +53,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
   return (
     <div ref={root} className="client-scale flex min-h-dvh flex-col">
       <header ref={head} className="z-20 border-b border-line bg-surface md:sticky md:top-0">
-        <div className="mx-auto flex min-h-16 max-w-[1320px] items-center gap-x-5 px-4 sm:px-6">
+        <div className="mx-auto flex min-h-16 max-w-client items-center gap-x-5 px-4 sm:px-6">
           <Link href={nav[0]?.href ?? "/"} className="mr-auto flex min-w-0 items-center gap-3 py-2 md:mr-2">
             <Cobrand org={org} />
           </Link>
@@ -87,7 +89,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
           )}
         </div>
       </header>
-      <main className="mx-auto w-full max-w-[1320px] flex-1 px-4 pt-6 pb-28 sm:px-6 md:pb-24">{children}</main>
+      <main className="mx-auto w-full max-w-client flex-1 px-4 pt-6 pb-28 sm:px-6 md:pb-24">{children}</main>
       {nav.length > 0 && <BottomNav nav={nav} isOn={isOn} />}
     </div>
   );

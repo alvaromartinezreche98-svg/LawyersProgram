@@ -18,7 +18,7 @@ export function FirmsPage() {
   return (
     <PublicShell>
       <PageTitle>{f.title}</PageTitle>
-      <section className="mx-auto grid w-full max-w-[1200px] items-center gap-10 px-4 py-16 sm:px-8 md:grid-cols-[minmax(0,1fr)_minmax(0,400px)] md:py-24">
+      <section className="mx-auto grid w-full max-w-page items-center gap-10 px-4 py-16 sm:px-8 md:grid-cols-[minmax(0,1fr)_minmax(0,400px)] md:py-24">
         <div className="flex min-w-0 flex-col gap-5">
           <Eyebrow>{f.eyebrow}</Eyebrow>
           <h1 className="display-serif max-w-[22ch] text-[clamp(28px,3.6vw,40px)] leading-[1.12] font-semibold">{f.h1}</h1>
@@ -35,7 +35,7 @@ export function FirmsPage() {
       </section>
 
       <section className="overflow-hidden border-y border-line bg-surface">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-14 sm:px-8">
+        <div className="mx-auto flex w-full max-w-page flex-col gap-8 px-4 py-14 sm:px-8">
           <div className="flex flex-col gap-2">
             <Eyebrow>{f.featuresEyebrow}</Eyebrow>
             <h2 className="display-serif max-w-[26ch] text-[clamp(24px,2.6vw,32px)] leading-tight font-semibold">{f.featuresTitle}</h2>
@@ -44,7 +44,7 @@ export function FirmsPage() {
         </div>
       </section>
 
-      <section className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-12 sm:px-8">
+      <section className="mx-auto flex w-full max-w-page flex-col gap-6 px-4 py-12 sm:px-8">
         <h2 className="display-tight text-center text-[clamp(22px,2.4vw,28px)] font-semibold">{f.startTitle}</h2>
         <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4">
           {f.start.map(([title, d], i) => (
