@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { Building2, ChartNoAxesColumn, LogOut, Menu, Tags, type LucideIcon } from "lucide-react";
+import { Building2, ChartNoAxesColumn, Menu, Tags, type LucideIcon } from "lucide-react";
 import { useAppState } from "@/lib/data/store";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { usePlatformText } from "@/lib/i18n/messages-platform";
 import { IconTile } from "@/components/ui/icons";
 import { Brand, Loading, cx } from "@/components/ui/primitives";
-import { LangMenu, itemCls } from "@/components/gestor/gestor-shell";
+import { itemCls } from "@/components/gestor/gestor-shell";
+import { LangMenu, SignOutButton } from "@/components/ui/sidebar-foot";
 
 /** X · The PreRenta team's area: the same frame as the gestoría panel, with its own three sections. */
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -68,7 +69,6 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
         <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">P</span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[14.5px] font-semibold">PreRenta</span>
-          <span className="block truncate text-[11.5px] text-chrome-muted">{p.admin.area}</span>
         </span>
         <button type="button" aria-label={t.side.closeMenu} onClick={onNavigate} className="px-2 text-xl text-chrome-muted lg:hidden">×</button>
       </div>
@@ -91,10 +91,7 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
             <LangMenu compact={false} item={itemCls} />
           </li>
           <li>
-            <button type="button" onClick={signOut} className={cx(itemCls(false), "w-full text-left")}>
-              <IconTile icon={LogOut} size="xs" tone="chrome" />
-              <span className="flex-1">{t.common.signOut}</span>
-            </button>
+            <SignOutButton onClick={signOut} label={t.common.signOut} />
           </li>
         </ul>
       </div>

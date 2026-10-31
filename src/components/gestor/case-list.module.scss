@@ -18,149 +18,218 @@
   }
 }
 
-// ---------- Overview ledger ----------
-// Two groups of counts set like a register, separated by hairlines, not boxed in cards.
+// ---------- Overview: metric cards ----------
+// Two groups (by status, waiting on the gestoría), each a row of small white cards:
+// a coloured icon, the figure large and bold, the label. Every card is a filter.
 .overview {
-  display: grid;
-  border: 1px solid var(--line);
-  border-radius: radius(md);
-  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: space(4);
 }
 
-// One slim row per group: its title on the left, the four counts beside it (title on top on phones).
-.ledger {
-  display: grid;
-  min-width: 0;
+.groupHead {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: space(1) space(4);
-  padding: space(2) space(4);
-
-  // the group title sits beside its counts only where all four labels still fit on one line
-  @include from("xl") {
-    grid-template-columns: 14rem minmax(0, 1fr);
-  }
-
-  & + & {
-    border-top: 1px solid var(--line);
-  }
+  justify-content: space-between;
+  gap: space(2) space(3);
 }
 
-.ledgerTitle {
-  @include type("label");
+// Two tabs as a segmented control: which row of cards shows.
+.tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: radius(md);
+  background: var(--sunk);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: space(2);
+  height: 30px;
+  padding-inline: space(3);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
   white-space: nowrap;
-  text-transform: uppercase;
   color: var(--muted);
+  cursor: pointer;
+  transition: background-color duration(fast) ease, color duration(fast) ease, box-shadow duration(fast) ease;
+
+  @include hover {
+    color: var(--ink);
+  }
+
+  &[aria-selected="true"] {
+    background: var(--surface);
+    color: var(--accent);
+    box-shadow: 0 1px 2px var(--shadow-sheet-c), 0 0 0 1px var(--line);
+  }
 }
 
-.ledgerItems {
+.tabDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--copper);
+}
+
+.cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-inline: calc(-1 * #{space(2)});
+  gap: space(3);
 
-  @include from("sm") {
+  // four across only where every label still fits beside its icon (the sidebar takes room from 1024px)
+  @include from("xl") {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-// Compact: the figure and its label on one line, so the overview stays a slim band above the work.
-.ledgerItem {
-  display: flex;
+// Tone per metric: --tone is the icon and the hot figure, --tone-soft the icon's ground.
+.card {
+  --tone: var(--muted);
+  --tone-soft: var(--neutral-soft);
+
+  display: grid;
   width: 100%;
-  min-height: 44px;
-  align-items: baseline;
-  gap: space(2);
-  padding: space(2);
-  border-bottom: 2px solid transparent;
-  border-radius: radius(sm) radius(sm) 0 0;
+  height: 100%;
+  position: relative;
+  // phones: icon and filter mark on top, the figure and its label below at full width
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "icon . go"
+    "n n n"
+    "label label label";
+  align-items: center;
+  align-content: start;
+  column-gap: space(3);
+  row-gap: 2px;
+  padding: space(3);
+
+  @include from("sm") {
+    grid-template-areas:
+      "icon n go"
+      "icon label go";
+    align-content: center;
+    row-gap: 0;
+    padding: space(3) space(4);
+  }
+  border: 1px solid var(--line);
+  border-radius: radius(lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sheet-value);
   text-align: left;
+  cursor: pointer;
   transition:
-    background-color duration(fast) ease,
-    border-color duration(fast) ease;
+    border-color duration(fast) ease,
+    box-shadow duration(fast) ease,
+    translate duration(fast) ease;
+
+  &[data-tone="info"] { --tone: var(--info); --tone-soft: var(--info-soft); }
+  &[data-tone="accent"] { --tone: var(--accent); --tone-soft: var(--accent-soft); }
+  &[data-tone="ok"] { --tone: var(--ok); --tone-soft: var(--ok-soft); }
+  &[data-tone="bad"] { --tone: var(--bad); --tone-soft: var(--bad-soft); }
+  &[data-tone="warn"] { --tone: var(--warn); --tone-soft: var(--warn-soft); }
+  &[data-tone="copper"] { --tone: var(--copper-text); --tone-soft: var(--copper-soft); }
 
   @include hover {
-    background: var(--hover);
-  }
+    border-color: var(--line-strong);
+    box-shadow: 0 1px 2px var(--shadow-sheet-c), 0 10px 22px -14px rgb(var(--accent-rgb) / 0.35);
 
-  &[aria-pressed="true"] {
-    border-bottom-color: var(--accent);
-    background: var(--accent-soft);
-  }
-
-  // Phones: the figure above its label, so the label has the full cell and stays on one line.
-  @media (max-width: 639px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-
-    .ledgerLabel {
-      max-width: 100%;
-      white-space: nowrap;
+    @include motion-ok {
+      translate: 0 -1px;
     }
+  }
+
+  // something urgent waits here: a soft wash and edge in the card's own colour
+  &[data-hot] {
+    border-color: color-mix(in srgb, var(--tone) 35%, var(--line));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tone-soft) 70%, var(--surface)), var(--surface) 70%);
+
+    .cardN {
+      color: var(--tone);
+    }
+  }
+
+  // the active filter: accent edge and ring on a soft ground
+  &[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 1px var(--accent);
   }
 }
 
-.ledgerN {
-  flex-shrink: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.1;
+// the filter mark, top right: quiet at rest, navy on hover; a cross while the filter is on
+.cardGo {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  grid-area: go;
+  align-self: start;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--disabled);
+  transition: background-color duration(fast) ease, color duration(fast) ease;
+
+  .card:hover & {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .card[aria-pressed="true"] & {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+}
+
+.cardIcon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  grid-area: icon;
+
+  @media (max-width: 639px) {
+    margin-bottom: space(2);
+  }
+  place-items: center;
+  border-radius: radius(md);
+  background: var(--tone-soft);
+  color: var(--tone);
+
+  .card[data-zero] & {
+    opacity: 0.55;
+  }
+}
+
+.cardN {
+  grid-area: n;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
 
-  // something is waiting on the gestoría: the number takes the accent
-  .ledgerItem[data-hot] & {
-    color: var(--copper-text);
-  }
-
   // nothing here: the figure steps back so the counts that need attention stand out
-  .ledgerItem[data-zero] & {
-    color: var(--line-strong);
-    font-weight: 400;
-  }
-}
-
-.ledgerLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  font-size: 0.875rem;
-  line-height: 1.3;
-  color: var(--muted);
-
-  // from 1440px every label fits on one line in ES/EN/VA: keep it there so both rows stay level
-  @media (min-width: 1440px) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .ledgerItem[data-zero] & {
+  .card[data-zero] & {
+    font-weight: 500;
     color: var(--disabled);
   }
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--line-strong);
+.cardLabel {
+  grid-area: label;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  color: var(--muted);
 
-  &[data-status="enviado"] {
-    background: var(--info);
-  }
-
-  &[data-status="revision"] {
-    background: var(--accent);
-  }
-
-  &[data-status="listo"] {
-    background: var(--ok);
-  }
-
-  .ledgerItem[data-zero] & {
-    opacity: 0.45;
+  // four across: one line each, so the cards in a row stay level (two across they may wrap)
+  @include from("xl") {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -215,11 +284,17 @@
   }
 }
 
-.sort {
-  font-size: 0.875rem;
-  color: var(--muted);
-  white-space: nowrap;
+// ---------- Sort menu (the shared Select) ----------
+.sortMenu {
+  position: relative;
+  flex: 1 1 100%;
+  min-width: 0;
+
+  @include from("sm") {
+    flex: 0 0 auto;
+  }
 }
+
 
 // ---------- Active filters and result line ----------
 .resultBar {
@@ -258,6 +333,41 @@
 
 .resultCount {
   font-variant-numeric: tabular-nums;
+}
+
+// Export CSV: a real button at the end of the result line (outlined, white, lifts on hover).
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: space(2);
+  height: var(--control-h-sm);
+  margin-left: auto;
+  padding-inline: space(4);
+  border: 1px solid var(--line-strong);
+  border-radius: radius(md);
+  background: var(--surface);
+  box-shadow: var(--field-shadow);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color duration(fast) ease,
+    background-color duration(fast) ease,
+    color duration(fast) ease,
+    box-shadow duration(base) $ease-out;
+
+  @include hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+    box-shadow: 0 6px 14px -8px rgb(var(--accent-rgb) / 0.45);
+  }
+
+  &:active {
+    box-shadow: none;
+  }
 }
 
 .textAction {
@@ -598,19 +708,6 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
 }
 
 // ---------- Overview folded / toggle ----------
-.ledgerHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 2px space(3);
-
-  @include from("md") {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
 .overviewToggle {
   display: inline-flex;
   align-items: center;

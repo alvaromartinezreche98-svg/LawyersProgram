@@ -4,7 +4,7 @@ import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, CalendarClock, ChevronDown, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock, Download, Inbox, Info, Search, SlidersHorizontal, TriangleAlert, UserPlus, X, type LucideIcon } from "lucide-react";
+import { ListFilter, ArrowDownAZ, ArrowRight, ArrowUpNarrowWide, CalendarClock, ChevronDown, Flame, History, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock, Download, Eye, FileWarning, Inbox, Info, MessageCircle, MessageSquareReply, PencilLine, Search, Send, SlidersHorizontal, TriangleAlert, UserPlus, X, type LucideIcon } from "lucide-react";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import type { Alert, AlertLevel } from "@/lib/questionnaire/alerts";
 import { openTasks, useAppState } from "@/lib/data/store";
@@ -17,6 +17,7 @@ import { Button, ButtonLink, EmptyState, StatusPill, cx } from "@/components/ui/
 import { Chip, Chips, PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
 import css from "./case-list.module.scss";
+import { SELECT_PANEL_ATTR, Select } from "@/components/ui/select";
 
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 
@@ -69,6 +70,21 @@ export const alertHref = (id: string, a: Alert) => `/expedientes/${id}#${a.targe
 type Issue = "missing" | "check" | "unread" | "answered";
 const ISSUES: Issue[] = ["missing", "check", "unread", "answered"];
 const isIssue = (v: string | null): v is Issue => ISSUES.includes(v as Issue);
+
+// Overview cards: one icon and colour per metric (status icons as in StatusPill).
+type Tone = "neutral" | "info" | "accent" | "ok" | "bad" | "warn" | "copper";
+const STATUS_CARD: Record<Status, { icon: LucideIcon; tone: Tone }> = {
+  borrador: { icon: PencilLine, tone: "neutral" },
+  enviado: { icon: Send, tone: "info" },
+  revision: { icon: Eye, tone: "accent" },
+  listo: { icon: CircleCheck, tone: "ok" },
+};
+const ISSUE_CARD: Record<Issue, { icon: LucideIcon; tone: Tone }> = {
+  missing: { icon: FileWarning, tone: "bad" },
+  check: { icon: TriangleAlert, tone: "warn" },
+  unread: { icon: MessageCircle, tone: "copper" },
+  answered: { icon: MessageSquareReply, tone: "info" },
+};
 const hasIssue = (x: Triage, i: Issue) => (i === "missing" ? x.bad > 0 : i === "check" ? x.warn > 0 : i === "unread" ? x.unread > 0 : x.reasons.includes("taskDone"));
 
 type Step = { text: string; href: string; tone: "act" | "wait" | "done" };
@@ -109,6 +125,8 @@ export function CaseList() {
   const sort: SortKey = isSort(params.get("orden")) ? (params.get("orden") as SortKey) : "attention";
   const [q, setQ] = useState("");
   const [overviewOpen, setOverviewOpen] = useOverviewPref();
+  // Overview tab: the status one when a status filter is on, else the gestoría's pending work.
+  const [group, setGroup] = useState<"pending" | "status">(() => (isStatus(params.get("estado")) ? "status" : "pending"));
   const [perPage, setPerPage] = usePageSize();
   const [page, setPage] = useState(1);
   // ?gestor=<member id>, or "ninguno" for unassigned cases.
@@ -118,6 +136,8 @@ export function CaseList() {
   const waitN = (w: "gestoria" | "cliente") => all.filter((x) => x.waiting === w).length;
   const count = (st: Status) => all.filter((x) => x.exp.status === st).length;
   const issueN = (i: Issue) => all.filter((x) => hasIssue(x, i)).length;
+  // cases with something urgent for the gestoría (missing, to check or unread): the pending tab's badge
+  const hotN = all.filter((x) => hasIssue(x, "missing") || hasIssue(x, "check") || hasIssue(x, "unread")).length;
   const showAssignee = all.some((x) => x.exp.assignee);
   const teamName = (id?: string | null) => firm.team.find((m) => m.id === id)?.name;
 
@@ -191,6 +211,8 @@ export function CaseList() {
       <TopBar crumbs={crumb ? [{ label: t.list.title, href: "/expedientes" }, { label: crumb }] : [{ label: t.list.title }]} />
 
       <div className={css.page}>
+        {FEATURES.campaignBoard && <DeadlineBanners />}
+
         <PageHead
           eyebrow={t.list.eyebrow(EJERCICIO)}
           title={t.list.title}
@@ -201,8 +223,6 @@ export function CaseList() {
             </ButtonLink>
           }
         />
-
-        {FEATURES.campaignBoard && <DeadlineChips />}
 
         {/* Overview: real counts only, each one a filter. Folds to one line (remembered per browser). */}
         {!overviewOpen ? (
@@ -215,44 +235,38 @@ export function CaseList() {
           </div>
         ) : (
         <section className={css.overview} aria-label={t.list.overview.label}>
-          <div className={css.ledger}>
-            <div className={css.ledgerHead}>
-              <h2 className={css.ledgerTitle}>{t.list.overview.byStatus}</h2>
-              <button type="button" aria-expanded onClick={() => setOverviewOpen(false)} className={css.overviewToggle}>
-                {t.list.overviewHide}
-                <ChevronDown size={13} className="rotate-180" aria-hidden="true" />
-              </button>
-            </div>
-            <ul className={css.ledgerItems}>
-              {STATUSES.map((x) => (
-                <li key={x.id}>
-                  <button type="button" aria-pressed={status === x.id} onClick={() => pick({ estado: status === x.id ? "all" : x.id })} className={css.ledgerItem} data-zero={count(x.id) === 0 || undefined} title={tr(x.help)}>
-                    <span className={css.ledgerN}>{count(x.id)}</span>
-                    <span className={css.ledgerLabel}>
-                      <i className={css.dot} data-status={x.id} aria-hidden="true" />
-                      {tr(x.label)}
-                    </span>
-                  </button>
-                </li>
+          {/* One row of cards at a time, under two tabs; the gestoría's pending work first, as it is the urgent one. */}
+          <div className={css.groupHead}>
+            <div role="tablist" aria-label={t.list.overview.label} className={css.tabs}>
+              {(["pending", "status"] as const).map((g) => (
+                <button key={g} type="button" role="tab" aria-selected={group === g} onClick={() => setGroup(g)} className={css.tab}>
+                  {g === "pending" ? t.list.overview.pending : t.list.overview.byStatus}
+                  {/* a terracotta dot: something urgent waits behind this tab */}
+                  {g === "pending" && hotN > 0 && <i className={css.tabDot} aria-hidden="true" />}
+                </button>
               ))}
-            </ul>
+            </div>
+            <button type="button" aria-expanded onClick={() => setOverviewOpen(false)} className={css.overviewToggle}>
+              {t.list.overviewHide}
+              <ChevronDown size={13} className="rotate-180" aria-hidden="true" />
+            </button>
           </div>
-          <div className={css.ledger}>
-            <h2 className={css.ledgerTitle}>{t.list.overview.pending}</h2>
-            <ul className={css.ledgerItems}>
-              {ISSUES.map((i) => {
-                const n = issueN(i);
-                return (
-                  <li key={i}>
-                    <button type="button" aria-pressed={issue === i} onClick={() => pick({ aviso: issue === i ? "all" : i })} className={css.ledgerItem} data-hot={n > 0 && i !== "check" ? "" : undefined} data-zero={n === 0 || undefined} title={t.list.issue[i]}>
-                      <span className={css.ledgerN}>{n}</span>
-                      <span className={css.ledgerLabel}>{t.list.issue[i]}</span>
-                    </button>
+          <ul className={css.cards} role="tabpanel">
+            {group === "status"
+              ? STATUSES.map((x) => (
+                  <li key={x.id}>
+                    <MetricCard n={count(x.id)} label={tr(x.label)} title={tr(x.help)} filterLabel={t.list.overview.filterBy(tr(x.label))} {...STATUS_CARD[x.id]} on={status === x.id} onClick={() => pick({ estado: status === x.id ? "all" : x.id })} />
                   </li>
-                );
-              })}
-            </ul>
-          </div>
+                ))
+              : ISSUES.map((i) => {
+                  const n = issueN(i);
+                  return (
+                    <li key={i}>
+                      <MetricCard n={n} label={t.list.issue[i]} filterLabel={t.list.overview.filterBy(t.list.issue[i])} {...ISSUE_CARD[i]} hot={n > 0 && i !== "answered"} on={issue === i} onClick={() => pick({ aviso: issue === i ? "all" : i })} />
+                    </li>
+                  );
+                })}
+          </ul>
         </section>
         )}
 
@@ -281,25 +295,11 @@ export function CaseList() {
             <FilterMenu label={t.list.filters} active={who ? 1 : 0}>
               <label className={css.menuField}>
                 <span>{t.extra.assignee.label}</span>
-                <select value={who ?? "all"} onChange={(e) => go({ gestor: e.target.value })} className="field">
-                  <option value="all">{t.extra.assignee.all}</option>
-                  {firm.team.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  <option value="ninguno">{t.list.unassigned}</option>
-                </select>
+                <Select aria-label={t.extra.assignee.label} value={who ?? "all"} onChange={(v) => go({ gestor: v })} buttonClassName="font-normal" options={[{ value: "all", label: t.extra.assignee.all }, ...firm.team.map((m) => ({ value: m.id, label: m.name })), { value: "ninguno", label: t.list.unassigned }]} />
               </label>
             </FilterMenu>
           )}
-          <label className={cx(css.select, css.sort)}>
-            {/* the selected option ("Más urgentes primero") says what it does; the label stays for screen readers */}
-            <span className="sr-only">{t.list.sort.label}</span>
-            <select value={sort} onChange={(e) => go({ orden: e.target.value as SortKey })} className="field">
-              {SORT_KEYS.map((k) => (
-                <option key={k} value={k}>
-                  {t.list.sort[k]}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select aria-label={t.list.sort.label} value={sort} onChange={(k) => go({ orden: k as SortKey })} className={css.sortMenu} options={SORT_KEYS.map((k) => ({ value: k, label: t.list.sort[k], icon: SORT_ICON[k] }))} />
         </div>
 
         {/* Result line: active filters (each removable), count and export. */}
@@ -323,8 +323,8 @@ export function CaseList() {
             </button>
           )}
           {shown.length > 0 && (
-            <button type="button" onClick={() => exportCsv(shown, (x) => [x.name, str(x.exp.answers.email), str(x.exp.answers.telefono), tr(STATUSES.find((st) => st.id === x.exp.status)!.label), x.waiting ? t.list.wait.row[x.waiting] : "", `${x.pct}`, `${x.pending}`, `${x.bad + x.warn}`, teamName(x.exp.assignee) ?? "", csvTime(x.exp.updatedAt)], t.extra.csv.cols, `expedientes-${EJERCICIO}`)} className={css.textAction}>
-              <Download size={14} aria-hidden="true" />
+            <button type="button" onClick={() => exportCsv(shown, (x) => [x.name, str(x.exp.answers.email), str(x.exp.answers.telefono), tr(STATUSES.find((st) => st.id === x.exp.status)!.label), x.waiting ? t.list.wait.row[x.waiting] : "", `${x.pct}`, `${x.pending}`, `${x.bad + x.warn}`, teamName(x.exp.assignee) ?? "", csvTime(x.exp.updatedAt)], t.extra.csv.cols, `expedientes-${EJERCICIO}`)} className={cx("group", css.exportBtn)}>
+              <Download size={15} className="text-accent motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-y-0.5" aria-hidden="true" />
               {t.extra.csv.export}
             </button>
           )}
@@ -360,9 +360,7 @@ export function CaseList() {
             <nav aria-label={t.list.pager.label} className={css.pager}>
               <label className={css.pagerSize}>
                 <span>{t.list.pager.perPage}</span>
-                <select value={perPage} onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }} className="field">
-                  {PAGE_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
-                </select>
+                <Select aria-label={t.list.pager.perPage} value={String(perPage)} onChange={(v) => { setPerPage(Number(v)); setPage(1); }} className="w-20" options={PAGE_SIZES.map((n) => ({ value: String(n), label: String(n) }))} />
               </label>
               <span className={css.pagerRange} aria-live="polite">
                 {t.list.pager.range((current - 1) * perPage + 1, Math.min(current * perPage, shown.length), shown.length)}
@@ -469,25 +467,75 @@ function CaseRow({ x, assignee }: { x: Triage; assignee?: string | null }) {
   );
 }
 
-/** Campaign deadlines with a countdown; renders nothing until the gestoría sets them in Ajustes › Campaña. */
-export function DeadlineChips() {
+/**
+ * One overview count as a card: coloured icon, the figure large and bold, its label, and a filter
+ * mark that says it is clickable. `hot` (something urgent waiting) tints the card in its colour.
+ */
+function MetricCard({ n, label, title, filterLabel, icon: Icon, tone, hot, on, onClick }: { n: number; label: string; title?: string; filterLabel: string; icon: LucideIcon; tone: Tone; hot?: boolean; on: boolean; onClick: () => void }) {
+  return (
+    <button type="button" aria-pressed={on} aria-label={`${filterLabel} (${n})`} onClick={onClick} title={title ?? filterLabel} className={css.card} data-tone={tone} data-hot={hot || undefined} data-zero={n === 0 || undefined}>
+      <span className={css.cardIcon} aria-hidden="true"><Icon size={18} strokeWidth={2} /></span>
+      <span className={css.cardN}>{n}</span>
+      <span className={css.cardLabel}>{label}</span>
+      <span className={css.cardGo} aria-hidden="true">{on ? <X size={14} strokeWidth={2.2} /> : <ListFilter size={14} strokeWidth={2.2} />}</span>
+    </button>
+  );
+}
+
+const DISMISSED_KEY = "prerenta:deadlines:dismissed";
+
+/**
+ * Campaign deadlines as alert banners at the top of the page, with a countdown; nothing
+ * until the gestoría sets them in Ajustes › Campaña. Within a week (or past) the banner is
+ * red with a warning sign; further off it is a quiet info line. Each can be closed: the
+ * browser remembers that deadline and date, so a new date shows again.
+ */
+export function DeadlineBanners() {
   const { firm } = useAppState();
   const { t } = useI18n();
-  const keys = (["filing", "directDebit"] as const).filter((k) => firm.campaign?.[k]);
-  if (!keys.length) return null;
+  const [dismissed, setDismissed] = useState<string[]>([]);
+  useEffect(() => {
+    let stored: string[] = [];
+    try {
+      stored = JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? "[]");
+    } catch {}
+    if (!Array.isArray(stored) || !stored.length) return;
+    const raf = requestAnimationFrame(() => setDismissed(stored));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  const dismiss = (id: string) => {
+    const next = [...dismissed, id];
+    setDismissed(next);
+    try {
+      localStorage.setItem(DISMISSED_KEY, JSON.stringify(next));
+    } catch {}
+  };
+  const items = (["filing", "directDebit"] as const)
+    .filter((k) => firm.campaign?.[k])
+    .map((k) => ({ k, iso: firm.campaign![k]!, id: `${k}:${firm.campaign![k]}` }))
+    .filter((x) => !dismissed.includes(x.id))
+    .sort((a, b) => a.iso.localeCompare(b.iso)); // the nearest (or overdue) deadline first
+  if (!items.length) return null;
   return (
-    <div className="flex flex-wrap gap-2">
-      {keys.map((k) => {
-        const iso = firm.campaign![k]!;
+    <div className="flex flex-col gap-2">
+      {items.map(({ k, iso, id }) => {
         const d = daysUntil(iso);
         const urgent = d <= 7;
+        const Icon = urgent ? TriangleAlert : CalendarClock;
         return (
-          <span key={k} className={cx("inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-[13px]", urgent ? "border-bad/25 bg-bad-soft" : "border-line bg-surface")}>
-            <CalendarClock size={15} className={urgent ? "text-bad" : "text-muted"} aria-hidden="true" />
-            <b className="font-medium">{t.list.deadline[k]}</b>
-            <span className="figures text-muted">{fmtDate(iso)}</span>
-            <span className={cx("figures font-medium", urgent ? "text-bad" : "text-ink")}>{t.list.deadline.days(d)}</span>
-          </span>
+          <div key={id} role={urgent ? "alert" : "status"} className={cx("flex items-center gap-3 rounded-lg border py-2.5 pr-2 pl-3 text-[14px]", urgent ? "border-bad/30 border-l-4 border-l-bad bg-bad-soft" : "border-info/20 bg-info-soft")}>
+            <span className={cx("grid size-8 shrink-0 place-items-center rounded-md", urgent ? "bg-bad text-surface" : "bg-surface text-info")}>
+              <Icon size={17} strokeWidth={2.2} aria-hidden="true" />
+            </span>
+            <p className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <b className="font-semibold text-ink">{t.list.deadline[k]}</b>
+              <span className={cx("figures font-semibold", urgent ? "text-bad" : "text-info")}>{t.list.deadline.days(d)}</span>
+              <span className="figures text-muted">· {fmtDate(iso)}</span>
+            </p>
+            <button type="button" onClick={() => dismiss(id)} aria-label={t.common.close} title={t.common.close} className={cx("grid size-8 shrink-0 cursor-pointer place-items-center rounded-md transition-colors", urgent ? "text-bad hover:bg-bad/10" : "text-muted hover:bg-info/10 hover:text-ink")}>
+              <X size={17} strokeWidth={2.2} aria-hidden="true" />
+            </button>
+          </div>
         );
       })}
     </div>
@@ -535,7 +583,8 @@ function FilterMenu({ label, active, children }: { label: string; active: number
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
+    // a dropdown's list is portalled outside the panel: a pick in it must not close the panel
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && !(e.target as Element).closest?.(`[${SELECT_PANEL_ATTR}]`) && setOpen(false);
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("pointerdown", away);
     document.addEventListener("keydown", esc);
@@ -555,6 +604,8 @@ function FilterMenu({ label, active, children }: { label: string; active: number
     </div>
   );
 }
+
+const SORT_ICON: Record<SortKey, LucideIcon> = { recent: History, attention: Flame, name: ArrowDownAZ, progress: ArrowUpNarrowWide };
 
 const PAGE_SIZES = [10, 25, 50] as const;
 const PAGE_KEY = "prerenta:cases:perPage";

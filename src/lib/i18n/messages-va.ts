@@ -369,6 +369,11 @@ export const va: Dict = {
     alerts: "Avisos per a preparar la renda",
     noAlerts: "Sense avisos de moment.",
     alertLevel: { bad: "Falta", warn: "Revisar", info: "Nota" },
+    alertHelp: {
+      bad: { title: "Falta alguna cosa necessària", docs: "La declaració necessita este document i encara no hi és. Demaneu-lo al client amb «Demanar al client» o pugeu-lo vosaltres en Documents.", answers: "La declaració necessita esta dada i encara no hi és. Demaneu-la al client o reviseu la resposta en el qüestionari." },
+      warn: { title: "Dada per comprovar", docs: "Alguna cosa en els documents pot canviar el resultat. Obriu-los i comproveu-ho; si està bé, marqueu-ho com a revisat.", answers: "Una resposta pot canviar el resultat. Comproveu-la i, si està bé, marqueu-la com a revisada." },
+      info: { title: "Per a tindre en compte", docs: "Un avís informatiu sobre els documents: no bloqueja res. Marqueu-lo com a revisat quan l'hàgeu vist.", answers: "Un avís informatiu sobre les respostes: no bloqueja res. Marqueu-lo com a revisat quan l'hàgeu vist." },
+    },
     answers: "Respostes del qüestionari",
     docs: "Documents",
     docsAside: (up: number, pend: number) => `${up} pujats · ${pend} pendents`,

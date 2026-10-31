@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { Button, Card, cx } from "@/components/ui/primitives";
 import { SectionHead, inputCls } from "./settings-layout";
 import { FieldIcon } from "@/components/ui/field-icon";
+import { Select } from "@/components/ui/select";
 
 const ROLES: MemberRole[] = ["titular", "gestor"];
 const AVATAR = ["bg-accent-soft text-accent", "bg-info-soft text-info", "bg-warn-soft text-warn", "bg-ok-soft text-ok"];
@@ -19,22 +20,27 @@ const ROLE_LOOK: Record<MemberRole, { icon: typeof ShieldCheck; cls: string }> =
   gestor: { icon: Briefcase, cls: "bg-accent-soft text-accent" },
 };
 
-/** The role as a coloured chip with its icon (same icons as the roles card); a native select underneath keeps keyboard and screen readers. */
+/** The role as a coloured chip with its icon (same icons as the roles card), opening the shared dropdown. */
 function RoleChip({ label, value, names, onChange }: { label: string; value: MemberRole; names: Record<MemberRole, string>; onChange: (r: MemberRole) => void }) {
   const look = ROLE_LOOK[value];
   return (
-    <span className={cx("group relative col-start-2 inline-flex h-8 w-[150px] items-center gap-1.5 rounded-full border border-transparent pr-2.5 pl-2.5 text-[13.5px] font-semibold transition-colors hover:border-accent has-[:focus-visible]:border-focus has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-focus/15 sm:col-start-auto", look.cls)}>
-      <look.icon size={14} strokeWidth={2} aria-hidden="true" />
-      <span className="flex-1 truncate">{names[value]}</span>
-      <ChevronDown size={14} className="opacity-70 motion-safe:transition-transform motion-safe:duration-200 group-hover:translate-y-px" aria-hidden="true" />
-      <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value as MemberRole)} className="absolute inset-0 cursor-pointer opacity-0">
-        {ROLES.map((r) => (
-          <option key={r} value={r}>
-            {names[r]}
-          </option>
-        ))}
-      </select>
-    </span>
+    <Select
+      aria-label={label}
+      value={value}
+      onChange={(v) => onChange(v as MemberRole)}
+      options={ROLES.map((r) => ({ value: r, label: names[r], icon: ROLE_LOOK[r].icon }))}
+      className="col-start-2 w-[150px] sm:col-start-auto"
+      trigger={{
+        className: cx("group inline-flex h-8 w-full cursor-pointer items-center gap-1.5 rounded-full border border-transparent px-2.5 text-[13.5px] font-semibold transition-colors hover:border-accent focus-visible:border-focus focus-visible:ring-4 focus-visible:ring-focus/15 focus-visible:outline-none", look.cls),
+        content: (open) => (
+          <>
+            <look.icon size={14} strokeWidth={2} aria-hidden="true" />
+            <span className="flex-1 truncate text-left">{names[value]}</span>
+            <ChevronDown size={14} className={cx("opacity-70 motion-safe:transition-transform motion-safe:duration-200", open && "rotate-180")} aria-hidden="true" />
+          </>
+        ),
+      }}
+    />
   );
 }
 
@@ -83,13 +89,7 @@ export function TeamSettings() {
           <label className="sr-only" htmlFor="tm-email">{s.email}</label>
           <FieldIcon kind="email"><input id="tm-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={s.email} autoComplete="off" className={inputCls} /></FieldIcon>
           <label className="sr-only" htmlFor="tm-role">{s.role}</label>
-          <select id="tm-role" value={role} onChange={(e) => setRole(e.target.value as MemberRole)} className={inputCls}>
-            {ROLES.map((r) => (
-              <option key={r} value={r}>
-                {s.roles[r]}
-              </option>
-            ))}
-          </select>
+          <Select id="tm-role" value={role} onChange={(v) => setRole(v as MemberRole)} options={ROLES.map((r) => ({ value: r, label: s.roles[r], icon: ROLE_LOOK[r].icon }))} />
           <Button type="submit" variant="primary">
             <Plus size={16} aria-hidden="true" />
             {s.add}

@@ -56,7 +56,7 @@ export function ClientProfile() {
               <IconTile icon={Globe} tone="info" />
               <h2 className="display-tight text-[15px] font-semibold">{t.common.language}</h2>
             </div>
-            <div role="radiogroup" aria-label={t.common.language} className="grid grid-cols-3 gap-2">
+            <div role="radiogroup" aria-label={t.common.language} className="grid grid-cols-2 gap-2">
               {LANGS.map((l) => (
                 <button
                   key={l.id}

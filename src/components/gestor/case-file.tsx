@@ -33,6 +33,8 @@ import { LEGAL_KINDS, signState } from "@/lib/data/legal";
 import { feeFor, fmtEuros } from "@/lib/data/fees";
 import { casesOfClient } from "@/lib/data/years";
 import { SIGN_TONE } from "@/components/client/sign-step";
+import { Select } from "@/components/ui/select";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const ALERT_PILL = { bad: "bad", warn: "warn", info: "info" } as const;
 const ALERT_ICON = { bad: CircleAlert, warn: TriangleAlert, info: Info } as const;
@@ -184,23 +186,10 @@ export function CaseFile({ id }: { id: string }) {
               <>
                     <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:max-[1179px]:grid-cols-3 min-[1180px]:grid-cols-1">
             <Prop label={t.file.status}>
-              <select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(ev) => actions.setStatus(e.id, ev.target.value as Status)} className="field h-(--control-h-sm) px-2.5 text-sm">
-                {STATUSES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {tr(s.label)}
-                  </option>
-                ))}
-              </select>
+              <Select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(v) => actions.setStatus(e.id, v as Status)} buttonClassName="h-(--control-h-sm) px-2.5 text-sm" options={STATUSES.map((s) => ({ value: s.id, label: tr(s.label) }))} />
             </Prop>
             <Prop label={t.list.assignee}>
-              <select aria-label={t.list.assignee} value={e.assignee ?? ""} onChange={(ev) => actions.assign(e.id, ev.target.value || null)} className="field h-(--control-h-sm) px-2.5 text-sm">
-                <option value="">{t.list.unassigned}</option>
-                {firm.team.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+              <Select aria-label={t.list.assignee} value={e.assignee ?? ""} onChange={(v) => actions.assign(e.id, v || null)} buttonClassName="h-(--control-h-sm) px-2.5 text-sm" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
             </Prop>
             <Prop label={t.file.contact}>
               <span className="block truncate text-sm">{typeof a.telefono === "string" && a.telefono ? a.telefono : "—"}</span>
@@ -381,7 +370,9 @@ export function CaseFile({ id }: { id: string }) {
                   return (
                     <li key={i} className="flex flex-col gap-2 border-t border-line py-3 first:border-t-0 first:pt-0">
                       <span className="flex flex-wrap items-start gap-x-3 gap-y-1.5">
-                        <Pill tone={ALERT_PILL[x.level]} icon={Icon}>{t.file.alertLevel[x.level]}</Pill>
+                        <Tooltip title={t.file.alertHelp[x.level].title} text={t.file.alertHelp[x.level][x.target.kind === "docs" ? "docs" : "answers"]}>
+                          <Pill tone={ALERT_PILL[x.level]} icon={Icon}>{t.file.alertLevel[x.level]}</Pill>
+                        </Tooltip>
                         <span className="min-w-0 flex-1 basis-[16rem] text-[15px] leading-[22px]">{tr(x.text)}</span>
                       </span>
                       <span className="text-[13px] text-muted">{[SCHEMA.find((s) => s.slug === x.target.section) && tr(SCHEMA.find((s) => s.slug === x.target.section)!.short), t.file.auto.toLowerCase()].filter(Boolean).join(" · ")}</span>

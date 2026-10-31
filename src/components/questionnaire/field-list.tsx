@@ -16,6 +16,7 @@ import { sectionKey, slotPath } from "@/lib/api/mapping";
 import { Pill, cx } from "@/components/ui/primitives";
 import { DateField } from "@/components/ui/date-field";
 import { FieldIcon } from "@/components/ui/field-icon";
+import { Select } from "@/components/ui/select";
 
 interface Ctx {
   set: (path: Path, value: AnswerValue | undefined) => void;
@@ -152,14 +153,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       break;
     case "select":
       control = (
-        <select id={id} disabled={readOnly} value={asText(v)} onChange={(e) => set(at, e.target.value)} className={inputCls}>
-          <option value="">{t.common.chooseOption}</option>
-          {x.choices?.map(([val, l]) => (
-            <option key={val} value={val}>
-              {tr(l)}
-            </option>
-          ))}
-        </select>
+        <Select id={id} disabled={readOnly} value={asText(v)} onChange={(val) => set(at, val)} placeholder={t.common.chooseOption} options={(x.choices ?? []).map(([val, l]) => ({ value: val, label: tr(l) }))} />
       );
       break;
     case "yn":

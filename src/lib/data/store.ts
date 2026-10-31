@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import type { AnswerValue, Answers, FileRef, Path } from "@/lib/questionnaire/types";
 import { nowIso, uid } from "@/lib/format";
-import { DEFAULT_LANG, isLang, type Lang } from "@/lib/i18n";
+import { DEFAULT_LANG, LANGS, isLang, type Lang } from "@/lib/i18n";
 import { EXAMPLES, EXAMPLES_REV, EXAMPLE_FIRM } from "./examples";
 import { PREFILL_SECTIONS, carryOver } from "./years";
 import { answerChanges, bySection, logged, type Activity } from "./activity";
@@ -116,7 +116,8 @@ function readSession(): Session {
 function readLang(): Lang {
   try {
     const v = localStorage.getItem(LANG_KEY);
-    if (isLang(v)) return v;
+    // A language no longer offered (Valencian) falls back to the default.
+    if (isLang(v) && LANGS.some((l) => l.id === v)) return v;
   } catch {}
   return DEFAULT_LANG;
 }

@@ -236,6 +236,23 @@
   }
 }
 
+// The entry page's header: the gestoría's mark and name a size up, to hold the top of the page.
+.bareHead {
+  .firmMark {
+    width: 46px;
+    height: 46px;
+    border-radius: radius(lg);
+    font-size: 0.9375rem;
+    box-shadow: 0 6px 14px -6px rgb(var(--accent-rgb) / 0.55);
+  }
+
+  .firmBrand b {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+}
+
 .firmBrand {
   display: flex;
   min-width: 0;
@@ -249,21 +266,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--ink);
-  }
-}
-
-// "con PreRenta": the platform, credited quietly under the gestoría's name.
-.withPreRenta {
-  font-size: 0.75rem;
-  color: var(--muted);
-
-  span {
-    font-weight: 600;
-    color: var(--ink);
-  }
-
-  em {
-    font-style: normal;
   }
 }
 

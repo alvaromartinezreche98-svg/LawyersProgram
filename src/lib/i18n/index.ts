@@ -3,9 +3,12 @@ import { VA_COPY } from "./va-copy";
 /** Languages the app is available in: Castilian, Valencian and English (for foreign residents). */
 export type Lang = "es" | "va" | "en";
 
+/**
+ * The languages offered in the switchers and settings: Spanish and English only
+ * (2026-10-31). Valencian stays translated in the code; add it back here to offer it again.
+ */
 export const LANGS: { id: Lang; label: string; short: string }[] = [
-  { id: "es", label: "Castellano", short: "ES" },
-  { id: "va", label: "Valencià", short: "VA" },
+  { id: "es", label: "Español", short: "ES" },
   { id: "en", label: "English", short: "EN" },
 ];
 

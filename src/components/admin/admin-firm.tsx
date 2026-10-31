@@ -14,6 +14,7 @@ import { PageHead } from "@/components/gestor/page-head";
 import { TopBar } from "@/components/gestor/gestor-shell";
 import { inputCls } from "@/components/gestor/settings/settings-layout";
 import { STATUS_TONE } from "./admin-firms";
+import { Select } from "@/components/ui/select";
 
 /** X2 · Ficha de la gestoría: account and users, usage, subscription, payout account and support notes. */
 export function AdminFirm({ id }: { id: string }) {
@@ -108,10 +109,7 @@ export function AdminFirm({ id }: { id: string }) {
             {rec && plans.length > 0 && (
               <label className="mb-3 flex flex-col gap-1.5 text-[14px] font-medium">
                 {p.field.plan}
-                <select value={rec.planId ?? ""} onChange={(e) => platform.updateFirm(rec.id, { planId: e.target.value || null })} className={inputCls}>
-                  <option value="">{p.field.noPlan}</option>
-                  {plans.map((x) => <option key={x.id} value={x.id}>{x.name || p.plans.untitled}</option>)}
-                </select>
+                <Select aria-label={p.field.plan} value={rec.planId ?? ""} onChange={(v) => platform.updateFirm(rec.id, { planId: v || null })} buttonClassName="font-normal" options={[{ value: "", label: p.field.noPlan }, ...plans.map((x) => ({ value: x.id, label: x.name || p.plans.untitled }))]} />
               </label>
             )}
             {demo && firm.subscription ? (

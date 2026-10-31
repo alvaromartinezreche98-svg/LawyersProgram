@@ -11,6 +11,7 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtTime } from "@/lib/format";
 import { Button, Pill, cx } from "@/components/ui/primitives";
 import { inputCls } from "./settings/settings-layout";
+import { Select } from "@/components/ui/select";
 
 const stateOf = (x: ClientTask) => (x.closedAt ? "closed" : x.doneAt ? "done" : "open");
 /** Request badges (design system › StatusBadge): copper while the client owes it, amber when the gestoría must check, green when resolved. */
@@ -156,15 +157,7 @@ export function TaskPanel({ exp: e }: { exp: Expediente }) {
         <label className="sr-only" htmlFor={`task-${e.id}`}>{t.tasks.ask}</label>
         <input id={`task-${e.id}`} value={text} onChange={(ev) => setText(ev.target.value)} placeholder={t.tasks.newPh} autoComplete="off" className={cx(inputCls, "min-w-0 flex-1")} />
         {FEATURES.requestTracking && <label className="sr-only" htmlFor={`task-where-${e.id}`}>{t.tasks.where}</label>}
-        {FEATURES.requestTracking && <select id={`task-where-${e.id}`} value={where} onChange={(ev) => setWhere(ev.target.value)} className={cx(inputCls, "sm:w-[220px]")}>
-          <option value="">{t.tasks.general}</option>
-          {SCHEMA.map((s) => (
-            <optgroup key={s.slug} label={tr(s.short)}>
-              <option value={`answers:${s.slug}`}>{t.tasks.answersIn(tr(s.short))}</option>
-              <option value={`docs:${s.slug}`}>{t.tasks.docsIn(tr(s.short))}</option>
-            </optgroup>
-          ))}
-        </select>}
+        {FEATURES.requestTracking && <Select id={`task-where-${e.id}`} value={where} onChange={setWhere} className="sm:w-[220px]" options={[{ value: "", label: t.tasks.general }, ...SCHEMA.flatMap((s) => [{ value: `answers:${s.slug}`, label: t.tasks.answersIn(tr(s.short)), group: tr(s.short) }, { value: `docs:${s.slug}`, label: t.tasks.docsIn(tr(s.short)), group: tr(s.short) }])]} />}
         <Button type="submit" variant="primary" disabled={!text.trim()}>
           <Send size={15} aria-hidden="true" />
           {t.tasks.add}

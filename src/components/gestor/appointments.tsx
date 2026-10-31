@@ -13,6 +13,7 @@ import { AP_TONE } from "@/components/client/client-appointment";
 import { Chip, Chips, PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
 import { DateField } from "@/components/ui/date-field";
+import { Select } from "@/components/ui/select";
 
 type Filter = "solicitada" | "confirmada" | "all";
 const ctl = "field w-auto h-(--control-h-sm) text-[13px]";
@@ -108,14 +109,7 @@ function Row({ e, a }: { e: Expediente; a: Appointment }) {
           <label className="sr-only" htmlFor={`t-${a.id}`}>{t.citas.time}</label>
           <input id={`t-${a.id}`} type="time" value={time} onChange={(ev) => setTime(ev.target.value)} className={ctl} />
           <label className="sr-only" htmlFor={`w-${a.id}`}>{t.citas.assignee}</label>
-          <select id={`w-${a.id}`} value={who} onChange={(ev) => setWho(ev.target.value)} className={ctl}>
-            <option value="">{t.list.unassigned}</option>
-            {firm.team.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+          <Select id={`w-${a.id}`} value={who} onChange={setWho} buttonClassName="h-(--control-h-sm) text-[13px]" className="w-auto min-w-44" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
           <Button size="sm" variant="primary" disabled={!time} onClick={() => actions.confirmAppointment(e.id, a.id, time, who || null)}>
             {t.citas.confirm}
           </Button>
@@ -166,9 +160,7 @@ function NewAppointment({ onClose, onSaved }: { onClose: () => void; onSaved: (n
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <label className={cx(label, "sm:col-span-2")}>
           {t.citas.client}
-          <select required value={caseId} onChange={(e) => { setCaseId(e.target.value); setWho(exps[e.target.value]?.assignee ?? ""); }} className={field}>
-            {cases.map((e) => <option key={e.id} value={e.id}>{clientName(e) || t.common.unnamedClient}</option>)}
-          </select>
+          <Select required aria-label={t.citas.client} value={caseId} onChange={(v) => { setCaseId(v); setWho(exps[v]?.assignee ?? ""); }} buttonClassName="h-(--control-h) text-[14px] font-normal" options={cases.map((e) => ({ value: e.id, label: clientName(e) || t.common.unnamedClient }))} />
         </label>
         <fieldset className="flex flex-col gap-1.5 sm:col-span-2">
           <legend className="mb-1.5 text-[13px] font-semibold text-ink">{t.citas.kindLabel}</legend>
@@ -192,10 +184,7 @@ function NewAppointment({ onClose, onSaved }: { onClose: () => void; onSaved: (n
         </label>
         <label className={cx(label, "sm:col-span-2")}>
           {t.citas.assignee}
-          <select value={who} onChange={(e) => setWho(e.target.value)} className={field}>
-            <option value="">{t.list.unassigned}</option>
-            {firm.team.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </select>
+          <Select aria-label={t.citas.assignee} value={who} onChange={setWho} buttonClassName="h-(--control-h) text-[14px] font-normal" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
         </label>
         <label className={cx(label, "sm:col-span-2 xl:col-span-4")}>
           {t.citas.note}

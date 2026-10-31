@@ -7,10 +7,10 @@ import { ChevronDown, CircleUserRound, LogOut, type LucideIcon } from "lucide-re
 import { IconTile } from "./icons";
 import { useAppState } from "@/lib/data/store";
 import { useFileUrl } from "@/lib/data/files";
-import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { LangSwitch, useHtmlLang } from "./lang-switch";
+import { LangMenu, SignOutButton as SidebarSignOut } from "./sidebar-foot";
 import { Badge, Brand, Button, cx } from "./primitives";
 
 export interface NavItem {
@@ -27,10 +27,12 @@ export interface NavItem {
 }
 
 /**
- * Client portal frame (design system › Navigation). The top bar leads with the
- * gestoría (logo slot, name, "Renta 2026 · con PreRenta"); from 760px it is one
- * row with four tabs and a "Cuenta" menu (other pages, language, sign-out).
- * On phones only the identity stays on top and the tabs move to a bottom bar.
+ * Client portal frame (design system › Navigation). From 1280px it has the same
+ * layout as the gestoría panel: a fixed sidebar on the left (light, with navy
+ * ink, the inverse of the workspace's navy one) and the page on the right.
+ * Between 768 and 1280px a top bar leads with the gestoría, then four tabs and
+ * a "Cuenta" menu. On phones only the identity stays on top and the tabs move
+ * to a bottom bar.
  */
 export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: string; org?: string; children: ReactNode }) {
   const path = usePathname();
@@ -51,8 +53,10 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
     return () => ro.disconnect();
   }, []);
   return (
-    <div ref={root} className="client-scale flex min-h-dvh flex-col">
-      <header ref={head} className="z-20 border-b border-line bg-surface md:sticky md:top-0">
+    <div ref={root} className={cx("client-scale flex min-h-dvh flex-col", nav.length > 0 && "xl:grid xl:h-dvh xl:grid-cols-[272px_minmax(0,1fr)] xl:overflow-hidden")}>
+      {nav.length > 0 && <ClientSidebar nav={nav} who={who} org={org} isOn={isOn} />}
+      {/* Hidden (height 0) beside the sidebar, so --app-header drops to 0 and sticky columns sit at the top. */}
+      <header ref={head} className={cx("z-20 border-b border-line bg-surface md:sticky md:top-0", nav.length > 0 && "xl:hidden")}>
         <div className="mx-auto flex min-h-16 max-w-client items-center gap-x-5 px-4 sm:px-6">
           <Link href={nav[0]?.href ?? "/"} className="mr-auto flex min-w-0 items-center gap-3 py-2 md:mr-2">
             <Cobrand org={org} />
@@ -89,18 +93,75 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
           )}
         </div>
       </header>
-      <main className="mx-auto w-full max-w-client flex-1 px-4 pt-6 pb-28 sm:px-6 md:pb-24">{children}</main>
+      {/* From 1280px the page sits in the same framed panel as the gestoría's: white, rounded, a hairline and the sheet shadow, scrolling inside. */}
+      <div className={cx("flex min-w-0 flex-1 flex-col", nav.length > 0 && "xl:h-dvh xl:p-3")}>
+        <div data-app-frame className={cx("flex flex-1 flex-col", nav.length > 0 && "thin-scroll xl:relative xl:h-full xl:min-h-0 xl:overflow-y-auto xl:overscroll-contain xl:rounded-[14px] xl:border xl:border-line xl:bg-surface xl:shadow-sheet")}>
+          <main className={cx("mx-auto w-full max-w-client flex-1 px-4 pt-6 pb-28 sm:px-6 md:pb-24", nav.length > 0 && "xl:px-8 xl:pt-8 xl:pb-12")}>{children}</main>
+        </div>
+      </div>
       {nav.length > 0 && <BottomNav nav={nav} isOn={isOn} />}
     </div>
   );
 }
 
-/** The gestoría first, PreRenta as the platform; PreRenta's wordmark alone when the firm has no name yet. */
-function Cobrand({ org }: { org?: string }) {
+/**
+ * Desktop sidebar: the gestoría on top, every page as a row, then the person,
+ * the language and sign-out at the foot. Rows follow the workspace sidebar
+ * (icon tile, terracotta tile and bar on the current page) in navy on light blue.
+ */
+function ClientSidebar({ nav, who, org, isOn }: { nav: NavItem[]; who: string; org?: string; isOn: (n: NavItem) => boolean }) {
   const { t } = useI18n();
+  const signOut = useSignOut();
+  const row = (on: boolean) =>
+    cx(
+      "relative flex min-h-11 items-center gap-3 rounded-lg px-2.5 py-1.5 text-[15px] transition-colors duration-150",
+      on
+        ? "bg-surface font-semibold text-accent shadow-sm before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-r-full before:bg-copper"
+        : "font-medium text-accent/80 hover:bg-surface/70 hover:text-accent",
+    );
+  return (
+    <aside className="z-30 h-dvh p-3 pr-0 max-xl:hidden">
+      <nav aria-label={t.nav.sections} className="flex h-full flex-col rounded-[14px] border border-accent/10 bg-accent-soft text-accent shadow-sheet">
+        <Link href={nav[0].href} className="mx-3 flex min-w-0 items-center gap-3 border-b border-accent/10 px-2 pt-4 pb-4">
+          <Cobrand org={org} inSidebar />
+        </Link>
+        <div className="thin-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pt-4 pb-3">
+          <ul className="flex flex-col gap-1.5">
+            {nav.map((n) => {
+              const on = isOn(n);
+              return (
+                <li key={n.href}>
+                  <Link href={n.href} aria-current={on ? "page" : undefined} className={row(on)}>
+                    {n.icon && <IconTile icon={n.icon} size="xs" tone={on ? "copperSolid" : "accent"} className={on ? undefined : "bg-surface"} />}
+                    <span className="flex-1">{n.label}</span>
+                    <Badge n={n.badge ?? 0} />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-auto flex flex-col gap-1.5 border-t border-accent/10 pt-4">
+            <div className="flex items-center gap-3 px-2.5 py-1.5">
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-[12px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
+              <span className="min-w-0">
+                <b className="block truncate text-[14.5px] font-semibold">{who}</b>
+                <span className="block text-[12.5px] text-accent/70">{t.side.account}</span>
+              </span>
+            </div>
+            <LangMenu item={row} theme="light" />
+            <SidebarSignOut onClick={signOut} label={t.common.signOut} theme="light" />
+          </div>
+        </div>
+      </nav>
+    </aside>
+  );
+}
+
+/** The gestoría's mark and name, nothing else; PreRenta's wordmark alone when the firm has no name yet. */
+function Cobrand({ org, inSidebar }: { org?: string; inSidebar?: boolean }) {
   const { firm } = useAppState();
   const url = useFileUrl(firm.logo);
-  if (!org) return <Brand sub={t.common.taxYear(EJERCICIO)} />;
+  if (!org) return <Brand />;
   const mark = org.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
   return (
     <>
@@ -111,13 +172,7 @@ function Cobrand({ org }: { org?: string }) {
         <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{mark}</span>
       )}
       {/* Between 768 and 1280px the tabs need the room: the logo slot alone stands for the gestoría. */}
-      <span className="min-w-0 md:max-xl:sr-only">
-        <span className="block truncate text-[15px] leading-[18px] font-semibold">{org}</span>
-        <span className="block truncate text-[12.5px] leading-4 text-muted">
-          {t.common.taxYear(EJERCICIO)} · {t.common.with}{" "}
-          <b className="font-semibold text-ink">Pre<span className="text-copper-text">Renta</span></b>
-        </span>
-      </span>
+      <span className={cx("min-w-0 truncate text-[15px] leading-[18px] font-semibold", !inSidebar && "md:max-xl:sr-only")}>{org}</span>
     </>
   );
 }

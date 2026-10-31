@@ -4,12 +4,10 @@ import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { Menu, Search, CalendarDays, Check, ChevronDown, Languages, Contact, Inbox, LayoutDashboard, ListChecks, LogOut, Settings, Wallet, type LucideIcon } from "lucide-react";
+import { Menu, Search, CalendarDays, Contact, Inbox, LayoutDashboard, ListChecks, Settings, Wallet, type LucideIcon } from "lucide-react";
 import { IconTile } from "@/components/ui/icons";
-import { EJERCICIO } from "@/lib/questionnaire/schema";
-import { actions, unreadFor, useAppState } from "@/lib/data/store";
-import { LANGS } from "@/lib/i18n";
-import { useHtmlLang } from "@/components/ui/lang-switch";
+import { unreadFor, useAppState } from "@/lib/data/store";
+import { LangMenu, SignOutButton } from "@/components/ui/sidebar-foot";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { Badge, Brand, Loading, cx } from "@/components/ui/primitives";
@@ -111,12 +109,11 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
     <nav aria-label={t.side.main} className="flex h-full flex-col bg-chrome text-chrome-ink on-dark lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
       {/* Who is signed in: the gestoría, at the top. */}
       <div className={cx("mx-3 flex items-center gap-3 border-b border-chrome-line px-2 pt-4 pb-4", compact && "lg:mx-2 lg:justify-center lg:px-0")}>
-        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[0_1px_2px_rgb(0_0_0/0.16)]" title={compact ? firmName : undefined} aria-hidden={!compact}>
-          {firmName[0].toUpperCase()}
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-chrome-ink text-[12.5px] font-semibold tracking-wide text-chrome shadow-[0_1px_2px_rgb(0_0_0/0.16)]" title={compact ? firmName : undefined} aria-hidden={!compact}>
+          {firmName.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("")}
         </span>
         <span className={cx("min-w-0 flex-1", compact && "lg:sr-only")}>
           <span className="block truncate text-[14.5px] font-semibold">{firmName}</span>
-          <span className="block truncate text-[11.5px] text-chrome-muted">PreRenta · {t.common.taxYear(EJERCICIO)}</span>
         </span>
         <button type="button" aria-label={t.side.closeMenu} onClick={onNavigate} className="px-2 text-xl text-chrome-muted lg:hidden">
           ×
@@ -173,10 +170,7 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
             <LangMenu compact={compact} item={item} />
           </li>
           <li>
-            <button type="button" onClick={signOut} title={compact ? t.common.signOut : "Alt ⇧ Q"} className={cx(item(false), "w-full text-left")}>
-              <IconTile icon={LogOut} size="xs" tone="chrome" />
-              {label(t.common.signOut)}
-            </button>
+            <SignOutButton onClick={signOut} label={t.common.signOut} compact={compact} title={compact ? t.common.signOut : "Alt ⇧ Q"} />
           </li>
         </ul>
       </div>
@@ -184,45 +178,8 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
   );
 }
 
-/** Language row: shows the current language by name and opens the list in place (nothing to clip, works folded too). */
-export function LangMenu({ compact, item }: { compact: boolean; item: (on: boolean) => string }) {
-  const { t, lang } = useI18n();
-  const [open, setOpen] = useState(false);
-  const cur = LANGS.find((l) => l.id === lang)!;
-  useHtmlLang();
-  return (
-    <>
-      <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} title={compact ? `${t.common.language}: ${cur.label}` : undefined} className={cx(item(false), "w-full text-left")}>
-        <IconTile icon={Languages} size="xs" tone="chrome" />
-        <span className={cx("flex-1", compact && "lg:sr-only")}>{t.common.language}</span>
-        <span className={cx("text-[13px] font-normal text-chrome-muted", compact && "lg:hidden")}>{cur.label}</span>
-        <ChevronDown size={14} className={cx("shrink-0 text-chrome-muted transition-transform", open && "rotate-180", compact && "lg:hidden")} aria-hidden="true" />
-      </button>
-      {open && (
-        <ul role="group" aria-label={t.common.language} className={cx("mt-0.5 mb-1 ml-10 flex flex-col gap-0.5", compact && "lg:ml-0")}>
-          {LANGS.map((l) => {
-            const on = l.id === lang;
-            return (
-              <li key={l.id}>
-                <button
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => actions.setLang(l.id)}
-                  title={compact ? l.label : undefined}
-                  className={cx("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13.5px] transition", on ? "bg-chrome-active font-semibold text-chrome-ink" : "text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink", compact && "lg:justify-center lg:px-0")}
-                >
-                  <span className={cx("flex-1", compact && "lg:hidden")}>{l.label}</span>
-                  <span className={cx("hidden text-[11.5px] font-semibold", compact && "lg:inline")}>{l.short}</span>
-                  {on && <Check size={14} className={cx("shrink-0 text-chrome-mark", compact && "lg:hidden")} aria-hidden="true" />}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </>
-  );
-}
+// The language row lives with the sign-out in ui/sidebar-foot, shared by every sidebar.
+export { LangMenu } from "@/components/ui/sidebar-foot";
 
 // Active: a soft full-width ground plus a short bar set inside the row (clear of the rounded corners),
 // in the same brand terracotta as the icon tile beside it.

@@ -10,7 +10,7 @@ import { SignStep } from "./sign-step";
 import type { AnswerValue, Path } from "@/lib/questionnaire/types";
 import { actions, openTasks, useAppState } from "@/lib/data/store";
 import { useI18n } from "@/lib/i18n/use-i18n";
-import { SaveFailed, SaveStatus } from "@/components/ui/save-status";
+import { SaveFailed, SaveToast } from "@/components/ui/save-status";
 import { QuestionnaireForm } from "@/components/questionnaire/field-list";
 import { StepsNav } from "@/components/questionnaire/steps-nav";
 import { ReviewBlock } from "@/components/questionnaire/review-block";
@@ -21,6 +21,12 @@ import { IconTile, SECTION_ICON } from "@/components/ui/icons";
 import { useClientExp } from "./client-shell";
 import { SectionTasks } from "./client-tasks";
 import { SectionGuide } from "@/components/questionnaire/section-guide";
+
+/** Back to the top of the page: the framed panel scrolls on desktop, the window on smaller screens. */
+const scrollToTop = () => {
+  document.querySelector("[data-app-frame]")?.scrollTo(0, 0);
+  window.scrollTo(0, 0);
+};
 
 /** C3 · Cuestionario: one step per route, saved on every change. */
 /** Scrolls to a question and highlights it for a moment: unanswered questions carry no marker, so this shows which one. */
@@ -50,7 +56,7 @@ export function Questionnaire({ slug }: { slug: string }) {
   const go = (s: string) => {
     const [step, anchor] = s.split("#");
     router.push(`/declaracion/${step}${anchor ? `#${anchor}` : ""}`);
-    if (!anchor) window.scrollTo(0, 0);
+    if (!anchor) scrollToTop();
     else if (step === slug) land(anchor);
   };
 
@@ -73,22 +79,21 @@ export function Questionnaire({ slug }: { slug: string }) {
   const onUpdate = (path: Path, fn: (cur: AnswerValue | undefined) => AnswerValue | undefined) => actions.updateAnswer(exp.id, path, fn);
   const send = () => {
     actions.sendToGestoria(exp.id);
-    window.scrollTo(0, 0);
+    scrollToTop();
   };
 
   return (
     <div className="grid items-start gap-6 min-[960px]:grid-cols-[320px_minmax(0,1fr)]">
       <PageTitle>{section ? tr(section.short) : isSign ? t.sign.short : t.q.review}</PageTitle>
-      <StepsNav answers={exp.answers} current={slug} onSelect={go} footer={<SaveStatus idle={t.q.autosave} />} signDone={signDone} requested={new Set(openTasks(exp).map((x) => x.target?.section).filter((x): x is string => !!x))} />
+      {/* The save status floats bottom right, always in view (it used to sit in the sheet head). */}
+      <SaveToast idle={t.q.autosave} />
+      <StepsNav answers={exp.answers} current={slug} onSelect={go} signDone={signDone} requested={new Set(openTasks(exp).map((x) => x.target?.section).filter((x): x is string => !!x))} />
       <section className="min-w-0 rounded-xl border border-line bg-surface shadow-sheet">
         {/* Sheet head: where the client is, the save status, the step's title */}
         <header className="flex flex-col gap-1 border-b border-line px-4 pt-6 pb-5 sm:px-8 lg:px-10">
-          <div className="flex items-center justify-between gap-3">
-            <span className="t-eyebrow text-[12.5px] text-accent">
-              {section ? t.q.sectionOf(SCHEMA.indexOf(section) + 1, SCHEMA.length) : isSign ? t.sign.short : t.q.review}
-            </span>
-            <SaveStatus idle={t.q.autosave} className="max-[959px]:hidden" />
-          </div>
+          <span className="t-eyebrow text-[12.5px] text-accent">
+            {section ? t.q.sectionOf(SCHEMA.indexOf(section) + 1, SCHEMA.length) : isSign ? t.sign.short : t.q.review}
+          </span>
           {/* The tile takes the section's state: green once complete, terracotta while half done, navy before. */}
           <div className="flex items-center gap-3">
             <IconTile icon={SECTION_ICON[slug] ?? ClipboardCheck} tone={section ? ({ done: "ok", partial: "copper", empty: "accent" } as const)[sectionState(progressOf(section.fields, exp.answers))] : "accent"} />

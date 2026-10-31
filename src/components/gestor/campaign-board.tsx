@@ -13,11 +13,23 @@ import { PageTitle } from "@/components/ui/app-shell";
 import { ButtonLink, ProgressBar, cx } from "@/components/ui/primitives";
 import { PageHead } from "./page-head";
 import { TopBar } from "./gestor-shell";
-import { DeadlineChips } from "./case-list";
+import { DeadlineBanners } from "./case-list";
 
 const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 
 /** G1 · Panel de campaña: cases in columns by status, deadlines and workload per accountant. */
+
+/**
+ * Each column's colour, after what its status means: grey draft, blue sent, amber under
+ * review, green ready. The column gets a faint wash of it, the header the full colour.
+ */
+const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string }> = {
+  borrador: { col: "bg-neutral-soft/70", border: "border-line-strong/25", head: "bg-muted", ink: "text-muted" },
+  enviado: { col: "bg-info-soft/70", border: "border-info/25", head: "bg-info", ink: "text-info" },
+  revision: { col: "bg-warn-soft", border: "border-warn/25", head: "bg-warn", ink: "text-warn" },
+  listo: { col: "bg-ok-soft/70", border: "border-ok/25", head: "bg-ok", ink: "text-ok" },
+};
+
 export function CampaignBoard() {
   const { exps, firm } = useAppState();
   const { t, tr } = useI18n();
@@ -61,6 +73,7 @@ export function CampaignBoard() {
       <PageTitle>{t.titles.board}</PageTitle>
       <TopBar crumbs={[{ label: t.board.title }]} />
       <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
+        <DeadlineBanners />
         {/* A working header: no tutorial line (the drag hint is on each card), the page's tools on the right. */}
         <PageHead
           title={t.board.title}
@@ -86,7 +99,6 @@ export function CampaignBoard() {
           }
         />
         <CampaignStats all={all} filing={firm.campaign?.filing} />
-        <DeadlineChips />
 
         <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6">
           {/* Columns with cases get the room; empty ones stay narrow, as a drop target. */}
@@ -98,6 +110,7 @@ export function CampaignBoard() {
           >
             {STATUSES.map((s) => {
               const col = shown.filter((x) => x.exp.status === s.id);
+              const tone = COLUMN_TONE[s.id];
               const target = !!dragging && from !== s.id;
               return (
                 <section
@@ -115,13 +128,14 @@ export function CampaignBoard() {
                     // every column the same height (from the window); the header stays, the cards scroll inside
                     "flex h-[clamp(360px,calc(100dvh-280px),680px)] flex-col gap-2 rounded-lg border p-2 transition-[background-color,border-color,box-shadow] duration-150",
                     over === s.id ? "border-copper bg-copper-soft shadow-[inset_0_0_0_1px_var(--copper)]"
-                    : target ? "border-dashed border-line-strong bg-sunk"
-                    : "border-line bg-sunk",
+                    : target ? cx("border-dashed border-line-strong", tone.col)
+                    : cx(tone.border, tone.col),
                   )}
                 >
-                  <header className="flex items-center justify-between px-1.5 py-1" title={tr(s.help)}>
-                    <h2 className="text-[13px] font-semibold">{tr(s.label)}</h2>
-                    <span className="figures text-[12px] text-muted">{col.length}</span>
+                  {/* The header filled with the status colour, white text; the count on a white pill. */}
+                  <header className={cx("flex items-center gap-2 rounded-md px-3 py-2.5 text-white shadow-sm", tone.head)} title={tr(s.help)}>
+                    <h2 className="flex-1 text-[13.5px] font-semibold">{tr(s.label)}</h2>
+                    <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full bg-white px-1.5 text-[11.5px] font-bold", tone.ink)}>{col.length}</span>
                   </header>
                   {col.length === 0 && (
                     <p className={cx("grid flex-1 place-items-center rounded-md border border-dashed px-2 py-6 text-center text-[12.5px] transition-colors", over === s.id ? "border-copper text-copper-text" : "border-line-strong/50 text-muted")}>

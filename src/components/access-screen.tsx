@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
-import { ArrowRight, Building2, Landmark, Plus, ShieldCheck, UserRound } from "lucide-react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { ArrowRight, Building2, CircleCheck, KeyRound, Landmark, Plus, UserRound, X } from "lucide-react";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { actions, clientName, useAppState } from "@/lib/data/store";
 import { nextPath } from "@/lib/data/use-sign-in-redirect";
@@ -84,109 +83,62 @@ function DemoAccess({ gate, banner }: { gate?: ReactNode; banner?: ReactNode }) 
   };
 
   return (
-    <PublicShell>
+    <PublicShell bare>
       <PageTitle>{firmName}</PageTitle>
       {/*
-        Entry page (design system › Access). One grid, ordered by priority: on phones
-        intro → sign-in → steps → privacy (the gestoría's contact is in the footer); from 1024px the sign-in sits in
-        its own column beside the story, both starting level.
+        Entry page (design system › Access): one screen, no scroll. On phones intro → sign-in;
+        from 1280px one large card holds the story and, on a tinted side, the sign-in.
       */}
       <div className={s.home}>
-        <header className={s.intro}>
-          <Eyebrow>{t.landing.eyebrow(EJERCICIO)}</Eyebrow>
-          <HeroTitle parts={t.landing.title} />
-          <p className={cx("hero-rise", s.lede)} style={{ "--d": "420ms" } as CSSProperties}>{t.landing.intro}</p>
-          {/* Who prepares the return, set like the head of a tax form. */}
-          <dl className={cx("ledger hero-rise", s.ledger)} style={{ "--d": "500ms" } as CSSProperties}>
-            {firm.name.trim() && (
-              <div>
-                <dt>{t.landing.ledgerFirm}</dt>
-                <dd>{firmName}</dd>
-              </div>
-            )}
-            <div>
-              <dt>{t.landing.ledgerYear}</dt>
-              <dd className="figures">{EJERCICIO}</dd>
-            </div>
-          </dl>
-        </header>
-
-        <div className={s.access}>
-          {gate ?? (
-            <>
-              {banner}
-              <SignInPanel firmName={firmName} ready={ready} tab={tab} setTab={setTab} onGestoria={enterGestoria} />
-              {/* Demo aids live in their own card under the sign-in, never inside the real path. */}
-              {DEMO_LOGIN && ready && (
-                <DemoCard
-                  clients={clients}
-                  open={samplesOpen}
-                  setOpen={setSamplesOpen}
-                  adding={adding}
-                  setAdding={setAdding}
-                  name={name}
-                  setName={setName}
-                  email={email}
-                  setEmail={setEmail}
-                  onClient={enterClient}
-                  onAdmin={() => {
-                    actions.loginAdmin();
-                    router.push("/admin/gestorias");
-                  }}
-                  onCreate={create}
-                />
+        <div className={s.frame}>
+          <header className={s.intro}>
+            <Eyebrow>{t.landing.eyebrow(EJERCICIO)}</Eyebrow>
+            <HeroTitle parts={t.landing.title} />
+            <p className={cx("hero-rise", s.lede)} style={{ "--d": "420ms" } as CSSProperties}>{t.landing.intro}</p>
+            {/* Who prepares the return, set like the head of a tax form. */}
+            <dl className={cx("ledger hero-rise", s.ledger)} style={{ "--d": "500ms" } as CSSProperties}>
+              {firm.name.trim() && (
+                <div>
+                  <dt>{t.landing.ledgerFirm}</dt>
+                  <dd>{firmName}</dd>
+                </div>
               )}
-            </>
-          )}
-        </div>
-
-        <section className={s.process} aria-labelledby="home-process">
-          <h2 id="home-process" className="t-label">{t.landing.processLabel}</h2>
-          <ol className={s.steps}>
-            {t.landing.steps.map(([title, d], i) => (
-              <li key={title} className={s.step}>
-                <span className={s.stepNum} aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-                <b className={s.stepTitle}>{title}</b>
-                <span className={s.stepText}>{d}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/*
-          Privacy, set like the process above it: a label, a hairline, then a short
-          statement with its seal beside a ledger of the facts (who, what for, where to read more).
-        */}
-        <section className={s.trust} aria-labelledby="home-trust">
-          <p className="t-label">{t.landing.trustLabel}</p>
-          <div className={s.trustBody}>
-            <div className={s.trustLead}>
-              <span className={s.seal} aria-hidden="true"><ShieldCheck size={18} strokeWidth={2} /></span>
-              <h2 id="home-trust" className={s.trustTitle}>{t.landing.trustTitle}</h2>
-              <p className={s.trustText}>{t.landing.trustText}</p>
-            </div>
-            <dl className={cx("ledger", s.trustFacts)}>
               <div>
-                <dt>{t.landing.trustWith}</dt>
-                <dd>{t.landing.trustWithValue(firmName)}</dd>
-              </div>
-              <div>
-                <dt>{t.landing.trustFor}</dt>
-                <dd>{t.landing.trustForValue(EJERCICIO)}</dd>
-              </div>
-              <div>
-                <dt>{t.landing.trustMore}</dt>
-                <dd>
-                  <Link href="/legal/privacidad" className={s.trustLink}>
-                    {t.landing.privacyLink}
-                    <ArrowRight size={14} aria-hidden="true" />
-                  </Link>
-                </dd>
+                <dt>{t.landing.ledgerYear}</dt>
+                <dd className="figures">{EJERCICIO}</dd>
               </div>
             </dl>
-          </div>
-        </section>
+          </header>
 
+          <div className={s.access}>
+            {gate ?? (
+              <>
+                {banner}
+                <SignInPanel firmName={firmName} ready={ready} tab={tab} setTab={setTab} onGestoria={enterGestoria} />
+                {/* Demo aids live in their own card under the sign-in, never inside the real path. */}
+                {DEMO_LOGIN && ready && (
+                  <DemoCard
+                    clients={clients}
+                    open={samplesOpen}
+                    setOpen={setSamplesOpen}
+                    adding={adding}
+                    setAdding={setAdding}
+                    name={name}
+                    setName={setName}
+                    email={email}
+                    setEmail={setEmail}
+                    onClient={enterClient}
+                    onAdmin={() => {
+                      actions.loginAdmin();
+                      router.push("/admin/gestorias");
+                    }}
+                    onCreate={create}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </PublicShell>
   );
@@ -216,6 +168,7 @@ function SignInPanel(p: { firmName: string; ready: boolean; tab: Role; setTab: (
   };
 
   return (
+    <>
     <section aria-labelledby="signin-title" className={s.panel}>
       <div className={s.panelHead}>
         <p className="eyebrow-tag">{p.tab === "cliente" ? t.landing.roleClient : t.landing.roleFirm}</p>
@@ -231,9 +184,15 @@ function SignInPanel(p: { firmName: string; ready: boolean; tab: Role; setTab: (
             <form onSubmit={openCode} className={s.codeForm}>
               <label htmlFor="inv-code" className={s.label}>{t.landing.codeLabel}</label>
               <div className={s.codeRow}>
-                <input id="inv-code" value={code} onChange={(e) => setCode(e.target.value)} required autoComplete="one-time-code" autoCapitalize="none" spellCheck={false} className="field" />
-                <Button type="submit" variant="primary">
+                {/* A key at the start says what goes here; a tick once something is typed. */}
+                <span className={s.codeField}>
+                  <KeyRound size={18} strokeWidth={2} className={s.codeKey} aria-hidden="true" />
+                  <input id="inv-code" value={code} onChange={(e) => setCode(e.target.value)} required autoComplete="one-time-code" autoCapitalize="none" spellCheck={false} className="field" />
+                  {code.trim() && <CircleCheck size={18} strokeWidth={2.2} className={s.codeTick} aria-hidden="true" />}
+                </span>
+                <Button type="submit" variant="primary" className={s.codeSubmit}>
                   {t.landing.codeSubmit}
+                  <ArrowRight size={18} aria-hidden="true" />
                 </Button>
               </div>
             </form>
@@ -241,28 +200,29 @@ function SignInPanel(p: { firmName: string; ready: boolean; tab: Role; setTab: (
         ) : (
           <>
             <p className={s.lead}>{t.landing.firmLead(p.firmName)}</p>
-            <Button variant="primary" size="lg" onClick={p.onGestoria} className="w-full">
+            <Button variant="primary" size="lg" onClick={p.onGestoria} className={s.codeSubmit}>
               {t.landing.firmEnter}
               <ArrowRight size={18} aria-hidden="true" />
             </Button>
           </>
         )}
       </div>
-
-      {/* The other role: its own button, not a tab. */}
-      <button type="button" onClick={() => p.setTab(other.id)} className={s.switchRole}>
-        <span className={s.switchIcon} aria-hidden="true"><other.icon size={17} strokeWidth={2} /></span>
-        <span className={s.switchText}>
-          <b>{other.label}</b>
-          <span>{other.hint}</span>
-        </span>
-        <ArrowRight size={16} className={s.switchArrow} aria-hidden="true" />
-      </button>
     </section>
+
+    {/* The other role: a quieter card of its own under the sign-in, not part of it. */}
+    <button type="button" onClick={() => p.setTab(other.id)} className={s.switchRole}>
+      <span className={s.switchIcon} aria-hidden="true"><other.icon size={17} strokeWidth={2} /></span>
+      <span className={s.switchText}>
+        <b>{other.label}</b>
+        <span>{other.hint}</span>
+      </span>
+      <ArrowRight size={16} className={s.switchArrow} aria-hidden="true" />
+    </button>
+    </>
   );
 }
 
-/** Demo build only: sample cases and a new test client, in a separate folded card. */
+/** Demo build only: a quiet card that opens the sample cases and a new test client in a dialog. */
 function DemoCard(p: {
   clients: Case[];
   open: boolean;
@@ -279,59 +239,83 @@ function DemoCard(p: {
 }) {
   const { t } = useI18n();
   const { p: pt } = usePlatformText();
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = dialog.current;
+    if (!d) return;
+    if (p.open && !d.open) {
+      d.showModal();
+      d.focus(); // focus the dialog itself, not its close button (no ring on a mouse open; Tab goes on into it)
+    }
+    if (!p.open && d.open) d.close();
+  }, [p.open]);
   return (
-    <details className={s.demo} open={p.open} onToggle={(e) => p.setOpen(e.currentTarget.open)}>
-      <summary className={s.demoSummary}>
+    <>
+      <button type="button" aria-haspopup="dialog" onClick={() => p.setOpen(true)} className={cx(s.switchRole, s.demoTrigger)}>
         <span className={s.demoTag}>{t.landing.demoTag}</span>
-        <span className={s.demoTitle}>
-          {t.landing.samples}
-          <span className={s.demoHint}>{t.landing.samplesHint}</span>
+        <span className={s.switchText}>
+          <b>{t.landing.samples}</b>
+          <span>{t.landing.samplesHint}</span>
         </span>
-      </summary>
-      <ul className={s.cases}>
-        {p.clients.map((e) => (
-          <li key={e.id}>
-            <button type="button" onClick={() => p.onClient(e.id)} className={s.case}>
-              <span className={s.caseName}>{clientName(e) || t.common.unnamedClient}</span>
+        <ArrowRight size={16} className={s.switchArrow} aria-hidden="true" />
+      </button>
+      {/* A click on the backdrop (the dialog itself, outside its content) or Escape closes it. */}
+      <dialog ref={dialog} tabIndex={-1} aria-labelledby="demo-title" className={s.demoDialog} onClose={() => p.setOpen(false)} onClick={(e) => e.target === e.currentTarget && p.setOpen(false)}>
+        <div className={s.demoHead}>
+          <span className={s.demoTag}>{t.landing.demoTag}</span>
+          <span className={s.demoTitle}>
+            <span id="demo-title">{t.landing.samples}</span>
+            <span className={s.demoHint}>{t.landing.samplesHint}</span>
+          </span>
+          <button type="button" onClick={() => p.setOpen(false)} aria-label={t.common.close} className={s.demoClose}>
+            <X size={18} aria-hidden="true" />
+          </button>
+        </div>
+        <ul className={s.cases}>
+          {p.clients.map((e) => (
+            <li key={e.id}>
+              <button type="button" onClick={() => p.onClient(e.id)} className={s.case}>
+                <span className={s.caseName}>{clientName(e) || t.common.unnamedClient}</span>
+                <ArrowRight size={15} className={s.caseArrow} aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className={s.demoFoot}>
+          {p.adding ? (
+            <form onSubmit={p.onCreate} className={s.newForm}>
+              <b className={s.newTitle}>{t.access.newClient}</b>
+              <label className="sr-only" htmlFor="nc-name">{t.access.name}</label>
+              <input id="nc-name" required autoFocus value={p.name} onChange={(e) => p.setName(e.target.value)} placeholder={t.access.name} autoComplete="name" className="field" />
+              <label className="sr-only" htmlFor="nc-email">{t.access.email}</label>
+              <FieldIcon kind="email"><input id="nc-email" type="email" value={p.email} onChange={(e) => p.setEmail(e.target.value)} placeholder={t.access.email} autoComplete="email" className="field" /></FieldIcon>
+              <Button type="submit" variant="primary">{t.access.create}</Button>
+            </form>
+          ) : (
+            <span className={s.demoActions}>
+              <button type="button" onClick={() => p.setAdding(true)} className={s.textBtn}>
+                <Plus size={15} aria-hidden="true" />
+                {t.access.newClient}
+              </button>
+              <button type="button" onClick={() => actions.resetDemo()} className={s.textBtn}>
+                {t.access.reset}
+              </button>
+            </span>
+          )}
+          {/* The PreRenta team's own area (X1–X4), apart from the gestoría and its clients. Hidden for now: set SHOW_ADMIN_ENTRY to bring it back. */}
+          {SHOW_ADMIN_ENTRY && FEATURES.platformAdmin && (
+            <button type="button" onClick={p.onAdmin} className={s.adminRow}>
+              <IconTile icon={Landmark} size="sm" />
+              <span>
+                <b>{pt.access.admin}</b>
+                <span>{pt.access.adminHint}</span>
+              </span>
               <ArrowRight size={15} className={s.caseArrow} aria-hidden="true" />
             </button>
-          </li>
-        ))}
-      </ul>
-      <div className={s.demoFoot}>
-        {p.adding ? (
-          <form onSubmit={p.onCreate} className={s.newForm}>
-            <b className={s.newTitle}>{t.access.newClient}</b>
-            <label className="sr-only" htmlFor="nc-name">{t.access.name}</label>
-            <input id="nc-name" required autoFocus value={p.name} onChange={(e) => p.setName(e.target.value)} placeholder={t.access.name} autoComplete="name" className="field" />
-            <label className="sr-only" htmlFor="nc-email">{t.access.email}</label>
-            <FieldIcon kind="email"><input id="nc-email" type="email" value={p.email} onChange={(e) => p.setEmail(e.target.value)} placeholder={t.access.email} autoComplete="email" className="field" /></FieldIcon>
-            <Button type="submit" variant="primary">{t.access.create}</Button>
-          </form>
-        ) : (
-          <span className={s.demoActions}>
-            <button type="button" onClick={() => p.setAdding(true)} className={s.textBtn}>
-              <Plus size={15} aria-hidden="true" />
-              {t.access.newClient}
-            </button>
-            <button type="button" onClick={() => actions.resetDemo()} className={s.textBtn}>
-              {t.access.reset}
-            </button>
-          </span>
-        )}
-        {/* The PreRenta team's own area (X1–X4), apart from the gestoría and its clients. Hidden for now: set SHOW_ADMIN_ENTRY to bring it back. */}
-        {SHOW_ADMIN_ENTRY && FEATURES.platformAdmin && (
-          <button type="button" onClick={p.onAdmin} className={s.adminRow}>
-            <IconTile icon={Landmark} size="sm" />
-            <span>
-              <b>{pt.access.admin}</b>
-              <span>{pt.access.adminHint}</span>
-            </span>
-            <ArrowRight size={15} className={s.caseArrow} aria-hidden="true" />
-          </button>
-        )}
-      </div>
-    </details>
+          )}
+        </div>
+      </dialog>
+    </>
   );
 }
 

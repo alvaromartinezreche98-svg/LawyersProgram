@@ -9,7 +9,8 @@ import { MESSAGES } from "@/lib/i18n/messages";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { EMAIL_KINDS, buildEmail, renderHtml, renderText, type EmailData, type EmailKind } from "@/lib/notifications/templates";
 import { Card, Notice, cx } from "@/components/ui/primitives";
-import { Field, SectionHead, inputCls } from "./settings-layout";
+import { Field, SectionHead } from "./settings-layout";
+import { Select } from "@/components/ui/select";
 
 /** G7 · Correos: preview of every email the platform sends, in each language, with this firm's name. */
 export function EmailSettings() {
@@ -48,11 +49,7 @@ export function EmailSettings() {
         <div className="flex flex-wrap items-end gap-4">
           <div className="min-w-[min(100%,16rem)] grow basis-0">
             <Field id="em-kind" label={c.template}>
-              <select id="em-kind" value={kind} onChange={(e) => setKind(e.target.value as EmailKind)} className={inputCls}>
-                {EMAIL_KINDS.map((k) => (
-                  <option key={k} value={k}>{c.kinds[k]}</option>
-                ))}
-              </select>
+              <Select id="em-kind" value={kind} onChange={(v) => setKind(v as EmailKind)} options={EMAIL_KINDS.map((k) => ({ value: k, label: c.kinds[k] }))} />
             </Field>
           </div>
           <Seg label={c.language} value={lang} onChange={setLang} options={LANGS.map((l) => [l.id, l.label])} />

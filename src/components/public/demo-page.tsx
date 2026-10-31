@@ -10,6 +10,7 @@ import { Notice, cx } from "@/components/ui/primitives";
 import { Labeled, field } from "./contact-page";
 import { PublicShell } from "./public-shell";
 import { FieldIcon } from "@/components/ui/field-icon";
+import { Select } from "@/components/ui/select";
 
 const SEE_ICONS = [QrCode, ClipboardList, TriangleAlert, LayoutDashboard];
 
@@ -72,10 +73,7 @@ export function DemoPage() {
               </Labeled>
             </div>
             <Labeled id="dm-size" label={c.size}>
-              <select id="dm-size" value={f.size} onChange={set("size")} className={cx(field, "sm:max-w-[320px]")}>
-                <option value="">—</option>
-                {c.sizes.map((x) => <option key={x} value={x}>{x}</option>)}
-              </select>
+              <Select id="dm-size" value={f.size} onChange={(v) => set("size")({ target: { value: v } })} className="sm:max-w-[320px]" buttonClassName={field} options={[{ value: "", label: "—" }, ...c.sizes.map((x) => ({ value: x, label: x }))]} />
             </Labeled>
             <Labeled id="dm-msg" label={c.message}>
               <textarea id="dm-msg" rows={4} value={f.msg} onChange={set("msg")} className={cx(field, "h-auto min-h-28 resize-y py-3 leading-[24px]")} />

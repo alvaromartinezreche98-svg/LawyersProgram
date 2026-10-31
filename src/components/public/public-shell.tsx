@@ -18,8 +18,12 @@ import f from "./public-shell.module.scss";
  * Header and footer of every public page. Two sites share them (lib/site.ts):
  * on a gestoría's domain they belong to that gestoría, with PreRenta credited
  * as the platform; on PreRenta's main domain they carry the public website.
+ * `bare` (the entry page): one screen with a minimal header (brand, language,
+ * sign-in) and a single line of legal links instead of the footer.
  */
-export function PublicShell({ children }: { children: ReactNode }) {
+const SHOW_LEGAL_LINKS = false;
+
+export function PublicShell({ children, bare }: { children: ReactNode; bare?: boolean }) {
   const { t, tr } = useI18n();
   const { p } = usePlatformText();
   const { firm } = useAppState();
@@ -47,10 +51,10 @@ export function PublicShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
-      <header className="sticky top-0 z-20 border-b border-line bg-surface">
-        <div className="mx-auto flex h-16 w-full max-w-page items-center gap-3 px-4 sm:gap-6 sm:px-8">
+      <header className={cx("sticky top-0 z-20 border-b", bare ? "border-transparent bg-bg" : "border-line bg-surface")}>
+        <div className={cx("mx-auto flex w-full max-w-page items-center gap-3 px-4 sm:gap-6 sm:px-8", bare ? cx("h-20", f.bareHead) : "h-16")}>
           {firmSite ? (
-            // The gestoría leads; PreRenta is credited as the platform beside it.
+            // The gestoría alone: its mark and name (PreRenta is credited in the footer).
             <Link href="/" className={cx(f.brand, "mr-auto")}>
               <span className={f.firmMark} aria-hidden="true">
                 {/* eslint-disable-next-line @next/next/no-img-element -- local blob URL from Ajustes › Despacho */}
@@ -58,10 +62,6 @@ export function PublicShell({ children }: { children: ReactNode }) {
               </span>
               <span className={f.firmBrand}>
                 <b>{firmName}</b>
-                <span className={f.withPreRenta}>
-                  {t.pub.footerFirm.withLabel}{" "}
-                  <span>Pre<em>Renta</em></span>
-                </span>
               </span>
             </Link>
           ) : (
@@ -69,24 +69,38 @@ export function PublicShell({ children }: { children: ReactNode }) {
               <Brand />
             </Link>
           )}
-          <nav aria-label={t.nav.sections} className="hidden gap-1 lg:flex">
+          <nav aria-label={t.nav.sections} className={cx("hidden gap-1", !bare && "lg:flex")}>
             {nav.map((n) => (
               <Link key={n.href} href={n.href} aria-current={path === n.href ? "page" : undefined} className={cx(f.navLink, path === n.href && f.navActive)}>
                 {n.label}
               </Link>
             ))}
           </nav>
-          <LangSwitch />
-          <ButtonLink href="/acceso" size="sm" variant="primary" aria-label={t.pub.nav.signIn} className="max-[359px]:px-2.5">
+          <LangSwitch className={cx(bare && "h-10 p-1 [&>button]:px-3.5 [&>button]:text-[13px]")} />
+          {/* The entry page is the sign-in itself: no button for it in its header. */}
+          {!bare && <ButtonLink href="/acceso" size="sm" variant="primary" aria-label={t.pub.nav.signIn} className="max-[359px]:px-2.5">
             <LogIn size={15} aria-hidden="true" />
             <span className="max-[359px]:sr-only">{t.pub.nav.signIn}</span>
-          </ButtonLink>
+          </ButtonLink>}
         </div>
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main className={cx("flex-1", bare && "flex flex-col")}>{children}</main>
 
-      {firmSite ? (
+      {bare ? (
+        <footer className="mx-auto flex w-full max-w-page flex-wrap items-center gap-x-5 gap-y-1 px-4 py-4 text-[13px] text-muted sm:px-8">
+          <span>© {year} {firmSite ? firmName : "PreRenta"}</span>
+          {/* Legal links hidden for now on the entry page: set SHOW_LEGAL_LINKS to bring them back. */}
+          {SHOW_LEGAL_LINKS && legal.map((l) => (
+            <Link key={l.href} href={l.href} className="hover:text-accent hover:underline">{l.label}</Link>
+          ))}
+          {firmSite && (
+            <span className="sm:ml-auto">
+              {t.landing.poweredBy} <b className="font-semibold text-ink">Pre<span className="text-copper-text">Renta</span></b>
+            </span>
+          )}
+        </footer>
+      ) : firmSite ? (
         // The gestoría's footer: who it is and how to reach it, help and legal (its own data-protection notice first).
         <footer className={cx(f.footer, "on-dark")}>
           <div className={f.inner}>

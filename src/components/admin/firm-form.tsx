@@ -5,6 +5,7 @@ import { usePlatform, type PlatformFirm } from "@/lib/data/platform";
 import { usePlatformText } from "@/lib/i18n/messages-platform";
 import { FieldIcon } from "@/components/ui/field-icon";
 import { Field, inputCls } from "@/components/gestor/settings/settings-layout";
+import { Select } from "@/components/ui/select";
 
 export type FirmDraft = Pick<PlatformFirm, "name" | "cif" | "contact" | "email" | "phone" | "city" | "planId">;
 export const EMPTY_FIRM: FirmDraft = { name: "", cif: "", contact: "", email: "", phone: "", city: "", planId: null };
@@ -46,12 +47,7 @@ export function FirmForm({ id, onSubmit, footer, planHint }: { id: string; onSub
         </Field>
         {plans.length > 0 && (
           <Field id={`${id}-plan`} label={f.plan} hint={planHint} className="sm:col-span-2">
-            <select id={`${id}-plan`} value={d.planId ?? ""} onChange={(e) => setD({ ...d, planId: e.target.value || null })} className={inputCls}>
-              <option value="">{f.noPlan}</option>
-              {plans.map((x) => (
-                <option key={x.id} value={x.id}>{x.name || p.plans.untitled}</option>
-              ))}
-            </select>
+            <Select id={`${id}-plan`} value={d.planId ?? ""} onChange={(v) => setD({ ...d, planId: v || null })} options={[{ value: "", label: f.noPlan }, ...plans.map((x) => ({ value: x.id, label: x.name || p.plans.untitled }))]} />
           </Field>
         )}
       </div>

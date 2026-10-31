@@ -368,6 +368,12 @@ const es = {
     alerts: "Avisos para preparar la renta",
     noAlerts: "Sin avisos por ahora.",
     alertLevel: { bad: "Falta", warn: "Revisar", info: "Nota" },
+    // Hover help on each alert label: what it means, then how to clear it.
+    alertHelp: {
+      bad: { title: "Falta algo necesario", docs: "La declaración necesita este documento y aún no está. Pídaselo al cliente con «Pedir al cliente» o súbalo usted en Documentos.", answers: "La declaración necesita este dato y aún no está. Pídaselo al cliente o revise la respuesta en el cuestionario." },
+      warn: { title: "Dato por comprobar", docs: "Algo en los documentos puede cambiar el resultado. Ábralos y compruébelo; si está bien, márquelo como revisado.", answers: "Una respuesta puede cambiar el resultado. Compruébela y, si está bien, márquela como revisada." },
+      info: { title: "Para tener en cuenta", docs: "Un aviso informativo sobre los documentos: no bloquea nada. Márquelo como revisado cuando lo haya visto.", answers: "Un aviso informativo sobre las respuestas: no bloquea nada. Márquelo como revisado cuando lo haya visto." },
+    },
     answers: "Respuestas del cuestionario",
     docs: "Documentos",
     docsAside: (up: number, pend: number) => `${up} subidos · ${pend} pendientes`,
@@ -1372,6 +1378,11 @@ const en: Dict = {
     alerts: "Alerts for preparing the return",
     noAlerts: "No alerts for now.",
     alertLevel: { bad: "Missing", warn: "Check", info: "Note" },
+    alertHelp: {
+      bad: { title: "Something required is missing", docs: "The return needs this document and it is not here yet. Ask the client for it with “Ask the client”, or upload it yourself in Documents.", answers: "The return needs this information and it is not here yet. Ask the client for it, or check the answer in the questionnaire." },
+      warn: { title: "Worth checking", docs: "Something in the documents may change the result. Open them and check; if it is right, mark it as reviewed.", answers: "An answer may change the result. Check it and, if it is right, mark it as reviewed." },
+      info: { title: "For your information", docs: "A note about the documents: it blocks nothing. Mark it as reviewed once you have seen it.", answers: "A note about the answers: it blocks nothing. Mark it as reviewed once you have seen it." },
+    },
     answers: "Questionnaire answers",
     docs: "Documents",
     docsAside: (up, pend) => `${up} uploaded · ${pend} missing`,
