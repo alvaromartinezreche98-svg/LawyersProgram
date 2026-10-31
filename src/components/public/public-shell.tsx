@@ -13,6 +13,7 @@ import { useFileUrl } from "@/lib/data/files";
 import { PLATFORM_SITE } from "@/lib/site";
 import { usePlatformText } from "@/lib/i18n/messages-platform";
 import f from "./public-shell.module.scss";
+import { FirmEmblem, FirmWordmark } from "@/components/ui/firm-mark";
 
 /**
  * Header and footer of every public page. Two sites share them (lib/site.ts):
@@ -56,12 +57,17 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
           {firmSite ? (
             // The gestoría alone: its mark and name (PreRenta is credited in the footer).
             <Link href="/" className={cx(f.brand, "mr-auto")}>
-              <span className={f.firmMark} aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element -- local blob URL from Ajustes › Despacho */}
-                {logo ? <img src={logo} alt="" /> : initials(firmName)}
-              </span>
+              {logo ? (
+                <span className={f.firmMark} aria-hidden="true">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- local blob URL from Ajustes › Despacho */}
+                  <img src={logo} alt="" />
+                </span>
+              ) : (
+                // No logo uploaded yet: the gestoría's emblem.
+                <FirmEmblem size={bare ? 44 : 36} className="shrink-0" />
+              )}
               <span className={f.firmBrand}>
-                <b>{firmName}</b>
+                <FirmWordmark name={firmName} size={bare ? "lg" : "md"} />
               </span>
             </Link>
           ) : (
@@ -163,7 +169,6 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
   );
 }
 
-const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 
 function FooterLinks({ title, links }: { title: string; links: { href: string; label: string; external?: boolean }[] }) {
   return (

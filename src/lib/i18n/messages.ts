@@ -122,7 +122,7 @@ const es = {
   },
   side: {
     board: "Panel de campaña", clients: "Clientes", appointments: "Citas", payments: "Cobros", settings: "Ajustes",
-    workLabel: "Trabajo", officeLabel: "Despacho", soon: "Pronto", views: "Vistas", account: "Cuenta", invite: "Equipo", menu: "Abrir menú", closeMenu: "Cerrar menú", main: "Navegación de la gestoría",
+    workLabel: "Trabajo", officeLabel: "Despacho", soon: "Pronto", views: "Vistas", account: "Cuenta", invite: "Equipo", menu: "Abrir menú", closeMenu: "Cerrar menú", collapse: "Plegar el menú", expand: "Desplegar el menú", main: "Navegación de la gestoría",
   },
   home: {
     track: {
@@ -250,6 +250,7 @@ const es = {
   },
   docs: {
     reg: { asked: "Pedidos", uploaded: "Subidos", missing: "Por subir", allDone: "Ha subido todos los documentos que se le han pedido.", upload: "Subir", add: "Añadir otro" },
+    card: { preview: "Ver", download: "Descargar", replace: "Sustituir", example: "Archivo de ejemplo", exampleNote: "Es un archivo de ejemplo: no tiene contenido que mostrar.", close: "Cerrar", openTab: "Abrir en otra pestaña", files: (n: number) => (n === 1 ? "1 archivo" : `${n} archivos`), uploadHere: "Subir este documento" },
     eyebrow: "Mis documentos",
     title: "Documentos de su declaración",
     summary: (up: number, miss: number) =>
@@ -384,6 +385,8 @@ const es = {
     notesAside: "Solo las ve la gestoría",
     sectionsNav: "Cuestionario", expandAll: "Desplegar todo", collapseAll: "Plegar todo",
     anchors: { label: "Ir a", attention: "Necesita atención", requests: "Peticiones", answers: "Respuestas", docs: "Documentos", chat: "Chat", result: "Resultado", history: "Historial" },
+    tabs: { label: "Secciones del expediente", overview: "Resumen", answers: "Datos fiscales", docs: "Documentos", result: "Resultado", history: "Actividad" },
+    kpi: { questionnaire: "Cuestionario", docs: "Documentos", alerts: "Avisos", requests: "Peticiones abiertas", docsOf: (up: number, miss: number) => (miss ? `${miss} por subir` : `${up} subidos`), none: "Ninguno" },
     fromClient: "Del cliente: ",
     notesPh: "Notas del gestor sobre este expediente…",
     properties: "Propiedades",
@@ -1132,7 +1135,7 @@ const en: Dict = {
   },
   side: {
     board: "Campaign board", clients: "Clients", appointments: "Appointments", payments: "Payments", settings: "Settings",
-    workLabel: "Work", officeLabel: "Office", soon: "Soon", views: "Views", account: "Account", invite: "Team", menu: "Open menu", closeMenu: "Close menu", main: "Gestoría navigation",
+    workLabel: "Work", officeLabel: "Office", soon: "Soon", views: "Views", account: "Account", invite: "Team", menu: "Open menu", closeMenu: "Close menu", collapse: "Collapse the menu", expand: "Expand the menu", main: "Gestoría navigation",
   },
   home: {
     track: {
@@ -1260,6 +1263,7 @@ const en: Dict = {
   },
   docs: {
     reg: { asked: "Requested", uploaded: "Uploaded", missing: "To upload", allDone: "You have uploaded every document you were asked for.", upload: "Upload", add: "Add another" },
+    card: { preview: "Preview", download: "Download", replace: "Replace", example: "Example file", exampleNote: "This is an example file: it has no content to show.", close: "Close", openTab: "Open in a new tab", files: (n) => (n === 1 ? "1 file" : `${n} files`), uploadHere: "Upload this document" },
     eyebrow: "My documents",
     title: "Documents for your return",
     summary: (up, miss) =>
@@ -1393,6 +1397,8 @@ const en: Dict = {
     notesAside: "Only the gestoría sees these",
     sectionsNav: "Questionnaire", expandAll: "Expand all", collapseAll: "Collapse all",
     anchors: { label: "Go to", attention: "Needs attention", requests: "Requests", answers: "Answers", docs: "Documents", chat: "Chat", result: "Result", history: "History" },
+    tabs: { label: "Case sections", overview: "Overview", answers: "Tax details", docs: "Documents", result: "Result", history: "Activity" },
+    kpi: { questionnaire: "Questionnaire", docs: "Documents", alerts: "Alerts", requests: "Open requests", docsOf: (up, miss) => (miss ? `${miss} to upload` : `${up} uploaded`), none: "None" },
     fromClient: "From the client: ",
     notesPh: "Accountant’s notes about this case…",
     properties: "Properties",

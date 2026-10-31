@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Building2, ChartNoAxesColumn, Menu, Tags, type LucideIcon } from "lucide-react";
@@ -8,9 +7,9 @@ import { useAppState } from "@/lib/data/store";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { usePlatformText } from "@/lib/i18n/messages-platform";
-import { IconTile } from "@/components/ui/icons";
 import { Brand, Loading, cx } from "@/components/ui/primitives";
 import { itemCls } from "@/components/gestor/gestor-shell";
+import { SideLink } from "@/components/ui/side-nav";
 import { LangMenu, SignOutButton } from "@/components/ui/sidebar-foot";
 
 /** X · The PreRenta team's area: the same frame as the gestoría panel, with its own three sections. */
@@ -31,7 +30,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   if (!ready || !allowed) return <Loading />;
 
   return (
-    <div className="gestor-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[256px_minmax(0,1fr)] lg:overflow-hidden">
+    <div className="gestor-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[260px_minmax(0,1fr)] lg:overflow-hidden">
       <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 lg:hidden">
         <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className="grid size-9 place-items-center rounded-lg border border-line transition-colors hover:bg-sunk">
           <Menu size={18} strokeWidth={1.9} aria-hidden="true" />
@@ -78,10 +77,7 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
             const on = path.startsWith(href);
             return (
               <li key={href}>
-                <Link href={href} onClick={onNavigate} aria-current={on ? "page" : undefined} className={itemCls(on)}>
-                  <IconTile icon={Icon} size="xs" tone={on ? "copperSolid" : "chrome"} />
-                  <span className="flex-1">{label}</span>
-                </Link>
+                <SideLink href={href} icon={Icon} label={label} on={on} theme="dark" folded={false} onClick={onNavigate} />
               </li>
             );
           })}

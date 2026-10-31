@@ -123,7 +123,7 @@ export const va: Dict = {
   },
   side: {
     board: "Tauler de campanya", clients: "Clients", appointments: "Cites", payments: "Cobraments", settings: "Configuració",
-    workLabel: "Treball", officeLabel: "Despatx", soon: "Prompte", views: "Vistes", account: "Compte", invite: "Equip", menu: "Obrir el menú", closeMenu: "Tancar el menú", main: "Navegació de la gestoria",
+    workLabel: "Treball", officeLabel: "Despatx", soon: "Prompte", views: "Vistes", account: "Compte", invite: "Equip", menu: "Obrir el menú", closeMenu: "Tancar el menú", collapse: "Plegar el menú", expand: "Desplegar el menú", main: "Navegació de la gestoria",
   },
   home: {
     track: {
@@ -251,6 +251,7 @@ export const va: Dict = {
   },
   docs: {
     reg: { asked: "Demanats", uploaded: "Pujats", missing: "Per pujar", allDone: "Ha pujat tots els documents que se li han demanat.", upload: "Pujar", add: "Afegir-ne un altre" },
+    card: { preview: "Veure", download: "Descarregar", replace: "Substituir", example: "Fitxer d'exemple", exampleNote: "És un fitxer d'exemple: no té contingut per mostrar.", close: "Tancar", openTab: "Obrir en una altra pestanya", files: (n) => (n === 1 ? "1 fitxer" : `${n} fitxers`), uploadHere: "Pujar este document" },
     eyebrow: "Els meus documents",
     title: "Documents de la seua declaració",
     summary: (up: number, miss: number) =>
@@ -384,6 +385,8 @@ export const va: Dict = {
     notesAside: "Només les veu la gestoria",
     sectionsNav: "Qüestionari", expandAll: "Desplegar-ho tot", collapseAll: "Plegar-ho tot",
     anchors: { label: "Anar a", attention: "Necessita atenció", requests: "Peticions", answers: "Respostes", docs: "Documents", chat: "Xat", result: "Resultat", history: "Historial" },
+    tabs: { label: "Seccions de l'expedient", overview: "Resum", answers: "Dades fiscals", docs: "Documents", result: "Resultat", history: "Activitat" },
+    kpi: { questionnaire: "Qüestionari", docs: "Documents", alerts: "Avisos", requests: "Peticions obertes", docsOf: (up, miss) => (miss ? `${miss} per pujar` : `${up} pujats`), none: "Cap" },
     fromClient: "Del client: ",
     notesPh: "Notes del gestor sobre este expedient…",
     properties: "Propietats",

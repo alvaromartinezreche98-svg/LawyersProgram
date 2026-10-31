@@ -83,7 +83,7 @@ export function Questionnaire({ slug }: { slug: string }) {
   };
 
   return (
-    <div className="grid items-start gap-6 min-[960px]:grid-cols-[320px_minmax(0,1fr)]">
+    <div className="flex flex-col gap-5">
       <PageTitle>{section ? tr(section.short) : isSign ? t.sign.short : t.q.review}</PageTitle>
       {/* The save status floats bottom right, always in view (it used to sit in the sheet head). */}
       <SaveToast idle={t.q.autosave} />

@@ -22,6 +22,16 @@
       grid-row: 1 / span 2;
     }
 
+    // phones: the three are narrow, so the label and figure take the cell without the icon
+    @media (max-width: 639px) {
+      grid-template-columns: minmax(0, 1fr);
+      padding: space(3);
+
+      > :first-child {
+        display: none;
+      }
+    }
+
     & + div {
       border-left: 1px solid var(--line);
     }
@@ -51,11 +61,3 @@
   font-size: 0.9375rem;
   color: var(--ok);
 }
-
-.missingCell {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: space(3);
-}
-

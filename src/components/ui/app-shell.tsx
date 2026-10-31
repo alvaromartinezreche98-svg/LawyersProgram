@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ChevronDown, CircleUserRound, LogOut, type LucideIcon } from "lucide-react";
 import { IconTile } from "./icons";
 import { useAppState } from "@/lib/data/store";
@@ -12,6 +12,8 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { LangSwitch, useHtmlLang } from "./lang-switch";
 import { LangMenu, SignOutButton as SidebarSignOut } from "./sidebar-foot";
 import { Badge, Brand, Button, cx } from "./primitives";
+import { FirmEmblem, FirmWordmark } from "./firm-mark";
+import { SIDE_W, SideFoldButton, SideLink, SideTip, sideRowCls, useSideFold } from "./side-nav";
 
 export interface NavItem {
   href: string;
@@ -42,6 +44,8 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
   const isOn = (n: NavItem) => path === n.href || (!!n.match && path.startsWith(n.match));
   const tabs = nav.slice(0, 4);
   const more = nav.slice(4);
+  const [foldPref, setFolded] = useSideFold("client");
+  const folded = !!foldPref;
   // The header's real height, so sticky columns start level with the content.
   const root = useRef<HTMLDivElement>(null);
   const head = useRef<HTMLElement>(null);
@@ -53,8 +57,12 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
     return () => ro.disconnect();
   }, []);
   return (
-    <div ref={root} className={cx("client-scale flex min-h-dvh flex-col", nav.length > 0 && "xl:grid xl:h-dvh xl:grid-cols-[272px_minmax(0,1fr)] xl:overflow-hidden")}>
-      {nav.length > 0 && <ClientSidebar nav={nav} who={who} org={org} isOn={isOn} />}
+    <div
+      ref={root}
+      style={{ "--side-w": `${folded ? SIDE_W.folded : SIDE_W.open}px` } as CSSProperties}
+      className={cx("client-scale flex min-h-dvh flex-col", nav.length > 0 && "xl:grid xl:h-dvh xl:grid-cols-[var(--side-w)_minmax(0,1fr)] xl:overflow-hidden motion-safe:xl:transition-[grid-template-columns] motion-safe:xl:duration-300 motion-safe:xl:ease-out")}
+    >
+      {nav.length > 0 && <ClientSidebar nav={nav} who={who} org={org} isOn={isOn} folded={folded} onFold={() => setFolded(!folded)} />}
       {/* Hidden (height 0) beside the sidebar, so --app-header drops to 0 and sticky columns sit at the top. */}
       <header ref={head} className={cx("z-20 border-b border-line bg-surface md:sticky md:top-0", nav.length > 0 && "xl:hidden")}>
         <div className="mx-auto flex min-h-16 max-w-client items-center gap-x-5 px-4 sm:px-6">
@@ -109,47 +117,44 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
  * the language and sign-out at the foot. Rows follow the workspace sidebar
  * (icon tile, terracotta tile and bar on the current page) in navy on light blue.
  */
-function ClientSidebar({ nav, who, org, isOn }: { nav: NavItem[]; who: string; org?: string; isOn: (n: NavItem) => boolean }) {
+function ClientSidebar({ nav, who, org, isOn, folded, onFold }: { nav: NavItem[]; who: string; org?: string; isOn: (n: NavItem) => boolean; folded: boolean; onFold: () => void }) {
   const { t } = useI18n();
   const signOut = useSignOut();
-  const row = (on: boolean) =>
-    cx(
-      "relative flex min-h-11 items-center gap-3 rounded-lg px-2.5 py-1.5 text-[15px] transition-colors duration-150",
-      on
-        ? "bg-surface font-semibold text-accent shadow-sm before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-r-full before:bg-copper"
-        : "font-medium text-accent/80 hover:bg-surface/70 hover:text-accent",
-    );
+  const row = (on: boolean) => sideRowCls(on, "light", folded);
   return (
-    <aside className="z-30 h-dvh p-3 pr-0 max-xl:hidden">
-      <nav aria-label={t.nav.sections} className="flex h-full flex-col rounded-[14px] border border-accent/10 bg-accent-soft text-accent shadow-sheet">
-        <Link href={nav[0].href} className="mx-3 flex min-w-0 items-center gap-3 border-b border-accent/10 px-2 pt-4 pb-4">
-          <Cobrand org={org} inSidebar />
-        </Link>
-        <div className="thin-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pt-4 pb-3">
+    <aside className="z-30 h-dvh min-w-0 p-3 pr-0 max-xl:hidden">
+      <nav aria-label={t.nav.sections} className="flex h-full flex-col overflow-hidden rounded-[14px] border border-accent/10 bg-accent-soft text-accent shadow-sheet">
+        {/* The gestoría at the top, the fold button beside it (under the emblem when folded) */}
+        <div className={cx("mx-4 flex min-h-[68px] shrink-0 items-center gap-2 border-b border-accent/10 px-1", folded && "mx-3 flex-col justify-center px-0 py-3")}>
+          <Link href={nav[0].href} title={folded ? org : undefined} className={cx("flex min-w-0 items-center gap-3", !folded && "flex-1")}>
+            {folded ? <FirmEmblem size={34} className="shrink-0" /> : <Cobrand org={org} inSidebar />}
+          </Link>
+          <SideFoldButton folded={folded} onToggle={onFold} theme="light" />
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-3 pt-4 pb-3 [scrollbar-width:thin]">
           <ul className="flex flex-col gap-1.5">
-            {nav.map((n) => {
-              const on = isOn(n);
-              return (
-                <li key={n.href}>
-                  <Link href={n.href} aria-current={on ? "page" : undefined} className={row(on)}>
-                    {n.icon && <IconTile icon={n.icon} size="xs" tone={on ? "copperSolid" : "accent"} className={on ? undefined : "bg-surface"} />}
-                    <span className="flex-1">{n.label}</span>
-                    <Badge n={n.badge ?? 0} />
-                  </Link>
-                </li>
-              );
-            })}
+            {nav.map((n) => (
+              <li key={n.href}>
+                {n.icon && <SideLink href={n.href} icon={n.icon} label={n.label} on={isOn(n)} theme="light" folded={folded} trailing={n.badge ? <Badge n={n.badge} /> : undefined} />}
+              </li>
+            ))}
           </ul>
           <div className="mt-auto flex flex-col gap-1.5 border-t border-accent/10 pt-4">
-            <div className="flex items-center gap-3 px-2.5 py-1.5">
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-[12px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
-              <span className="min-w-0">
-                <b className="block truncate text-[14.5px] font-semibold">{who}</b>
-                <span className="block text-[12.5px] text-accent/70">{t.side.account}</span>
-              </span>
-            </div>
-            <LangMenu item={row} theme="light" />
-            <SidebarSignOut onClick={signOut} label={t.common.signOut} theme="light" />
+            <SideTip label={who} folded={folded}>
+              <div className={cx("mb-1 flex items-center gap-3 py-1", folded ? "justify-center" : "px-2")}>
+                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-[12px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
+                <span className={cx("min-w-0", folded && "sr-only")}>
+                  <b className="block truncate text-[14px] font-semibold">{who}</b>
+                  <span className="block text-[12px] text-accent/65">{t.side.account}</span>
+                </span>
+              </div>
+            </SideTip>
+            <SideTip label={t.common.language} folded={folded}>
+              <LangMenu item={row} theme="light" compact={folded} />
+            </SideTip>
+            <SideTip label={t.common.signOut} folded={folded}>
+              <SidebarSignOut onClick={signOut} label={t.common.signOut} theme="light" compact={folded} />
+            </SideTip>
           </div>
         </div>
       </nav>
@@ -162,17 +167,16 @@ function Cobrand({ org, inSidebar }: { org?: string; inSidebar?: boolean }) {
   const { firm } = useAppState();
   const url = useFileUrl(firm.logo);
   if (!org) return <Brand />;
-  const mark = org.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
   return (
     <>
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
         <img src={url} alt="" className="size-10 shrink-0 rounded-lg border border-line object-contain" />
       ) : (
-        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{mark}</span>
+        <FirmEmblem size={40} className="shrink-0" />
       )}
       {/* Between 768 and 1280px the tabs need the room: the logo slot alone stands for the gestoría. */}
-      <span className={cx("min-w-0 truncate text-[15px] leading-[18px] font-semibold", !inSidebar && "md:max-xl:sr-only")}>{org}</span>
+      <FirmWordmark name={org} className={cx(!inSidebar && "md:max-xl:sr-only")} />
     </>
   );
 }

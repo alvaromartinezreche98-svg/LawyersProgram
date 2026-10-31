@@ -4,7 +4,7 @@ import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { Check, ChevronDown, CircleAlert, Eye, FileSignature, Clock, GitCompareArrows, ClipboardList, FileCheck2, History, FileText, Info, ListChecks, LockKeyhole, TriangleAlert, type LucideIcon } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, CircleCheck, Contact, CreditCard, FileDown, Mail, PencilLine, Phone, Send, ShieldCheck, UserRound, UserRoundX, Zap, CircleAlert, Eye, FileSignature, Clock, GitCompareArrows, ClipboardList, FileCheck2, History, FileText, Info, ListChecks, LayoutGrid, LockKeyhole, TriangleAlert, type LucideIcon } from "lucide-react";
 import { SCHEMA } from "@/lib/questionnaire/schema";
 import { collectDocs, overall, progressOf, sectionState } from "@/lib/questionnaire/progress";
 import { actions, caseOrder, clientName, openTasks, tasksToCheck, unreadFor, useAppState } from "@/lib/data/store";
@@ -48,30 +48,12 @@ export function CaseFile({ id }: { id: string }) {
   const router = useRouter();
   const { p } = usePlatformText();
   const [tab, setTab] = useState<RailTab>("details");
+  const [main, setMain] = useState<MainTab>("overview");
   const [showSecs, setShowSecs] = useState(false);
   const order = caseOrder(exps).map((e) => e.id);
   const idx = order.indexOf(id);
   const prevId = idx > 0 ? order[idx - 1] : null;
   const nextId = idx >= 0 && idx < order.length - 1 ? order[idx + 1] : null;
-
-  // Links to "#sec-<section>" (alerts, requests, other pages) open that section even when it starts folded.
-  useEffect(() => {
-    const go = () => {
-      const h = window.location.hash.slice(1);
-      if (h.startsWith("sec-")) openSection(h.slice(4));
-      // "#chat" (anchor bar, case list) opens the chat tab of the side panel.
-      if (h === "chat") {
-        setTab("chat");
-        document.getElementById("chat")?.scrollIntoView({ block: "start" });
-      }
-    };
-    const raf = requestAnimationFrame(go);
-    window.addEventListener("hashchange", go);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("hashchange", go);
-    };
-  }, []);
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
@@ -86,19 +68,43 @@ export function CaseFile({ id }: { id: string }) {
   const e = exps[id];
   // API mode: the inbox only has the summary; wait for the full case (answers, documents, chat).
   const loaded = !!e && (!e.remote || e.remote.loaded);
+  // Links into the page ("#documentos", "#sec-<section>", "#chat", from alerts, the case list or other pages) open
+  // the tab that holds the target, then unfold and scroll to it.
   useEffect(() => {
     if (!loaded) return;
-    const jump = () => {
-      const el = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
-      if (!el) return;
-      if (el instanceof HTMLDetailsElement) el.open = true;
-      el.scrollIntoView({ block: "start" });
+    const goTo = (hash: string) => {
+      if (!hash) return;
+      if (hash === "chat") {
+        setTab("chat");
+        document.getElementById("chat")?.scrollIntoView({ block: "start" });
+        return;
+      }
+      setMain(tabOf(hash));
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const el = document.getElementById(hash);
+          if (!el) return;
+          if (el instanceof HTMLDetailsElement) el.open = true;
+          el.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        }),
+      );
     };
-    const raf = requestAnimationFrame(jump);
-    window.addEventListener("hashchange", jump);
+    const fromHash = () => goTo(decodeURIComponent(window.location.hash.slice(1)));
+    const fromEvent = (ev: Event) => goTo((ev as CustomEvent<string>).detail);
+    // In-page links ("Ir a documentos" on an alert…): Next's links change the hash without a hashchange event.
+    const fromClick = (ev: MouseEvent) => {
+      const link = (ev.target as Element).closest?.("a[href^='#']");
+      if (link) requestAnimationFrame(() => goTo(decodeURIComponent((link.getAttribute("href") ?? "").slice(1))));
+    };
+    const raf = requestAnimationFrame(fromHash);
+    window.addEventListener("hashchange", fromHash);
+    window.addEventListener(GOTO, fromEvent);
+    document.addEventListener("click", fromClick);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("hashchange", jump);
+      window.removeEventListener("hashchange", fromHash);
+      window.removeEventListener(GOTO, fromEvent);
+      document.removeEventListener("click", fromClick);
     };
   }, [loaded, id]);
 
@@ -134,6 +140,16 @@ export function CaseFile({ id }: { id: string }) {
   const years = casesOfClient(exps, e);
   const waiting = triage(e).waiting;
   const openSecs = SCHEMA.filter((s) => sectionState(progressOf(s.fields, a)) !== "done").length;
+  const alBad = al.filter((x) => x.level === "bad").length;
+  const alWarn = al.filter((x) => x.level === "warn").length;
+
+  const mainTabs: [MainTab, LucideIcon, string, number, boolean][] = [
+    ["overview", LayoutGrid, t.file.tabs.overview, al.length + openTasks(e).length + tasksToCheck(e).length, al.some((x) => x.level === "bad")],
+    ["answers", ListChecks, t.file.tabs.answers, openSecs, false],
+    ["docs", FileText, t.file.tabs.docs, nPend, nPend > 0],
+    ...(FEATURES.resultApproval ? [["result", FileCheck2, t.file.tabs.result, 0, false] as [MainTab, LucideIcon, string, number, boolean]] : []),
+    ...(FEATURES.activityLog ? [["activity", History, t.file.tabs.history, 0, false] as [MainTab, LucideIcon, string, number, boolean]] : []),
+  ];
 
   const nav = (
     <div className="flex items-center gap-1">
@@ -181,123 +197,158 @@ export function CaseFile({ id }: { id: string }) {
             ))}
           </div>
 
-          <div id="rail-panel" role="tabpanel" aria-labelledby={`rail-${tab}`} className="thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+          <div id="rail-panel" role="tabpanel" aria-labelledby={`rail-${tab}`} className={cx("thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-5", tab === "details" && "bg-sunk/50")}>
             {tab === "details" && (
               <>
-                    <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:max-[1179px]:grid-cols-3 min-[1180px]:grid-cols-1">
-            <Prop label={t.file.status}>
-              <Select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(v) => actions.setStatus(e.id, v as Status)} buttonClassName="h-(--control-h-sm) px-2.5 text-sm" options={STATUSES.map((s) => ({ value: s.id, label: tr(s.label) }))} />
-            </Prop>
-            <Prop label={t.list.assignee}>
-              <Select aria-label={t.list.assignee} value={e.assignee ?? ""} onChange={(v) => actions.assign(e.id, v || null)} buttonClassName="h-(--control-h-sm) px-2.5 text-sm" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
-            </Prop>
-            <Prop label={t.file.contact}>
-              <span className="block truncate text-sm">{typeof a.telefono === "string" && a.telefono ? a.telefono : "—"}</span>
-              <span className="block truncate text-sm text-muted">{typeof a.email === "string" && a.email ? a.email : ""}</span>
-            </Prop>
-            {FEATURES.identityCheck && <Prop label={t.file.identity}>
-              <span className={cx("text-sm", e.identityConfirmedAt ? "text-ok" : "text-muted")}>{e.identityConfirmedAt ? t.file.identityOk(fmtTime(e.identityConfirmedAt, locale)) : t.file.identityNo}</span>
-            </Prop>}
-            {FEATURES.signing && <Prop label={t.file.signatures}>
-              <ul className="flex flex-col gap-1">
-                {LEGAL_KINDS.map((k) => {
-                  const st = signState(e, firm, k);
-                  return (
-                    <li key={k} className="flex items-center justify-between gap-2 text-[13px]">
-                      <span className="truncate">{k === "privacy" ? t.settings.legal.privacy : t.settings.legal.mandate}</span>
-                      <Pill tone={SIGN_TONE[st]}>{t.sign.state[st]}</Pill>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Prop>}
-            {FEATURES.payments && <Prop label={t.file.payment}>
-              {e.payment ? (
-                <span className="text-sm text-ok">
-                  {fmtEuros(e.payment.amount, locale)} · {t.pay.paid(fmtTime(e.payment.paidAt, locale))}
-                </span>
-              ) : (
-                <span className="text-sm text-muted">{fee ? `${fmtEuros(fee.total, locale)} · ${t.cobros.pending}` : "—"}</span>
-              )}
-            </Prop>}
-            <Prop label={t.file.created}>
-              <span className="text-sm">{fmtTime(e.createdAt, locale)}</span>
-            </Prop>
-          </dl>
-          {/* The questionnaire at a glance; the section list opens on demand. */}
-          <section aria-label={t.file.sectionsNav} className="mt-6 border-t border-line pt-5">
-            <div className="mb-2 flex items-baseline justify-between gap-3">
-              <h2 className="text-[13px] font-semibold text-muted">{t.file.sectionsNav}</h2>
-              <span className="figures text-[12.5px] font-medium">{tt.pct}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-sunk" aria-hidden="true">
-              <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${tt.pct}%` }} />
-            </div>
-            <p className="mt-2 text-[13px] text-muted">{t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length)}</p>
-            <button type="button" aria-expanded={showSecs} onClick={() => setShowSecs(!showSecs)} className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent underline-offset-4 hover:underline">
-              {showSecs ? p.rail.hideSections : p.rail.showSections}
-              <ChevronDown size={14} className={cx("motion-safe:transition-transform motion-safe:duration-200", showSecs && "rotate-180")} aria-hidden="true" />
-            </button>
-            {showSecs && (
-              <nav aria-label={t.file.sectionsNav} className="mt-2">
-            <ol className="flex flex-col">
-              {SCHEMA.map((s, i) => {
-                const p = progressOf(s.fields, a);
-                const st = sectionState(p);
-                return (
-                  <li key={s.slug}>
-                    <a
-                      href={`#sec-${s.slug}`}
-                      onClick={(ev) => {
-                        ev.preventDefault();
-                        openSection(s.slug);
-                      }}
-                      className="-mx-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13.5px] transition-colors hover:bg-hover"
-                    >
-                      <StepDot n={i + 1} state={st} size={20} />
-                      <span className="min-w-0 flex-1 truncate">{tr(s.short)}</span>
-                      {st === "partial" && <span className="text-[12px] font-medium text-copper-text">{t.q.leftN(p.total - p.done)}</span>}
-                    </a>
-                  </li>
-                );
-              })}
-            </ol>
-              </nav>
-            )}
-          </section>
+                {/* Inspector: the case's facts in separate cards, the actions last. */}
+                <div className="grid gap-3 sm:max-[1179px]:grid-cols-2">
+                  {/* Status and who handles it */}
+                  <RailCard>
+                    <Prop label={t.file.status}>
+                      <Select
+                        id="st-sel"
+                        aria-label={t.file.status}
+                        value={e.status}
+                        onChange={(v) => actions.setStatus(e.id, v as Status)}
+                        buttonClassName="h-10 rounded-lg px-3 text-sm font-medium"
+                        options={STATUSES.map((s) => ({ value: s.id, label: tr(s.label), icon: STATUS_ICON[s.id] }))}
+                      />
+                    </Prop>
+                    <Prop label={t.list.assignee}>
+                      <Select
+                        aria-label={t.list.assignee}
+                        value={e.assignee ?? ""}
+                        onChange={(v) => actions.assign(e.id, v || null)}
+                        buttonClassName="h-10 rounded-lg px-3 text-sm font-medium"
+                        options={[{ value: "", label: t.list.unassigned, icon: UserRoundX }, ...firm.team.map((m) => ({ value: m.id, label: m.name, icon: UserRound }))]}
+                      />
+                    </Prop>
+                  </RailCard>
 
-          {/* What the gestor does with the case, apart from the other tax years below. */}
-          <section className="mt-6 border-t border-line pt-5">
-            <h2 className="mb-2.5 text-[13px] font-semibold text-muted">{p.rail.actions}</h2>
-            <div className="grid grid-cols-2 gap-2">
-              <ButtonLink href={`/expedientes/${e.id}/vista-cliente`} size="sm" className={cx("w-full", !(FEATURES.signing || FEATURES.resultApproval) && "col-span-2")}>
-                <Eye size={15} aria-hidden="true" />
-                {t.file.viewAsClient}
-              </ButtonLink>
-              {(FEATURES.signing || FEATURES.resultApproval) && (
-                <ButtonLink href={`/expedientes/${e.id}/constancia`} size="sm" className="w-full">
-                  <FileSignature size={15} aria-hidden="true" />
-                  {t.extra.record.link}
-                </ButtonLink>
-              )}
-            </div>
-          </section>
-          {FEATURES.prefill && <div className="mt-6 flex flex-col gap-2 border-t border-line pt-5">
-            <span className="text-xs text-muted">{t.years.otherYears}</span>
-            {years.filter((y) => y.id !== e.id).map((y) => (
-              <Link key={y.id} href={`/expedientes/${y.id}`} className="text-[13.5px] font-medium text-accent hover:underline">
-                {t.years.goYear(y.ejercicio)}
-              </Link>
-            ))}
-            {!years.some((y) => y.ejercicio > e.ejercicio) && (
-              <>
-                <Button size="sm" onClick={() => { const nid = actions.openNextYear(e.id); if (nid) router.push(`/expedientes/${nid}`); }}>
-                  {t.years.nextYear(e.ejercicio + 1)}
-                </Button>
-                <p className="text-[12px] text-muted">{t.years.nextHint}</p>
-              </>
-            )}
-          </div>}
+                  {/* The client: how to reach them, whether they confirmed who they are */}
+                  <RailCard title={t.file.contact} icon={Contact}>
+                    <ul className="flex flex-col gap-2 text-[13.5px]">
+                      <li className="flex items-center gap-2.5">
+                        <Phone size={15} className="shrink-0 text-muted" aria-hidden="true" />
+                        {typeof a.telefono === "string" && a.telefono ? <a href={`tel:${a.telefono.replace(/\s+/g, "")}`} className="truncate hover:text-accent hover:underline">{a.telefono}</a> : <span className="text-muted">—</span>}
+                      </li>
+                      <li className="flex items-center gap-2.5">
+                        <Mail size={15} className="shrink-0 text-muted" aria-hidden="true" />
+                        {typeof a.email === "string" && a.email ? <a href={`mailto:${a.email}`} className="truncate hover:text-accent hover:underline">{a.email}</a> : <span className="text-muted">—</span>}
+                      </li>
+                    </ul>
+                    {FEATURES.identityCheck && (
+                      <RailRow label={t.file.identity}>
+                        {e.identityConfirmedAt ? <Pill tone="ok" icon={ShieldCheck}>{fmtTime(e.identityConfirmedAt, locale)}</Pill> : <Pill tone="warn" icon={Clock}>{t.file.identityNo}</Pill>}
+                      </RailRow>
+                    )}
+                  </RailCard>
+
+                  {/* Signatures and payment, each a coloured tag */}
+                  {(FEATURES.signing || FEATURES.payments) && (
+                    <RailCard title={FEATURES.signing ? t.file.signatures : t.file.payment} icon={FEATURES.signing ? FileSignature : CreditCard}>
+                      {FEATURES.signing &&
+                        LEGAL_KINDS.map((k) => {
+                          const st = signState(e, firm, k);
+                          return (
+                            <RailRow key={k} label={k === "privacy" ? t.settings.legal.privacy : t.settings.legal.mandate}>
+                              <Pill tone={SIGN_TONE[st]}>{t.sign.state[st]}</Pill>
+                            </RailRow>
+                          );
+                        })}
+                      {FEATURES.payments && (
+                        <RailRow label={t.file.payment} divided={FEATURES.signing}>
+                          {e.payment ? (
+                            <Pill tone="ok" icon={Check}>{fmtEuros(e.payment.amount, locale)}</Pill>
+                          ) : fee ? (
+                            <span className="flex items-center gap-2">
+                              <span className="figures text-[13.5px] font-semibold">{fmtEuros(fee.total, locale)}</span>
+                              <Pill tone="warn" icon={Clock}>{t.cobros.pending}</Pill>
+                            </span>
+                          ) : (
+                            <Pill>—</Pill>
+                          )}
+                        </RailRow>
+                      )}
+                    </RailCard>
+                  )}
+
+                  {/* The questionnaire at a glance; the section list opens on demand. */}
+                  <RailCard title={t.file.sectionsNav} icon={ListChecks} aside={<span className={cx("figures text-[13px] font-semibold", tt.pct === 100 ? "text-ok" : "text-accent")}>{tt.pct}%</span>}>
+                    <div className="h-2 overflow-hidden rounded-full bg-sunk" aria-hidden="true">
+                      <div className={cx("h-full rounded-full transition-[width]", tt.pct === 100 ? "bg-ok" : "bg-accent")} style={{ width: `${tt.pct}%` }} />
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[12.5px] text-muted">{t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length)}</p>
+                      <button type="button" aria-expanded={showSecs} onClick={() => setShowSecs(!showSecs)} className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-[12.5px] font-semibold text-accent underline-offset-4 hover:underline">
+                        {showSecs ? p.rail.hideSections : p.rail.showSections}
+                        <ChevronDown size={14} className={cx("motion-safe:transition-transform motion-safe:duration-200", showSecs && "rotate-180")} aria-hidden="true" />
+                      </button>
+                    </div>
+                    {showSecs && (
+                      <nav aria-label={t.file.sectionsNav}>
+                        <ol className="flex flex-col">
+                          {SCHEMA.map((s, i) => {
+                            const pr = progressOf(s.fields, a);
+                            const st = sectionState(pr);
+                            return (
+                              <li key={s.slug}>
+                                <a
+                                  href={`#sec-${s.slug}`}
+                                  onClick={(ev) => {
+                                    ev.preventDefault();
+                                    openSection(s.slug);
+                                  }}
+                                  className="-mx-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13.5px] transition-colors hover:bg-hover"
+                                >
+                                  <StepDot n={i + 1} state={st} size={20} />
+                                  <span className="min-w-0 flex-1 truncate">{tr(s.short)}</span>
+                                  {st === "partial" && <span className="text-[12px] font-medium text-copper-text">{t.q.leftN(pr.total - pr.done)}</span>}
+                                </a>
+                              </li>
+                            );
+                          })}
+                        </ol>
+                      </nav>
+                    )}
+                  </RailCard>
+
+                  {/* What the gestor does with the case */}
+                  <RailCard title={p.rail.actions} icon={Zap}>
+                    <ButtonLink href={`/expedientes/${e.id}/vista-cliente`} variant="primary" className="h-11 w-full justify-center gap-2 rounded-lg text-[14px]">
+                      <Eye size={17} strokeWidth={2} aria-hidden="true" />
+                      {t.file.viewAsClient}
+                    </ButtonLink>
+                    {(FEATURES.signing || FEATURES.resultApproval) && (
+                      <ButtonLink href={`/expedientes/${e.id}/constancia`} variant="outline" className="h-11 w-full justify-center gap-2 rounded-lg text-[14px]">
+                        <FileDown size={17} strokeWidth={2} aria-hidden="true" />
+                        {t.extra.record.link}
+                      </ButtonLink>
+                    )}
+                  </RailCard>
+
+                  {FEATURES.prefill && (
+                    <RailCard title={t.years.otherYears} icon={History}>
+                      {years.filter((y) => y.id !== e.id).map((y) => (
+                        <Link key={y.id} href={`/expedientes/${y.id}`} className="text-[13.5px] font-medium text-accent hover:underline">
+                          {t.years.goYear(y.ejercicio)}
+                        </Link>
+                      ))}
+                      {!years.some((y) => y.ejercicio > e.ejercicio) && (
+                        <>
+                          <Button size="sm" onClick={() => { const nid = actions.openNextYear(e.id); if (nid) router.push(`/expedientes/${nid}`); }}>
+                            {t.years.nextYear(e.ejercicio + 1)}
+                          </Button>
+                          <p className="text-[12px] text-muted">{t.years.nextHint}</p>
+                        </>
+                      )}
+                    </RailCard>
+                  )}
+                </div>
+                <p className="mt-3 flex items-center gap-1.5 px-1 text-[12px] text-muted">
+                  <CalendarDays size={13} aria-hidden="true" />
+                  {t.file.created}: {fmtTime(e.createdAt, locale)}
+                </p>
           {e.example && <p className="mt-4 text-xs text-muted">{t.file.exampleNote}</p>}
           <p className="mt-3 hidden text-[11.5px] text-muted xl:block">{t.file.keys}</p>
               </>
@@ -342,22 +393,47 @@ export function CaseFile({ id }: { id: string }) {
               {[e.sentAt && t.home.sentOn(fmtTime(e.sentAt, locale)), t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length), tt.pending > 0 && t.home.answersPending(tt.pending), t.file.docsAside(nDocs, nPend)].filter(Boolean).join(" · ")}
             </p>
           </header>
-          <nav aria-label={t.file.anchors.label} className="no-scrollbar sticky top-[104px] z-[9] -mx-4 -mt-3 flex gap-1 overflow-x-auto border-b border-line bg-surface/95 px-4 py-2 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:top-12">
-            {([
-              ["avisos", t.file.anchors.attention, al.length],
-              ["peticiones", t.file.anchors.requests, openTasks(e).length + tasksToCheck(e).length],
-              ["respuestas", t.file.anchors.answers, 0],
-              ["documentos", t.file.anchors.docs, nPend],
-              ["chat", t.file.anchors.chat, unreadFor(e, "gestor")],
-              ...(FEATURES.resultApproval ? [["resultado", t.file.anchors.result, 0] as const] : []),
-              ...(FEATURES.activityLog ? [["actividad", t.file.anchors.history, 0] as const] : []),
-            ] as const).map(([id, label, n]) => (
-              <a key={id} href={`#${id}`} className="flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13.5px] font-medium whitespace-nowrap text-muted transition-colors hover:bg-hover hover:text-ink">
-                {label}
-                {n > 0 && <span className="figures rounded-full bg-copper-soft px-1.5 text-[11.5px] font-semibold text-copper-text">{n}</span>}
-              </a>
-            ))}
-          </nav>
+          {/* Tabs: one part of the case at a time instead of one long page; chat and notes are in the side panel. */}
+          <div role="tablist" aria-label={t.file.tabs.label} className="no-scrollbar sticky top-[104px] z-[9] -mx-4 -mt-2 flex gap-1.5 overflow-x-auto border-b border-line bg-surface/95 px-4 py-2.5 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:top-12">
+            {mainTabs.map(([key, Icon, label, n, hot]) => {
+              const on = main === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  id={`main-${key}`}
+                  aria-selected={on}
+                  aria-controls="main-panel"
+                  onClick={() => {
+                    setMain(key);
+                    history.replaceState(null, "", `#${TAB_ANCHOR[key]}`);
+                  }}
+                  className={cx(
+                    // the active tab: a soft navy capsule with bold navy text; the others quiet until hovered
+                    "flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full px-3.5 text-[14px] whitespace-nowrap transition-[background-color,color,box-shadow] duration-150",
+                    on ? "bg-accent-soft font-semibold text-accent shadow-[inset_0_0_0_1px_rgb(var(--accent-rgb)/0.12)]" : "font-medium text-muted hover:bg-sunk hover:text-ink",
+                  )}
+                >
+                  <Icon size={16} strokeWidth={1.9} aria-hidden="true" />
+                  {label}
+                  {n > 0 && <span className={cx("figures grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold", hot ? "bg-copper text-white" : on ? "bg-surface text-accent" : "bg-sunk text-muted")}>{n}</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          <div id="main-panel" role="tabpanel" aria-labelledby={`main-${main}`} className="flex flex-col gap-6">
+          {main === "overview" && (
+            <>
+              {/* The case at a glance: four figures, each a way into its tab */}
+              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+                <Kpi icon={ListChecks} tone={tt.pct === 100 ? "ok" : "info"} label={t.file.kpi.questionnaire} value={`${tt.pct} %`} sub={t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length)} onClick={() => setMain("answers")} />
+                <Kpi icon={FileText} tone={nPend ? "warn" : "ok"} label={t.file.kpi.docs} value={String(nDocs)} sub={t.file.kpi.docsOf(nDocs, nPend)} onClick={() => setMain("docs")} />
+                <Kpi icon={TriangleAlert} tone={alBad ? "bad" : alWarn ? "warn" : al.length ? "info" : "ok"} zero={!al.length} label={t.file.kpi.alerts} value={String(al.length)} sub={al.length ? (["bad", "warn", "info"] as const).map((lv) => [lv, al.filter((x) => x.level === lv).length] as const).filter(([, n]) => n > 0).map(([lv, n]) => `${n} ${t.file.alertLevel[lv].toLowerCase()}`).join(" · ") : t.file.kpi.none} href="#avisos" />
+                <Kpi icon={ClipboardList} tone={openTasks(e).length ? "copper" : "neutral"} zero={!openTasks(e).length} label={t.file.kpi.requests} value={String(openTasks(e).length)} sub={tasksToCheck(e).length ? t.tasks.aside(openTasks(e).length, tasksToCheck(e).length) : t.file.kpi.none} href="#peticiones" />
+              </div>
+
 
           <Block id="avisos" icon={TriangleAlert} title={t.file.alerts} aside={al.length || undefined}>
             <p className="-mt-1 text-[13px] text-muted">
@@ -422,6 +498,10 @@ export function CaseFile({ id }: { id: string }) {
           <Block id="peticiones" icon={ClipboardList} title={t.tasks.title} aside={FEATURES.requestTracking ? t.tasks.aside(openTasks(e).length, tasksToCheck(e).length) : undefined}>
             <TaskPanel exp={e} />
           </Block>
+            </>
+          )}
+
+          {main === "answers" && (
 
           <Block
             id="respuestas"
@@ -434,20 +514,27 @@ export function CaseFile({ id }: { id: string }) {
               </span>
             }
           >
-            <div className="-my-2">
+            <div className="flex flex-col gap-3">
               {SCHEMA.map((s, i) => {
-                const st = sectionState(progressOf(s.fields, a));
+                const pr = progressOf(s.fields, a);
+                const st = sectionState(pr);
                 // Only sections with questions still open start unfolded: complete and empty ones stay folded.
                 return (
-                  <details key={s.slug} id={`sec-${s.slug}`} open={st === "partial"} className="group scroll-mt-[124px] border-t border-line first-of-type:border-t-0">
-                    <summary className="flex min-h-[52px] cursor-pointer list-none items-center gap-3 py-2.5 font-semibold [&::-webkit-details-marker]:hidden">
+                  <details key={s.slug} id={`sec-${s.slug}`} open={st === "partial"} className={cx("group scroll-mt-[124px] rounded-xl border bg-surface transition-colors open:shadow-sheet", st === "partial" ? "border-copper/30" : "border-line")}>
+                    <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors hover:bg-hover/60 [&::-webkit-details-marker]:hidden">
                       <StepDot n={i + 1} state={st} />
-                      <span className="min-w-0 flex-1">{tr(s.title)}</span>
-                      <span className={cx("text-[13px] font-medium whitespace-nowrap", st === "done" ? "text-ok" : "text-muted", st === "empty" && "max-sm:sr-only")}>{st === "partial" ? t.q.leftN(progressOf(s.fields, a).total - progressOf(s.fields, a).done) : t.sectionState[st]}</span>
+                      <span className="min-w-0 flex-1 text-[15px]">{tr(s.title)}</span>
+                      {st === "done" ? (
+                        <Pill tone="ok" icon={Check}>{t.sectionState.done}</Pill>
+                      ) : st === "partial" ? (
+                        <Pill tone="copper" icon={CircleAlert}>{t.q.leftN(pr.total - pr.done)}</Pill>
+                      ) : (
+                        <Pill icon={Clock}>{t.sectionState.empty}</Pill>
+                      )}
                       <ChevronDown size={16} className="text-muted motion-safe:transition-[rotate] motion-safe:duration-200 group-open:rotate-180" aria-hidden="true" />
                     </summary>
-                    <dl className="mb-3">
-                      <AnswersSummary fields={s.fields} scope={a} />
+                    <dl className="grid gap-x-8 border-t border-line px-4 pt-1 pb-4 md:grid-cols-2">
+                      <AnswersSummary fields={s.fields} scope={a} layout="grid" />
                     </dl>
                   </details>
                 );
@@ -455,6 +542,9 @@ export function CaseFile({ id }: { id: string }) {
             </div>
           </Block>
 
+          )}
+
+          {main === "docs" && (
           <Block id="documentos" icon={FileText} title={t.file.docs} aside={<span className="flex flex-wrap items-center gap-3">{t.file.docsAside(nDocs, nPend)}<DownloadAll exp={e} /></span>}>
             {docs.length ? (
               <div className="@container -mx-4 -my-4">
@@ -490,19 +580,20 @@ export function CaseFile({ id }: { id: string }) {
               <p className="text-sm text-muted">{t.file.noDocs}</p>
             )}
           </Block>
+          )}
 
-
-          {FEATURES.resultApproval && (
+          {FEATURES.resultApproval && main === "result" && (
             <Block id="resultado" icon={FileCheck2} title={t.resultG.title}>
               <ResultPanel exp={e} />
             </Block>
           )}
 
-          {FEATURES.activityLog && (
+          {FEATURES.activityLog && main === "activity" && (
             <Block id="actividad" icon={History} title={t.activity.title} aside={t.activity.aside(e.activity?.length ?? 0)}>
               <ActivityLog exp={e} />
             </Block>
           )}
+          </div>
 
         </div>
       </div>
@@ -517,13 +608,55 @@ const docTask = (label: Text, context: Text | null) => {
 };
 
 /** One section of the case as a panel (design system › Panel): header with icon, title and note, then the content. */
-/** Opens a questionnaire section on the case page and scrolls to it (closed <details> do not open on their own). */
+const GOTO = "case-goto";
+type MainTab = "overview" | "answers" | "docs" | "result" | "activity";
+/** Each tab's anchor, kept in the address so a reload or a shared link opens the same tab. */
+const TAB_ANCHOR: Record<MainTab, string> = { overview: "avisos", answers: "respuestas", docs: "documentos", result: "resultado", activity: "actividad" };
+/** The tab that holds a target on the page. */
+const tabOf = (hash: string): MainTab =>
+  hash === "respuestas" || hash.startsWith("sec-") ? "answers"
+  : hash === "documentos" ? "docs"
+  : hash === "resultado" ? "result"
+  : hash === "actividad" ? "activity"
+  : "overview";
+
+/** Opens a questionnaire section on the case page (its tab, unfolded) and scrolls to it. */
 function openSection(slug: string) {
-  const el = document.getElementById(`sec-${slug}`);
-  if (!(el instanceof HTMLDetailsElement)) return;
-  el.open = true;
   history.replaceState(null, "", `#sec-${slug}`);
-  el.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  window.dispatchEvent(new CustomEvent(GOTO, { detail: `sec-${slug}` }));
+}
+
+/**
+ * One figure of the overview, styled like the Cases metric cards: a coloured icon, the value, a
+ * short line; it opens the part it counts. `bad`, `warn` and `copper` (something to act on) tint
+ * the card and its figure in their colour; `ok` gets a quiet green edge; `zero` steps back.
+ */
+const KPI_TONE = {
+  bad: { tile: "bg-bad text-white", card: "border-bad/35 bg-[linear-gradient(135deg,var(--bad-soft),var(--surface)_70%)]", n: "text-bad" },
+  warn: { tile: "bg-warn-soft text-warn", card: "border-warn/35 bg-[linear-gradient(135deg,var(--warn-soft),var(--surface)_70%)]", n: "text-warn" },
+  copper: { tile: "bg-copper-soft text-copper-text", card: "border-copper/35 bg-[linear-gradient(135deg,var(--copper-soft),var(--surface)_70%)]", n: "text-copper-text" },
+  ok: { tile: "bg-ok-soft text-ok", card: "border-ok/25 bg-surface", n: "text-ok" },
+  info: { tile: "bg-info-soft text-info", card: "border-line bg-surface", n: "text-ink" },
+  accent: { tile: "bg-icon-soft text-icon", card: "border-line bg-surface", n: "text-ink" },
+  neutral: { tile: "bg-sunk text-muted", card: "border-line bg-surface", n: "text-disabled" },
+} as const;
+
+function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { icon: LucideIcon; tone: keyof typeof KPI_TONE; label: string; value: string; sub: string; href?: string; onClick?: () => void; zero?: boolean }) {
+  const k = KPI_TONE[zero ? "neutral" : tone];
+  const body = (
+    <>
+      <span className={cx("grid size-10 shrink-0 place-items-center rounded-lg", k.tile)} aria-hidden="true">
+        <Icon size={18} strokeWidth={2} />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[12.5px] font-medium text-muted">{label}</span>
+        <span className={cx("figures block text-[22px] leading-7 font-bold", k.n)}>{value}</span>
+        <span className="block truncate text-[12.5px] text-muted">{sub}</span>
+      </span>
+    </>
+  );
+  const cls = cx("flex cursor-pointer items-start gap-3 rounded-xl border p-4 text-left shadow-sheet transition-[border-color,box-shadow,translate] hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px", k.card);
+  return href ? <a href={href} className={cls}>{body}</a> : <button type="button" onClick={onClick} className={cls}>{body}</button>;
 }
 
 const foldAll = (open: boolean) => document.querySelectorAll<HTMLDetailsElement>("#respuestas details").forEach((d) => (d.open = open));
@@ -547,11 +680,39 @@ function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: 
   );
 }
 
+const STATUS_ICON: Record<Status, LucideIcon> = { borrador: PencilLine, enviado: Send, revision: Eye, listo: CircleCheck };
+
+/** One card of the side panel: optional title with its icon (and a figure on the right), then its rows. */
+function RailCard({ title, icon: Icon, aside, children }: { title?: string; icon?: LucideIcon; aside?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-sm">
+      {title && (
+        <h3 className="flex items-center gap-2 text-[13px] font-semibold text-ink">
+          {Icon && <span className="grid size-6 place-items-center rounded-md bg-accent-soft text-accent"><Icon size={13} strokeWidth={2.1} aria-hidden="true" /></span>}
+          <span className="flex-1">{title}</span>
+          {aside}
+        </h3>
+      )}
+      {children}
+    </section>
+  );
+}
+
+/** A label and its value (a tag) on one line inside a side-panel card. */
+function RailRow({ label, divided, children }: { label: string; divided?: boolean; children: ReactNode }) {
+  return (
+    <div className={cx("flex items-center justify-between gap-3 text-[13px]", divided && "border-t border-line pt-3")}>
+      <span className="min-w-0 truncate text-muted">{label}</span>
+      <span className="shrink-0">{children}</span>
+    </div>
+  );
+}
+
 function Prop({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="min-w-0">
-      <dt className="mb-1 text-xs text-muted">{label}</dt>
-      <dd className="min-w-0">{children}</dd>
+      <div className="mb-1.5 text-[12px] font-medium text-muted">{label}</div>
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }

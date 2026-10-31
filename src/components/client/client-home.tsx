@@ -20,6 +20,7 @@ import { useClientExp } from "./client-shell";
 import { AP_TONE } from "./client-appointment";
 import { ClientTasks, hrefOf } from "./client-tasks";
 import h from "./client-home.module.scss";
+import { FirmEmblem } from "@/components/ui/firm-mark";
 
 /** Initials for the gestoría's mark ("Gestoría Turia" → "GT"). */
 const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "G";
@@ -257,7 +258,7 @@ export function ClientHome() {
           <section className={h.firm} aria-labelledby="firm">
             <h2 id="firm" className={cx("t-label", h.asideLabel)}>{t.home.yourFirm}</h2>
             <div className={h.firmId}>
-              <FirmLogo mark={mark} />
+              <FirmLogo />
               <div className={h.firmText}>
                 <p className={h.firmName}>{firmName}</p>
                 <p className={h.firmMeta}>
@@ -303,13 +304,13 @@ function FirmMark({ mark }: { mark: string }) {
 }
 
 /** The gestoría's logo from Ajustes › Despacho, or a labelled slot until it is uploaded. */
-function FirmLogo({ mark }: { mark: string }) {
+function FirmLogo() {
   const { firm } = useAppState();
   const url = useFileUrl(firm.logo);
   if (url)
     // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
     return <img src={url} alt="" className="size-10 shrink-0 rounded-md border border-line object-contain" />;
-  return <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{mark}</span>;
+  return <FirmEmblem size={40} className="shrink-0" />;
 }
 
 
