@@ -44,7 +44,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="min-w-0 lg:h-dvh lg:p-3">
-        <div className="min-h-[calc(100dvh-56px)] bg-surface lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet">
+        <div data-app-frame className="min-h-[calc(100dvh-56px)] bg-surface lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain thin-scroll lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet">
           {children}
           <p className="px-4 pb-6 text-[12.5px] text-muted sm:px-6">{p.admin.demoNote}</p>
         </div>
@@ -65,7 +65,7 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
   return (
     <nav aria-label={p.admin.area} className="flex h-full flex-col bg-chrome text-chrome-ink on-dark lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
       <div className="mx-3 flex items-center gap-3 border-b border-chrome-line px-2 pt-4 pb-4">
-        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[inset_0_-3px_0_var(--copper)]" aria-hidden="true">P</span>
+        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">P</span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[14.5px] font-semibold">PreRenta</span>
           <span className="block truncate text-[11.5px] text-chrome-muted">{p.admin.area}</span>

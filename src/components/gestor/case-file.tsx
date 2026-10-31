@@ -3,8 +3,8 @@
 import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
-import { Check, ChevronDown, CircleAlert, Clock, GitCompareArrows, ClipboardList, FileCheck2, History, FileText, Info, ListChecks, LockKeyhole, MessageCircle, TriangleAlert, type LucideIcon } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Check, ChevronDown, CircleAlert, Eye, FileSignature, Clock, GitCompareArrows, ClipboardList, FileCheck2, History, FileText, Info, ListChecks, LockKeyhole, TriangleAlert, type LucideIcon } from "lucide-react";
 import { SCHEMA } from "@/lib/questionnaire/schema";
 import { collectDocs, overall, progressOf, sectionState } from "@/lib/questionnaire/progress";
 import { actions, caseOrder, clientName, openTasks, tasksToCheck, unreadFor, useAppState } from "@/lib/data/store";
@@ -17,6 +17,7 @@ import { PageTitle } from "@/components/ui/app-shell";
 import { FileChip } from "@/components/ui/file-chip";
 import { Button, ButtonLink, Loading, Pill, StatusPill, cx } from "@/components/ui/primitives";
 import { StepDot } from "@/components/ui/progress";
+import { usePlatformText } from "@/lib/i18n/messages-platform";
 import { WaitingLabel } from "./case-list";
 import { TopBar } from "./gestor-shell";
 import { useRemoteCase } from "@/lib/api/use-remote";
@@ -43,6 +44,9 @@ export function CaseFile({ id }: { id: string }) {
   useRemoteCase(id, true);
   const { t, tr, locale } = useI18n();
   const router = useRouter();
+  const { p } = usePlatformText();
+  const [tab, setTab] = useState<RailTab>("details");
+  const [showSecs, setShowSecs] = useState(false);
   const order = caseOrder(exps).map((e) => e.id);
   const idx = order.indexOf(id);
   const prevId = idx > 0 ? order[idx - 1] : null;
@@ -53,6 +57,11 @@ export function CaseFile({ id }: { id: string }) {
     const go = () => {
       const h = window.location.hash.slice(1);
       if (h.startsWith("sec-")) openSection(h.slice(4));
+      // "#chat" (anchor bar, case list) opens the chat tab of the side panel.
+      if (h === "chat") {
+        setTab("chat");
+        document.getElementById("chat")?.scrollIntoView({ block: "start" });
+      }
     };
     const raf = requestAnimationFrame(go);
     window.addEventListener("hashchange", go);
@@ -145,9 +154,35 @@ export function CaseFile({ id }: { id: string }) {
 
       <div className="grid items-start min-[1180px]:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
         {/* Properties: right column on wide screens, a compact block on top below that. */}
-        <aside className="order-2 border-t border-line px-4 py-5 sm:px-6 min-[1180px]:sticky min-[1180px]:top-12 min-[1180px]:max-h-[calc(100dvh-74px)] min-[1180px]:overflow-y-auto min-[1180px]:border-t-0 min-[1180px]:border-l min-[1180px]:py-6">
-          <h2 className="mb-3 text-[13px] font-semibold text-muted">{t.file.properties}</h2>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:max-[1179px]:grid-cols-3 min-[1180px]:grid-cols-1">
+        {/* Side panel in three tabs, so chat and notes are one click away instead of at the bottom of a long column. */}
+        <aside id="chat" aria-label={p.rail.label} className="order-2 scroll-mt-28 border-t border-line min-[1180px]:sticky min-[1180px]:top-12 min-[1180px]:flex min-[1180px]:max-h-[calc(100dvh-74px)] min-[1180px]:flex-col min-[1180px]:border-t-0 min-[1180px]:border-l">
+          <div role="tablist" aria-label={p.rail.label} className="flex gap-1 border-b border-line bg-surface px-4 py-2 sm:px-6">
+            {([
+              ["details", p.rail.details, 0],
+              ["chat", t.file.anchors.chat, unreadFor(e, "gestor")],
+              ["notes", t.file.notes, 0],
+            ] as const).map(([k, label, n]) => (
+              <button
+                key={k}
+                type="button"
+                role="tab"
+                id={`rail-${k}`}
+                aria-selected={tab === k}
+                aria-controls="rail-panel"
+                onClick={() => setTab(k)}
+                className={cx("flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md px-2 text-[13.5px] font-medium whitespace-nowrap transition-colors", tab === k ? "bg-accent text-accent-ink" : "text-muted hover:bg-accent-soft hover:text-accent")}
+              >
+                {label}
+                {n > 0 && <span className={cx("figures rounded-full px-1.5 text-[11.5px] font-semibold", tab === k ? "bg-surface/20" : "bg-copper-soft text-copper-text")}>{n}</span>}
+                {k === "notes" && e.notes.trim() && <span className={cx("size-1.5 rounded-full", tab === k ? "bg-accent-ink" : "bg-accent")} aria-hidden="true" />}
+              </button>
+            ))}
+          </div>
+
+          <div id="rail-panel" role="tabpanel" aria-labelledby={`rail-${tab}`} className="thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+            {tab === "details" && (
+              <>
+                    <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:max-[1179px]:grid-cols-3 min-[1180px]:grid-cols-1">
             <Prop label={t.file.status}>
               <select id="st-sel" aria-label={t.file.status} value={e.status} onChange={(ev) => actions.setStatus(e.id, ev.target.value as Status)} className="field h-(--control-h-sm) px-2.5 text-sm">
                 {STATUSES.map((s) => (
@@ -200,9 +235,22 @@ export function CaseFile({ id }: { id: string }) {
               <span className="text-sm">{fmtTime(e.createdAt, locale)}</span>
             </Prop>
           </dl>
-          {/* The questionnaire's sections, always at hand in the sticky column: one click opens the section and goes there. */}
-          <nav aria-label={t.file.sectionsNav} className="mt-6 border-t border-line pt-5">
-            <h2 className="mb-2 text-[13px] font-semibold text-muted">{t.file.sectionsNav}</h2>
+          {/* The questionnaire at a glance; the section list opens on demand. */}
+          <section aria-label={t.file.sectionsNav} className="mt-6 border-t border-line pt-5">
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              <h2 className="text-[13px] font-semibold text-muted">{t.file.sectionsNav}</h2>
+              <span className="figures text-[12.5px] font-medium">{tt.pct}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-sunk" aria-hidden="true">
+              <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${tt.pct}%` }} />
+            </div>
+            <p className="mt-2 text-[13px] text-muted">{t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length)}</p>
+            <button type="button" aria-expanded={showSecs} onClick={() => setShowSecs(!showSecs)} className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent underline-offset-4 hover:underline">
+              {showSecs ? p.rail.hideSections : p.rail.showSections}
+              <ChevronDown size={14} className={cx("motion-safe:transition-transform motion-safe:duration-200", showSecs && "rotate-180")} aria-hidden="true" />
+            </button>
+            {showSecs && (
+              <nav aria-label={t.file.sectionsNav} className="mt-2">
             <ol className="flex flex-col">
               {SCHEMA.map((s, i) => {
                 const p = progressOf(s.fields, a);
@@ -225,8 +273,27 @@ export function CaseFile({ id }: { id: string }) {
                 );
               })}
             </ol>
-          </nav>
-          {FEATURES.prefill && <div className="mt-5 flex flex-col gap-2 border-t border-line pt-4">
+              </nav>
+            )}
+          </section>
+
+          {/* What the gestor does with the case, apart from the other tax years below. */}
+          <section className="mt-6 border-t border-line pt-5">
+            <h2 className="mb-2.5 text-[13px] font-semibold text-muted">{p.rail.actions}</h2>
+            <div className="grid grid-cols-2 gap-2">
+              <ButtonLink href={`/expedientes/${e.id}/vista-cliente`} size="sm" className={cx("w-full", !(FEATURES.signing || FEATURES.resultApproval) && "col-span-2")}>
+                <Eye size={15} aria-hidden="true" />
+                {t.file.viewAsClient}
+              </ButtonLink>
+              {(FEATURES.signing || FEATURES.resultApproval) && (
+                <ButtonLink href={`/expedientes/${e.id}/constancia`} size="sm" className="w-full">
+                  <FileSignature size={15} aria-hidden="true" />
+                  {t.extra.record.link}
+                </ButtonLink>
+              )}
+            </div>
+          </section>
+          {FEATURES.prefill && <div className="mt-6 flex flex-col gap-2 border-t border-line pt-5">
             <span className="text-xs text-muted">{t.years.otherYears}</span>
             {years.filter((y) => y.id !== e.id).map((y) => (
               <Link key={y.id} href={`/expedientes/${y.id}`} className="text-[13.5px] font-medium text-accent hover:underline">
@@ -242,32 +309,36 @@ export function CaseFile({ id }: { id: string }) {
               </>
             )}
           </div>}
-          <ButtonLink href={`/expedientes/${e.id}/vista-cliente`} size="sm" className="mt-4 w-full">
-            {t.file.viewAsClient}
-          </ButtonLink>
-          {(FEATURES.signing || FEATURES.resultApproval) && (
-            <ButtonLink href={`/expedientes/${e.id}/constancia`} size="sm" className="mt-2 w-full">
-              {t.extra.record.link}
-            </ButtonLink>
-          )}
-          {e.example && <p className="mt-3 text-xs text-muted">{t.file.exampleNote}</p>}
-          <p className="mt-4 hidden text-[11.5px] text-muted xl:block">{t.file.keys}</p>
-          <div className="mt-6 flex flex-col gap-6 border-t border-line pt-5">
-            <Block id="chat" icon={MessageCircle} title={t.file.chat} aside={t.file.chatAside}>
-              <div className="overflow-clip rounded-xl border border-line">
-                <ChatBox exp={e} side="gestor" height="h-[300px]" />
-              </div>
-            </Block>
+          {e.example && <p className="mt-4 text-xs text-muted">{t.file.exampleNote}</p>}
+          <p className="mt-3 hidden text-[11.5px] text-muted xl:block">{t.file.keys}</p>
+              </>
+            )}
 
-            <Block icon={LockKeyhole} title={t.file.notes} aside={t.file.notesAside} htmlFor={"notes-" + e.id}>
-              {typeof a.obs === "string" && a.obs && (
-                <p className="mb-2.5 text-[13px] text-muted">
-                  <b className="text-ink">{t.file.fromClient}</b>
-                  {a.obs}
-                </p>
-              )}
-              <textarea id={"notes-" + e.id} rows={4} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="field bg-neutral-soft py-2" />
-            </Block>
+            {tab === "chat" && (
+              <div className="flex flex-col gap-2">
+                <p className="text-[12.5px] text-muted">{t.file.chatAside}</p>
+                <div className="overflow-clip rounded-xl border border-line">
+                  <ChatBox exp={e} side="gestor" height="h-[min(520px,calc(100dvh-330px))] min-h-[280px]" />
+                </div>
+              </div>
+            )}
+
+            {tab === "notes" && (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label htmlFor={"notes-" + e.id} className="flex items-center gap-2 text-[14px] font-semibold">
+                    <LockKeyhole size={15} className="text-accent" aria-hidden="true" />
+                    {t.file.notes}
+                  </label>
+                  <p className="mt-0.5 text-[12.5px] text-muted">{t.file.notesAside}</p>
+                </div>
+                <textarea id={"notes-" + e.id} rows={8} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="field bg-neutral-soft py-2" />
+                <div className="rounded-lg bg-sunk px-3.5 py-3 text-[13px]">
+                  <b className="block text-ink">{t.file.fromClient.trim()}</b>
+                  <span className="text-muted">{typeof a.obs === "string" && a.obs ? a.obs : p.rail.fromClientNone}</span>
+                </div>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -465,6 +536,8 @@ function openSection(slug: string) {
 }
 
 const foldAll = (open: boolean) => document.querySelectorAll<HTMLDetailsElement>("#respuestas details").forEach((d) => (d.open = open));
+
+type RailTab = "details" | "chat" | "notes";
 
 function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: string; icon: LucideIcon; title: string; aside?: ReactNode; htmlFor?: string; children: ReactNode }) {
   return (

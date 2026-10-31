@@ -7,7 +7,7 @@ import { FROM_API_STATUS } from "@/lib/api/mapping";
 import type { ApiClientItem } from "@/lib/api/types";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { ChevronDown, Mail, QrCode as QrIcon, RefreshCw, UserPlus, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Mail, QrCode as QrIcon, RefreshCw, UserPlus, X } from "lucide-react";
 import { actions, caseOrder, clientName, useAppState } from "@/lib/data/store";
 import type { Expediente } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -200,12 +200,13 @@ function ClientRow({ exp: e, i, origin, open, onToggle, locale }: { exp: Expedie
             <CopyField value={link} label={t.clients.link} copyLabel={t.clients.copy} copiedLabel={t.clients.copied} />
             <span className="flex flex-wrap gap-2">
               {/* A ready-made email in the gestoría's own mail app: nothing is sent from PreRenta. */}
-              <ButtonLink href={`mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(t.clients.emailSubject(firmName))}&body=${encodeURIComponent(t.clients.emailBody(first, firmName, link))}`} size="sm">
+              <ButtonLink href={`mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(t.clients.emailSubject(firmName))}&body=${encodeURIComponent(t.clients.emailBody(first, firmName, link))}`} size="sm" variant="outline">
                 <Mail size={14} aria-hidden="true" />
                 {t.clients.sendEmail}
               </ButtonLink>
-              <ButtonLink href={`/expedientes/${e.id}`} size="sm">
+              <ButtonLink href={`/expedientes/${e.id}`} size="sm" variant="primary">
                 {t.clients.openCase}
+                <ArrowRight size={14} aria-hidden="true" />
               </ButtonLink>
             </span>
           </div>

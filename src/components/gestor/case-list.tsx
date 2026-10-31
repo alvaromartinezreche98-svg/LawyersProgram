@@ -20,15 +20,34 @@ import css from "./case-list.module.scss";
 
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 
-/** Downloads rows as CSV (semicolon-separated with a BOM, as Spanish Excel expects). */
+/**
+ * Downloads rows as CSV (semicolon-separated with a BOM, as Spanish Excel expects).
+ * Text a client typed is never read as a formula: a cell starting with = @ + or -
+ * (other than a number or phone like "+34 600…") gets a leading apostrophe.
+ */
+export function toCsv(rows: readonly (readonly string[])[]) {
+  const esc = (raw: string) => {
+    const v = /^[=@\t\r]|^[+-](?![\d\s(])/.test(raw) ? `'${raw}` : raw;
+    return /[";\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  };
+  return "\uFEFF" + rows.map((r) => r.map(esc).join(";")).join("\r\n") + "\r\n";
+}
+
 function exportCsv<T>(rows: T[], cells: (x: T) => string[], head: readonly string[], name: string) {
-  const esc = (v: string) => (/[";\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-  const text = [head, ...rows.map(cells)].map((r) => r.map(esc).join(";")).join("\r\n");
-  const url = URL.createObjectURL(new Blob(["\uFEFF" + text], { type: "text/csv;charset=utf-8" }));
+  const url = URL.createObjectURL(new Blob([toCsv([head, ...rows.map(cells)])], { type: "text/csv;charset=utf-8" }));
   const a = Object.assign(document.createElement("a"), { href: url, download: `${name}.csv` });
+  document.body.append(a);
   a.click();
+  a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/** "2026-10-29 17:20" in the browser's own time zone, as the list shows it (not UTC). */
+const csvTime = (iso: string) => {
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+};
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 const isStatus = (v: string | null): v is Status => STATUSES.some((s) => s.id === v);
@@ -304,7 +323,7 @@ export function CaseList() {
             </button>
           )}
           {shown.length > 0 && (
-            <button type="button" onClick={() => exportCsv(shown, (x) => [x.name, str(x.exp.answers.email), str(x.exp.answers.telefono), tr(STATUSES.find((st) => st.id === x.exp.status)!.label), x.waiting ? t.list.wait.row[x.waiting] : "", `${x.pct}`, `${x.pending}`, `${x.bad + x.warn}`, teamName(x.exp.assignee) ?? "", x.exp.updatedAt.slice(0, 16).replace("T", " ")], t.extra.csv.cols, `expedientes-${EJERCICIO}`)} className={css.textAction}>
+            <button type="button" onClick={() => exportCsv(shown, (x) => [x.name, str(x.exp.answers.email), str(x.exp.answers.telefono), tr(STATUSES.find((st) => st.id === x.exp.status)!.label), x.waiting ? t.list.wait.row[x.waiting] : "", `${x.pct}`, `${x.pending}`, `${x.bad + x.warn}`, teamName(x.exp.assignee) ?? "", csvTime(x.exp.updatedAt)], t.extra.csv.cols, `expedientes-${EJERCICIO}`)} className={css.textAction}>
               <Download size={14} aria-hidden="true" />
               {t.extra.csv.export}
             </button>

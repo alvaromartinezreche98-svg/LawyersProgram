@@ -9,8 +9,18 @@
   border-radius: radius(md);
   background: var(--surface);
 
+  // Icon on the left, label above the figure beside it.
   > div {
-    padding: space(3) space(4);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: space(3);
+    align-items: center;
+    padding: space(4);
+
+    > :first-child {
+      grid-row: 1 / span 2;
+    }
 
     & + div {
       border-left: 1px solid var(--line);
@@ -49,18 +59,3 @@
   gap: space(3);
 }
 
-// Goes straight to the upload question in the questionnaire.
-.uploadLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--accent);
-  text-underline-offset: 3px;
-
-  @include hover {
-    text-decoration: underline;
-  }
-}

@@ -27,6 +27,9 @@ type Role = "cliente" | "gestoria";
  * sign-in is Clerk's; without it the panel is the demo entry (invitation code,
  * sample cases, gestoría panel), marked as such.
  */
+/** The demo shortcut into the PreRenta team's area; not in the sitemap, kept off until it is wanted. */
+const SHOW_ADMIN_ENTRY = false;
+
 export function AccessScreen() {
   return CLERK_ENABLED ? <ClerkAccess render={(gate, banner) => <DemoAccess gate={gate} banner={banner} />} /> : <DemoAccess />;
 }
@@ -316,8 +319,8 @@ function DemoCard(p: {
             </button>
           </span>
         )}
-        {/* The PreRenta team's own area (X1–X4), apart from the gestoría and its clients */}
-        {FEATURES.platformAdmin && (
+        {/* The PreRenta team's own area (X1–X4), apart from the gestoría and its clients. Hidden for now: set SHOW_ADMIN_ENTRY to bring it back. */}
+        {SHOW_ADMIN_ENTRY && FEATURES.platformAdmin && (
           <button type="button" onClick={p.onAdmin} className={s.adminRow}>
             <IconTile icon={Landmark} size="sm" />
             <span>

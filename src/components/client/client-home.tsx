@@ -309,7 +309,7 @@ function FirmLogo({ mark }: { mark: string }) {
   if (url)
     // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
     return <img src={url} alt="" className="size-10 shrink-0 rounded-md border border-line object-contain" />;
-  return <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[inset_0_-3px_0_var(--copper)]" aria-hidden="true">{mark}</span>;
+  return <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{mark}</span>;
 }
 
 

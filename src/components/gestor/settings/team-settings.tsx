@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, Info, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { Briefcase, ChevronDown, Info, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { actions, useAppState } from "@/lib/data/store";
 import type { MemberRole } from "@/lib/data/types";
@@ -13,6 +13,30 @@ const ROLES: MemberRole[] = ["titular", "gestor"];
 const AVATAR = ["bg-accent-soft text-accent", "bg-info-soft text-info", "bg-warn-soft text-warn", "bg-ok-soft text-ok"];
 const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 const compact = "h-9 w-full rounded-md border border-transparent bg-transparent px-2 outline-hidden transition hover:border-line focus:border-focus focus:bg-surface";
+
+const ROLE_LOOK: Record<MemberRole, { icon: typeof ShieldCheck; cls: string }> = {
+  titular: { icon: ShieldCheck, cls: "bg-copper-soft text-copper-text" },
+  gestor: { icon: Briefcase, cls: "bg-accent-soft text-accent" },
+};
+
+/** The role as a coloured chip with its icon (same icons as the roles card); a native select underneath keeps keyboard and screen readers. */
+function RoleChip({ label, value, names, onChange }: { label: string; value: MemberRole; names: Record<MemberRole, string>; onChange: (r: MemberRole) => void }) {
+  const look = ROLE_LOOK[value];
+  return (
+    <span className={cx("group relative col-start-2 inline-flex h-8 w-[150px] items-center gap-1.5 rounded-full border border-transparent pr-2.5 pl-2.5 text-[13.5px] font-semibold transition-colors hover:border-accent has-[:focus-visible]:border-focus has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-focus/15 sm:col-start-auto", look.cls)}>
+      <look.icon size={14} strokeWidth={2} aria-hidden="true" />
+      <span className="flex-1 truncate">{names[value]}</span>
+      <ChevronDown size={14} className="opacity-70 motion-safe:transition-transform motion-safe:duration-200 group-hover:translate-y-px" aria-hidden="true" />
+      <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value as MemberRole)} className="absolute inset-0 cursor-pointer opacity-0">
+        {ROLES.map((r) => (
+          <option key={r} value={r}>
+            {names[r]}
+          </option>
+        ))}
+      </select>
+    </span>
+  );
+}
 
 /** G7 · Equipo: the gestoría's people. Edit in place; add at the bottom. */
 export function TeamSettings() {
@@ -41,17 +65,11 @@ export function TeamSettings() {
         {firm.team.length === 0 && <p className="px-5 py-8 text-center text-muted">{s.empty}</p>}
         <ul>
           {firm.team.map((m, i) => (
-            <li key={m.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-t border-line px-4 py-3 first:border-t-0 sm:grid-cols-[36px_minmax(0,1.2fr)_minmax(0,1.4fr)_140px_auto]">
+            <li key={m.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-t border-line px-4 py-3 first:border-t-0 sm:grid-cols-[36px_minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto]">
               <span className={cx("grid size-9 place-items-center rounded-full text-[13px] font-bold", AVATAR[i % AVATAR.length])}>{initials(m.name)}</span>
               <input aria-label={s.name} value={m.name} onChange={(e) => actions.updateMember(m.id, { name: e.target.value })} className={cx(compact, "font-semibold")} />
               <input aria-label={s.email} type="email" value={m.email} onChange={(e) => actions.updateMember(m.id, { email: e.target.value })} className={cx(compact, "col-start-2 text-muted sm:col-start-auto")} />
-              <select aria-label={s.role} value={m.role} onChange={(e) => actions.updateMember(m.id, { role: e.target.value as MemberRole })} className={cx(compact, "col-start-2 sm:col-start-auto")}>
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {s.roles[r]}
-                  </option>
-                ))}
-              </select>
+              <RoleChip label={s.role} value={m.role} names={s.roles} onChange={(role) => actions.updateMember(m.id, { role })} />
               <button type="button" aria-label={`${s.remove} ${m.name}`} disabled={firm.team.length === 1} onClick={() => actions.removeMember(m.id)} className="row-start-1 grid size-9 place-items-center rounded-lg text-muted transition hover:bg-bad-soft hover:text-bad disabled:opacity-30 disabled:hover:bg-transparent sm:row-start-auto">
                 <Trash2 size={16} aria-hidden="true" />
               </button>
@@ -59,7 +77,7 @@ export function TeamSettings() {
           ))}
         </ul>
 
-        <form onSubmit={add} className="grid gap-2.5 border-t border-line bg-sunk p-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_140px_auto]">
+        <form onSubmit={add} className="grid gap-2.5 border-t border-line bg-sunk p-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto]">
           <label className="sr-only" htmlFor="tm-name">{s.name}</label>
           <input id="tm-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder={s.name} autoComplete="off" className={inputCls} />
           <label className="sr-only" htmlFor="tm-email">{s.email}</label>

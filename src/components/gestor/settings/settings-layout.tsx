@@ -33,8 +33,8 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
     <>
       <PageTitle>{`${t.settings.nav[current.id]} · ${t.titles.settings}`}</PageTitle>
       <TopBar crumbs={[{ label: t.settings.title, href: "/ajustes/despacho" }, { label: t.settings.nav[current.id] }]} right={<SaveStatus idle={t.settings.saved} className="hidden sm:inline-flex" />} />
-      <div className="grid items-start gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10 lg:py-6">
-        <nav aria-label={t.settings.navLabel} className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto lg:sticky lg:top-[72px] lg:mx-0 lg:flex-col">
+      <div className="grid items-start gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6 lg:py-6">
+        <nav aria-label={t.settings.navLabel} className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto lg:sticky lg:top-[72px] lg:mx-0 lg:flex-col lg:rounded-xl lg:border lg:border-line lg:bg-sunk/60 lg:p-2">
           {SECTIONS.map((s) => {
             const on = s.id === current.id;
             return (
@@ -43,8 +43,8 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
                 href={s.href}
                 aria-current={on ? "page" : undefined}
                 className={cx(
-                  "flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-[14px] font-medium whitespace-nowrap transition",
-                  on ? "bg-accent-soft text-accent" : "text-muted hover:bg-accent-soft hover:text-accent",
+                  "flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-[14px] font-medium whitespace-nowrap transition-colors duration-150",
+                  on ? "bg-accent text-accent-ink shadow-sm" : "text-muted hover:bg-accent-soft hover:text-accent",
                 )}
               >
                 <s.icon size={16} strokeWidth={1.9} aria-hidden="true" />

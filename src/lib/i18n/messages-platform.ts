@@ -196,6 +196,7 @@ const es = {
     since: (n: number) => (n === 1 ? "sin actividad desde hace 1 día" : `sin actividad desde hace ${n} días`),
   },
   access: { admin: "Equipo PreRenta", adminHint: "Gestorías, planes y métricas de la plataforma" },
+  rail: { label: "Panel del expediente", details: "Detalles", showSections: "Ver apartados", hideSections: "Ocultar apartados", actions: "Acciones", fromClientNone: "El cliente no ha dejado observaciones." },
 };
 
 export type PlatformDict = typeof es;
@@ -388,6 +389,7 @@ const en: PlatformDict = {
     since: (n: number) => (n === 1 ? "no activity for 1 day" : `no activity for ${n} days`),
   },
   access: { admin: "PreRenta team", adminHint: "The platform’s gestorías, plans and metrics" },
+  rail: { label: "Case panel", details: "Details", showSections: "Show sections", hideSections: "Hide sections", actions: "Actions", fromClientNone: "The client left no comments." },
 };
 
 const va: PlatformDict = {
@@ -578,6 +580,7 @@ const va: PlatformDict = {
     since: (n: number) => (n === 1 ? "sense activitat des de fa 1 dia" : `sense activitat des de fa ${n} dies`),
   },
   access: { admin: "Equip PreRenta", adminHint: "Gestories, plans i mètriques de la plataforma" },
+  rail: { label: "Panell de l'expedient", details: "Detalls", showSections: "Vore apartats", hideSections: "Amagar apartats", actions: "Accions", fromClientNone: "El client no ha deixat observacions." },
 };
 
 const DICTS: Record<Lang, PlatformDict> = { es, en, va };

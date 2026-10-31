@@ -57,7 +57,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
           <Link href={nav[0]?.href ?? "/"} className="mr-auto flex min-w-0 items-center gap-3 py-2 md:mr-2">
             <Cobrand org={org} />
           </Link>
-          <nav aria-label={t.nav.sections} className={cx("mr-auto flex gap-1 self-stretch max-md:hidden", !nav.length && "hidden")}>
+          <nav aria-label={t.nav.sections} className={cx("mr-auto flex items-center gap-1.5 max-md:hidden", !nav.length && "hidden")}>
             {tabs.map((n) => {
               const on = isOn(n);
               return (
@@ -66,11 +66,11 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
                   href={n.href}
                   aria-current={on ? "page" : undefined}
                   className={cx(
-                    "flex items-center gap-2 border-b-[3px] px-3 pt-[3px] text-[15px] whitespace-nowrap transition-colors",
-                    on ? "border-copper font-semibold text-ink" : "border-transparent font-medium text-muted hover:border-line hover:text-ink",
+                    "flex h-10 items-center gap-2 rounded-full px-4 text-[15px] whitespace-nowrap transition-colors duration-150",
+                    on ? "bg-accent-soft font-semibold text-accent" : "font-medium text-muted hover:bg-sunk hover:text-ink",
                   )}
                 >
-                  {n.icon && <n.icon size={18} strokeWidth={2.1} className={on ? "text-accent" : undefined} aria-hidden="true" />}
+                  {n.icon && <n.icon size={18} strokeWidth={2.1} aria-hidden="true" />}
                   <span className="max-lg:hidden">{n.label}</span>
                   <span className="lg:hidden">{n.short ?? n.label}</span>
                   <Badge n={n.badge ?? 0} />
@@ -108,7 +108,7 @@ function Cobrand({ org }: { org?: string }) {
         // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
         <img src={url} alt="" className="size-10 shrink-0 rounded-lg border border-line object-contain" />
       ) : (
-        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[inset_0_-3px_0_var(--copper)]" aria-hidden="true">{mark}</span>
+        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-[13px] font-semibold tracking-wide text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{mark}</span>
       )}
       {/* Between 768 and 1280px the tabs need the room: the logo slot alone stands for the gestoría. */}
       <span className="min-w-0 md:max-xl:sr-only">
@@ -163,12 +163,12 @@ function AccountMenu({ who, items, isOn, className }: { who: string; items: NavI
         aria-haspopup="menu"
         aria-label={`${t.side.account}: ${who}`}
         onClick={() => setOpen(!open)}
-        className={cx("relative inline-flex h-11 items-center gap-2.5 rounded-full py-1 pr-3 pl-1 text-[14.5px] font-medium whitespace-nowrap transition-colors", on || open ? "bg-sunk" : "hover:bg-hover")}
+        className={cx("relative inline-flex h-10 items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-[14.5px] font-medium whitespace-nowrap transition-colors", on || open ? "border-line-strong bg-sunk" : "border-line bg-sunk/50 hover:border-line-strong hover:bg-sunk")}
       >
-        <span className="grid size-9 place-items-center rounded-full bg-accent text-[13px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
-        <span className="max-w-[12ch] truncate max-lg:hidden">{who.split(/\s+/)[0]}</span>
-        <ChevronDown size={15} className={cx("text-muted transition-transform", open && "rotate-180")} aria-hidden="true" />
-        {badge > 0 && <span className="absolute top-0 left-7"><Badge n={badge} /></span>}
+        <span className="grid size-8 place-items-center rounded-full bg-accent text-[12px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
+        <span className="max-w-[12ch] truncate pl-0.5 max-lg:hidden">{who.split(/\s+/)[0]}</span>
+        <ChevronDown size={15} className={cx("text-muted motion-safe:transition-transform motion-safe:duration-200", open && "rotate-180")} aria-hidden="true" />
+        {badge > 0 && <span className="absolute -top-1 left-6"><Badge n={badge} /></span>}
       </button>
       {open && (
         <div role="menu" className="absolute top-full right-0 z-30 mt-1.5 flex w-72 flex-col gap-1 rounded-xl border border-line bg-surface p-1.5 shadow-card">

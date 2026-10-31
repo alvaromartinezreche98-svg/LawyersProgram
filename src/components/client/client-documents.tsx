@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { CircleCheck, FolderOpen, Upload } from "lucide-react";
+import { ArrowRight, CircleCheck, FileText, FolderOpen, Upload } from "lucide-react";
 import { SCHEMA } from "@/lib/questionnaire/schema";
 import { collectDocs } from "@/lib/questionnaire/progress";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
-import { FileThumb } from "@/components/ui/file-chip";
-import { Card, Eyebrow, Notice, Pill } from "@/components/ui/primitives";
+import { FileChip } from "@/components/ui/file-chip";
+import { ButtonLink, Card, Eyebrow, Notice, Pill } from "@/components/ui/primitives";
 import { openTasks } from "@/lib/data/store";
 import { IconTile, SECTION_ICON } from "@/components/ui/icons";
 import { useClientExp } from "./client-shell";
@@ -33,9 +33,9 @@ export function ClientDocuments() {
       {docs.length > 0 && (
         // What was asked, what is in, what is still missing. "All done" only when nothing is missing.
         <dl className={d.register}>
-          <div><dt>{t.docs.reg.asked}</dt><dd>{docs.length}</dd></div>
-          <div><dt>{t.docs.reg.uploaded}</dt><dd>{docs.length - missing}</dd></div>
-          <div data-missing={missing > 0 || undefined}><dt>{t.docs.reg.missing}</dt><dd>{missing}</dd></div>
+          <div><IconTile icon={FileText} /><dt>{t.docs.reg.asked}</dt><dd>{docs.length}</dd></div>
+          <div><IconTile icon={CircleCheck} tone="ok" /><dt>{t.docs.reg.uploaded}</dt><dd>{docs.length - missing}</dd></div>
+          <div data-missing={missing > 0 || undefined}><IconTile icon={Upload} tone={missing > 0 ? "warn" : "ok"} /><dt>{t.docs.reg.missing}</dt><dd>{missing}</dd></div>
         </dl>
       )}
       {docs.length > 0 && missing === 0 && <p className={d.allDone}><CircleCheck size={16} aria-hidden="true" />{t.docs.reg.allDone}</p>}
@@ -71,9 +71,10 @@ export function ClientDocuments() {
                 <IconTile icon={SECTION_ICON[s.slug]} size="sm" />
                 {tr(s.title)}
               </h2>
-              <Link href={`/declaracion/${s.slug}`} className="text-sm font-semibold whitespace-nowrap text-accent">
-                {t.docs.goSection}
-              </Link>
+              <ButtonLink href={`/declaracion/${s.slug}`} size="sm" variant="outline" className="shrink-0">
+                {t.docs.goSection.replace(/\s*→\s*$/, "")}
+                <ArrowRight size={14} aria-hidden="true" />
+              </ButtonLink>
             </div>
             <ul className="flex flex-col">
               {list.map((d0, i) => (
@@ -85,19 +86,18 @@ export function ClientDocuments() {
                   {d0.files.length ? (
                     <ul className="flex flex-wrap gap-2 sm:justify-end">
                       {d0.files.map((f) => (
-                        <li key={f.id} className="flex max-w-[240px] items-center gap-2 rounded-md border border-line bg-sunk py-1 pr-2.5 pl-1 text-xs">
-                          <FileThumb file={f} size={28} />
-                          <span className="truncate">{f.name}</span>
+                        <li key={f.id} className="flex max-w-[240px]">
+                          <FileChip file={f} />
                         </li>
                       ))}
                     </ul>
                   ) : (
                     <span className={d.missingCell}>
                       <Pill tone="warn">{t.common.missing}</Pill>
-                      <Link href={`/declaracion/${d0.section}#q-${d0.field}${d0.item ? `-${d0.item}` : ""}`} className={d.uploadLink}>
+                      <ButtonLink href={`/declaracion/${d0.section}#q-${d0.field}${d0.item ? `-${d0.item}` : ""}`} size="sm" variant="primary">
                         <Upload size={14} aria-hidden="true" />
                         {t.docs.reg.upload}
-                      </Link>
+                      </ButtonLink>
                     </span>
                   )}
                 </li>

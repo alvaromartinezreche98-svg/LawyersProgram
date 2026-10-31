@@ -34,14 +34,14 @@ export function FileChip({ file }: { file: FileRef }) {
     );
   if (!isImage(file))
     return (
-      <a href={url} {...(isHeic(file) ? { download: file.name } : { target: "_blank", rel: "noopener" })} className={base + " text-accent hover:border-line-strong"}>
+      <a href={url} {...(isHeic(file) ? { download: file.name } : { target: "_blank", rel: "noopener" })} className={base + " text-accent transition-colors hover:border-accent hover:bg-accent-soft"}>
         <FileThumb file={file} size={28} />
         <span className="truncate">{file.name}</span>
       </a>
     );
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className={base + " cursor-zoom-in text-accent hover:border-line-strong"}>
+      <button type="button" onClick={() => setOpen(true)} className={base + " cursor-zoom-in text-accent transition-colors hover:border-accent hover:bg-accent-soft"}>
         <FileThumb file={file} size={28} />
         <span className="truncate">{file.name}</span>
       </button>

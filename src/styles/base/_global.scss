@@ -13,6 +13,14 @@ body {
   font-feature-settings: "kern";
 }
 
+// The gestoría and admin panels scroll inside their own frame on desktop, so the
+// page itself never scrolls there: no empty gutter strip on the right.
+@media (min-width: 1024px) {
+  :root:has([data-app-frame]) {
+    scrollbar-gutter: auto;
+  }
+}
+
 button,
 a,
 [role="button"] {
@@ -44,5 +52,34 @@ a,
 @include from("rail") {
   html:has([data-sticky-foot]) {
     scroll-padding-bottom: 96px;
+  }
+}
+
+// Everything clickable shows the hand (Tailwind's preflight leaves buttons on
+// the arrow). In the base layer, so a cursor-* utility can still override it.
+@layer base {
+  button,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  summary,
+  select,
+  label:has(input[type="checkbox"], input[type="radio"], select),
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="range"],
+  input[type="color"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"] {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled="true"],
+  fieldset:disabled * {
+    cursor: not-allowed;
   }
 }

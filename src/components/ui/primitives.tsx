@@ -11,13 +11,15 @@ const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).jo
 
 /* ---------- Buttons ---------- */
 
-type Variant = "primary" | "secondary" | "ghost" | "danger" | "inverse";
+type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "inverse";
 type Size = "sm" | "md" | "lg";
 const BTN: Record<Variant, string> = {
   primary: "btn-fx-primary border-accent bg-accent text-accent-ink hover:border-accent-hover hover:bg-accent-hover",
   secondary: "btn-fx-soft border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover",
   // White on a navy band (footer, contact column).
   inverse: "btn-fx-inverse border-white bg-white text-accent hover:border-accent-soft hover:bg-accent-soft",
+  // Secondary action next to a primary one: white with a real edge.
+  outline: "border-line-strong bg-surface text-ink shadow-sm hover:border-accent hover:text-accent",
   ghost: "border-transparent bg-transparent text-accent hover:bg-accent-soft",
   danger: "border-transparent bg-transparent text-bad hover:bg-bad-soft",
 };

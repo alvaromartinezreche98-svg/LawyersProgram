@@ -31,8 +31,7 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
     const p = progressOf(s.fields, answers);
     return { slug: s.slug, short: tr(s.short), p, st: sectionState(p) };
   });
-  const states = sections.map((s) => s.st);
-  const done = states.filter((x) => x === "done").length;
+  const done = sections.map((s) => s.st).filter((x) => x === "done").length;
   const idx = SCHEMA.findIndex((s) => s.slug === current);
   const cur = sections[idx];
   const curName = cur ? cur.short : current === SIGN_SLUG ? t.sign.short : t.q.review;
@@ -69,7 +68,7 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
         type="button"
         aria-current={slug === current ? "step" : undefined}
         onClick={() => go(slug)}
-        className={cx("grid w-full grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[14.5px] leading-5 transition-colors", slug === current ? "bg-copper-soft font-semibold shadow-[inset_3px_0_0_var(--copper)]" : "hover:bg-accent-soft")}
+        className={cx("grid w-full grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-3 py-3 text-left text-[14.5px] leading-5 transition-colors", slug === current ? "bg-accent-soft font-semibold text-accent shadow-[inset_3px_0_0_var(--accent)]" : "hover:bg-sunk")}
       >
         {dot}
         <span className="min-w-0 truncate">{name}</span>
@@ -93,7 +92,7 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
           </span>
           <ChevronDown size={18} className={cx("shrink-0 text-muted transition-transform", open && "rotate-180")} aria-hidden="true" />
         </button>
-        <SegMeter states={states} />
+        <LineMeter done={done} total={SCHEMA.length} />
       </div>
 
       {/* Desktop header */}
@@ -102,7 +101,7 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
           <span className="t-eyebrow whitespace-nowrap text-muted">{t.home.yourReturn}</span>
           <span className="text-[13px] whitespace-nowrap text-muted">{t.q.doneShort(done, SCHEMA.length)}</span>
         </div>
-        <SegMeter states={states} />
+        <LineMeter done={done} total={SCHEMA.length} />
       </div>
 
       <div className={cx("max-[959px]:mt-2 max-[959px]:max-h-[60dvh] max-[959px]:overflow-y-auto", open ? "block" : "max-[959px]:hidden")}>
@@ -119,6 +118,15 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
         </ul>
       </div>
     </nav>
+  );
+}
+
+/** One continuous bar for the sections done; each section's own state is in the list below it. */
+function LineMeter({ done, total }: { done: number; total: number }) {
+  return (
+    <div className="h-1.5 overflow-hidden rounded-full bg-sunk" aria-hidden="true">
+      <div className="h-full rounded-full bg-accent motion-safe:transition-[width] motion-safe:duration-300" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+    </div>
   );
 }
 

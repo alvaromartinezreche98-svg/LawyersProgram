@@ -13,7 +13,7 @@ import { DateField } from "@/components/ui/date-field";
 
 export const AP_TONE = { solicitada: "warn", confirmada: "ok", cancelada: "neutral" } as const;
 const today = () => new Date().toISOString().slice(0, 10);
-const seg = (on: boolean) => cx("inline-flex h-(--control-h) items-center gap-2 rounded-md border px-4 text-[14px] font-medium transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-line-strong");
+const seg = (on: boolean) => cx("inline-flex h-(--control-h) items-center gap-2 rounded-md border px-4 text-[14px] font-medium transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-accent hover:bg-accent-soft/40");
 
 /** C8 · Pedir cita: request an office visit or a phone call. */
 export function ClientAppointment() {
@@ -37,14 +37,15 @@ export function ClientAppointment() {
   };
 
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="flex flex-col gap-5">
       <PageTitle>{t.titles.cita}</PageTitle>
-      <div className="flex flex-col gap-5">
-        <div>
-          <Eyebrow>{t.nav.cita}</Eyebrow>
-          <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold">{t.cita.title}</h1>
-          <p className="mt-2 max-w-[60ch] text-muted">{t.cita.intro}</p>
-        </div>
+      <div>
+        <Eyebrow>{t.nav.cita}</Eyebrow>
+        <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold">{t.cita.title}</h1>
+        <p className="mt-2 max-w-[60ch] text-muted">{t.cita.intro}</p>
+      </div>
+      {/* Both cards start level under the heading. */}
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <Card className="p-5 sm:p-6">
           <form onSubmit={submit} className="flex flex-col gap-4">
             <div role="radiogroup" aria-label={t.cita.title} className="flex flex-wrap gap-2">
@@ -55,16 +56,16 @@ export function ClientAppointment() {
                 </button>
               ))}
             </div>
-            <div className="grid gap-4 sm:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="grid gap-4 md:grid-cols-2">
               <label className="flex flex-col gap-1.5 text-[14px] font-medium">
                 {t.cita.date}
                 <DateField min={today()} value={date} onChange={(v) => { setDate(v); setError(""); }} className="font-normal" />
               </label>
               <div className="flex flex-col gap-1.5">
                 <span className="text-[14px] font-medium">{t.cita.slotLabel}</span>
-                <div role="radiogroup" aria-label={t.cita.slotLabel} className="flex gap-2">
+                <div role="radiogroup" aria-label={t.cita.slotLabel} className="grid grid-cols-2 gap-2">
                   {(["manana", "tarde"] as const).map((s) => (
-                    <button key={s} type="button" role="radio" aria-checked={slot === s} onClick={() => setSlot(s)} className={seg(slot === s)}>
+                    <button key={s} type="button" role="radio" aria-checked={slot === s} onClick={() => setSlot(s)} className={cx(seg(slot === s), "justify-center")}>
                       {t.cita.slot[s]}
                     </button>
                   ))}
@@ -73,7 +74,7 @@ export function ClientAppointment() {
             </div>
             <label className="flex flex-col gap-1.5 text-[14px] font-medium">
               {t.cita.note}
-              <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} className="field py-2 font-normal" />
+              <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} className="field resize-none py-2 font-normal" />
             </label>
             {error && <Notice tone="bad">{error}</Notice>}
             {sent && <Notice tone="ok">{t.cita.sent}</Notice>}
@@ -83,12 +84,13 @@ export function ClientAppointment() {
             </Button>
           </form>
         </Card>
-      </div>
 
-      <Card className="p-5 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)] lg:mt-[92px]">
+      <Card className="p-5 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)]">
         <CardTitle>{t.cita.mine}</CardTitle>
         {list.length === 0 ? (
-          <EmptyState icon={CalendarDays} title={t.cita.none} />
+          <div className="rounded-xl border border-line bg-sunk/50">
+            <EmptyState inset icon={CalendarDays} title={t.cita.none} />
+          </div>
         ) : (
           <ul className="flex flex-col">
             {list.map((a) => (
@@ -107,6 +109,7 @@ export function ClientAppointment() {
           </ul>
         )}
       </Card>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { FEATURES } from "@/lib/features";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { REVIEW_SLUG, SCHEMA, SIGN_SLUG, STEP_SLUGS, sectionBySlug } from "@/lib/questionnaire/schema";
+import { progressOf, sectionState } from "@/lib/questionnaire/progress";
 import { signingDone } from "@/lib/data/legal";
 import { SignStep } from "./sign-step";
 import type { AnswerValue, Path } from "@/lib/questionnaire/types";
@@ -81,15 +82,16 @@ export function Questionnaire({ slug }: { slug: string }) {
       <StepsNav answers={exp.answers} current={slug} onSelect={go} footer={<SaveStatus idle={t.q.autosave} />} signDone={signDone} requested={new Set(openTasks(exp).map((x) => x.target?.section).filter((x): x is string => !!x))} />
       <section className="min-w-0 rounded-xl border border-line bg-surface shadow-sheet">
         {/* Sheet head: where the client is, the save status, the step's title */}
-        <header className="flex flex-col gap-1.5 border-b border-line px-4 pt-6 pb-5 sm:px-8 lg:px-10">
+        <header className="flex flex-col gap-1 border-b border-line px-4 pt-6 pb-5 sm:px-8 lg:px-10">
           <div className="flex items-center justify-between gap-3">
-            <span className="t-eyebrow text-accent">
+            <span className="t-eyebrow text-[12.5px] text-accent">
               {section ? t.q.sectionOf(SCHEMA.indexOf(section) + 1, SCHEMA.length) : isSign ? t.sign.short : t.q.review}
             </span>
             <SaveStatus idle={t.q.autosave} className="max-[959px]:hidden" />
           </div>
-          <div className="flex items-center gap-3.5">
-            <IconTile icon={SECTION_ICON[slug] ?? ClipboardCheck} size="lg" />
+          {/* The tile takes the section's state: green once complete, terracotta while half done, navy before. */}
+          <div className="flex items-center gap-3">
+            <IconTile icon={SECTION_ICON[slug] ?? ClipboardCheck} tone={section ? ({ done: "ok", partial: "copper", empty: "accent" } as const)[sectionState(progressOf(section.fields, exp.answers))] : "accent"} />
             <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold">{title}</h1>
           </div>
         </header>

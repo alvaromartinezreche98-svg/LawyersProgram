@@ -74,7 +74,7 @@ export function GestorShell({ children }: { children: ReactNode }) {
 
       <div className="min-w-0 lg:h-dvh lg:p-3 print:h-auto print:p-0">
         <QuickSearch open={searching} onClose={() => setSearching(false)} />
-        <div className="min-h-[calc(100dvh-56px)] bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet print:h-auto print:overflow-visible print:border-0 print:shadow-none">{children}</div>
+        <div data-app-frame className="min-h-[calc(100dvh-56px)] bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain thin-scroll lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet print:h-auto print:overflow-visible print:border-0 print:shadow-none">{children}</div>
       </div>
     </div>
   );
@@ -111,7 +111,7 @@ function Sidebar({ onNavigate, onSearch, compact }: { onNavigate: () => void; on
     <nav aria-label={t.side.main} className="flex h-full flex-col bg-chrome text-chrome-ink on-dark lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
       {/* Who is signed in: the gestoría, at the top. */}
       <div className={cx("mx-3 flex items-center gap-3 border-b border-chrome-line px-2 pt-4 pb-4", compact && "lg:mx-2 lg:justify-center lg:px-0")}>
-        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[inset_0_-3px_0_var(--copper)]" title={compact ? firmName : undefined} aria-hidden={!compact}>
+        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-chrome-ink text-[13px] font-bold text-chrome shadow-[0_1px_2px_rgb(0_0_0/0.16)]" title={compact ? firmName : undefined} aria-hidden={!compact}>
           {firmName[0].toUpperCase()}
         </span>
         <span className={cx("min-w-0 flex-1", compact && "lg:sr-only")}>
