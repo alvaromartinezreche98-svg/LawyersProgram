@@ -10,7 +10,11 @@
 body {
   background: var(--bg);
   color: var(--ink);
-  font-feature-settings: "kern";
+  // Inter: kerning, the open digit 1 and straight-sided 6/9 (cv11) read cleanly in tables
+  font-feature-settings: "kern", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 // The gestoría and admin panels scroll inside their own frame on desktop, so the

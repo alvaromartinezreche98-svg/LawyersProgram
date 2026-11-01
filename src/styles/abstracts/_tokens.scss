@@ -199,8 +199,8 @@ $control: (
 );
 
 // ---------- Typography ----------
-// Serif (Source Serif 4) only for page titles and brand statements; IBM Plex Sans for the rest.
-$font-sans: (var(--font-plex), "Helvetica Neue", Arial, sans-serif);
+// Serif (Source Serif 4) only for page titles and brand statements; Inter for the rest.
+$font-sans: (var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
 $font-serif: (var(--font-source-serif), "Source Serif Pro", Georgia, serif);
 $type: (
   // name: (size, line-height, weight, tracking)
