@@ -212,6 +212,11 @@ export function CampaignBoard() {
         <section className="flex flex-col gap-2">
           <h2 className="display-tight text-[15px] font-semibold">{t.board.workload}</h2>
           {/* Phones: one card per accountant (the three figures labelled under the name); from sm a table */}
+          <p className="-mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-muted sm:hidden" aria-hidden="true">
+            <span className="inline-flex items-center gap-1"><i className="size-2 rounded-full bg-line-strong" />{t.board.cols.cases}</span>
+            <span className="inline-flex items-center gap-1"><i className="size-2 rounded-full bg-bad" />{t.board.cols.attention}</span>
+            <span className="inline-flex items-center gap-1"><i className="size-2 rounded-full bg-info" />{t.board.cols.approval}</span>
+          </p>
           <div className="overflow-hidden rounded-lg border border-line bg-surface">
             <div>
             <div className="table-head hidden grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] gap-4 whitespace-nowrap sm:grid">
@@ -221,11 +226,17 @@ export function CampaignBoard() {
               <span className="text-right">{t.board.cols.approval}</span>
             </div>
             {load.map((m) => (
-              <div key={m.id ?? "none"} className="grid grid-cols-3 gap-x-3 gap-y-2 border-t border-line px-4 py-3 text-[14px] first:border-t-0 sm:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] sm:gap-4 sm:py-2.5 sm:first:border-t-0">
-                <span className={cx("col-span-3 truncate font-medium sm:col-span-1 sm:font-normal", m.id === null && "text-muted")}>{m.name}</span>
-                <WorkFigure label={t.board.cols.cases} className="">{m.cases}</WorkFigure>
-                <WorkFigure label={t.board.cols.attention} className={m.attention ? "font-semibold text-copper-text" : "text-muted"}>{m.attention}</WorkFigure>
-                <WorkFigure label={t.board.cols.approval} className="text-muted">{m.approval}</WorkFigure>
+              <div key={m.id ?? "none"} className="flex items-center gap-2 border-t border-line px-3 py-2 text-[14px] first:border-t-0 sm:grid sm:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] sm:gap-4 sm:px-4 sm:py-2.5">
+                <span className={cx("min-w-0 flex-1 truncate font-medium sm:font-normal", m.id === null && "text-muted")}>{m.name}</span>
+                {/* phones: three small figures in fixed columns, explained once in the legend above */}
+                <span className="flex shrink-0 gap-1 sm:hidden">
+                  <WorkBadge label={t.board.cols.cases} n={m.cases} tone="neutral" />
+                  <WorkBadge label={t.board.cols.attention} n={m.attention} tone="bad" />
+                  <WorkBadge label={t.board.cols.approval} n={m.approval} tone="info" />
+                </span>
+                <span className="figures hidden text-right sm:block">{m.cases}</span>
+                <span className={cx("figures hidden text-right sm:block", m.attention ? "font-semibold text-copper-text" : "text-muted")}>{m.attention}</span>
+                <span className="figures hidden text-right text-muted sm:block">{m.approval}</span>
               </div>
             ))}
             </div>
@@ -320,12 +331,14 @@ function AlertChip({ level, alerts, label }: { level: "bad" | "warn"; alerts: Al
   );
 }
 
-/** One figure of the workload: a right-aligned cell in the table; on phones, a small label over it. */
-function WorkFigure({ label, className, children }: { label: string; className: string; children: ReactNode }) {
+/** Phones: one figure of the workload as a small badge (its meaning is in the legend and the label). */
+function WorkBadge({ label, n, tone }: { label: string; n: number; tone: "neutral" | "bad" | "info" }) {
+  const on = n > 0;
+  const cls = !on ? "bg-sunk text-disabled" : tone === "bad" ? "bg-bad-soft text-bad" : tone === "info" ? "bg-info-soft text-info" : "bg-sunk text-ink";
   return (
-    <span className="flex flex-col sm:block sm:text-right">
-      <span className="text-[11.5px] text-muted sm:sr-only">{label}</span>
-      <span className={cx("figures", className)}>{children}</span>
+    <span title={label} className={cx("figures grid h-6 min-w-8 place-items-center rounded-md px-1.5 text-[12.5px] font-semibold", cls)}>
+      {n}
+      <span className="sr-only"> {label}</span>
     </span>
   );
 }
