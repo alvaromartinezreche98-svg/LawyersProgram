@@ -25,14 +25,14 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
  * Each column's colour, after what its status means: grey draft, blue sent, amber under
  * review, green ready. The column gets a faint wash of it, the header the full colour.
  */
-// Every column on the same pale ground with white cards; the head is white too, and a thin
-// coloured rule along its top (with its count in the same tone) tells the stages apart at a glance:
-// draft slate, sent blue, under review bronze (the gestoría is on it), ready green.
-const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string; rule: string; badge: string }> = {
-  borrador: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-sunk text-muted ring-line" },
-  enviado: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-info-soft text-info ring-info/20" },
-  revision: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-copper-soft text-copper-text ring-copper/25" },
-  listo: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-ok-soft text-ok ring-ok/20" },
+// Each column on its own very faint shell of its stage's tone (a few percent over the page grey),
+// its head a touch deeper with a thin rule of the full tone on top; the cards stay white.
+// Draft slate, sent blue, under review amber (the gestoría is on it), ready green.
+const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string; rule: string; badge: string; headBg: string }> = {
+  borrador: { col: "bg-[color-mix(in_srgb,var(--line-strong)_9%,var(--bg))]", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-surface text-muted ring-line", headBg: "bg-[color-mix(in_srgb,var(--line-strong)_14%,var(--surface))]" },
+  enviado: { col: "bg-[color-mix(in_srgb,var(--info)_5%,var(--bg))]", border: "border-info/15", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-surface text-info ring-info/25", headBg: "bg-[color-mix(in_srgb,var(--info)_10%,var(--surface))]" },
+  revision: { col: "bg-[color-mix(in_srgb,var(--copper)_5%,var(--bg))]", border: "border-copper/15", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-surface text-copper-text ring-copper/25", headBg: "bg-[color-mix(in_srgb,var(--copper)_10%,var(--surface))]" },
+  listo: { col: "bg-[color-mix(in_srgb,var(--ok)_5%,var(--bg))]", border: "border-ok/15", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-surface text-ok ring-ok/25", headBg: "bg-[color-mix(in_srgb,var(--ok)_10%,var(--surface))]" },
 };
 
 export function CampaignBoard() {
@@ -177,7 +177,7 @@ export function CampaignBoard() {
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-md border border-line border-t-[3px] bg-surface px-3 py-2.5 shadow-sm max-md:hidden", tone.rule)} title={tr(s.help)}>
+                  <header className={cx("flex items-center gap-2 rounded-md border border-line/70 border-t-[3px] px-3 py-2.5 max-md:hidden", tone.rule, tone.headBg)} title={tr(s.help)}>
                     <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em] text-ink">{tr(s.label)}</h2>
                     <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold ring-1", tone.badge)}>{col.length}</span>
                   </header>
@@ -263,7 +263,7 @@ function Card({ x, member, dragging, moved, onDrag }: { x: Triage; member?: stri
       onDragEnd={() => onDrag(false)}
       title={t.board.dragHint}
       className={cx(
-        "group relative flex shrink-0 cursor-grab flex-col gap-3 rounded-lg border bg-surface pad-tile shadow-sm transition-[opacity,border-color,box-shadow,translate,scale] duration-200 active:cursor-grabbing",
+        "group relative flex shrink-0 cursor-grab flex-col gap-2 rounded-lg border bg-surface px-3 py-2.5 shadow-sm transition-[opacity,border-color,box-shadow,translate,scale] duration-200 active:cursor-grabbing",
         // in hand: the original stays as a faded placeholder; just moved: a short terracotta glow where it landed
         dragging ? "motion-safe:scale-[0.98] border-dashed border-line-strong opacity-40"
         : moved ? "border-copper shadow-[0_0_0_3px_var(--copper-soft)]"
@@ -273,21 +273,21 @@ function Card({ x, member, dragging, moved, onDrag }: { x: Triage; member?: stri
     >
       {/* Head: the client, the accountant beside the name, and the grip that shows on hover. */}
       <span className="flex items-center gap-2">
-        <Link href={`/expedientes/${x.exp.id}`} className="min-w-0 flex-1 truncate text-[14px] font-semibold text-ink after:absolute after:inset-0 hover:underline">
+        <Link href={`/expedientes/${x.exp.id}`} className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-ink after:absolute after:inset-0 hover:underline">
           {x.name || t.common.unnamedClient}
         </Link>
         {member && (
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-accent-soft text-[10.5px] font-semibold text-accent" title={member}>
+          <span className="grid size-5 shrink-0 place-items-center rounded-full bg-accent-soft text-[9.5px] font-semibold text-accent" title={member}>
             {initials(member)}
           </span>
         )}
         <GripVertical size={15} className="-mr-1 shrink-0 text-line-strong opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
       </span>
       <span className="flex items-center gap-2">
-        <ProgressBar pct={x.pct} className="flex-1" />
-        <span className={cx("figures w-10 text-right text-[12px] font-semibold", x.pct === 100 ? "text-ok" : "text-ink/70")}>{x.pct} %</span>
+        <ProgressBar pct={x.pct} className="h-1! flex-1 rounded-full" />
+        <span className={cx("figures w-9 text-right text-[11.5px] font-semibold", x.pct === 100 ? "text-ok" : "text-ink/70")}>{x.pct} %</span>
       </span>
-      <span className="flex flex-wrap items-center gap-1.5 empty:hidden">
+      <span className="flex flex-wrap items-center gap-1 empty:hidden">
         {x.unread > 0 && (
           <span className={cx(CHIP, "bg-info-soft text-info ring-info/20")}>
             <MessageCircle size={12} strokeWidth={2.3} aria-hidden="true" />
@@ -301,7 +301,7 @@ function Card({ x, member, dragging, moved, onDrag }: { x: Triage; member?: stri
   );
 }
 
-const CHIP = "relative z-10 inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[11.5px] font-semibold ring-1";
+const CHIP = "relative z-10 inline-flex h-5 items-center gap-1 rounded px-1.5 text-[11px] font-semibold ring-1";
 
 /** A card's alert count as a chip; hovering or focusing it lists what the alerts are, so the case need not be opened. */
 function AlertChip({ level, alerts, label }: { level: "bad" | "warn"; alerts: Alert[]; label: string }) {
