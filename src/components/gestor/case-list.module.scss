@@ -1121,18 +1121,8 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
         0 18px 40px -14px rgb(var(--accent-rgb) / 0.28);
     }
 
-    &[data-hot] {
-      border: 1px solid color-mix(in srgb, var(--line-strong) 45%, var(--line));
-      background: #fff;
 
-      .cardN {
-        color: var(--ink);
-      }
-    }
 
-    &[data-hot][data-tone="bad"] .cardN {
-      color: var(--bad);
-    }
 
     &[aria-pressed="true"] {
       background: var(--accent-soft);
@@ -1149,8 +1139,8 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
     width: 40px;
     height: 40px;
     align-self: center;
-    border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
-    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
+    border-radius: 8px;
     background: var(--icon-soft);
     box-shadow: none;
     color: var(--icon);
@@ -1161,15 +1151,27 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
     }
   }
 
-  // a card with something in it: a fine navy border; an empty one steps back
+  // a card with something in it: a faint wash of the accent and a fine accent border, the
+  // figure in the accent; an empty one stays neutral and steps back
   .card:not([data-zero]) {
-    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    border-color: color-mix(in srgb, var(--copper) 35%, transparent);
+    background: color-mix(in srgb, var(--copper) 4%, #fff);
+
+    .cardN {
+      color: var(--copper);
+    }
+
+    .cardIcon {
+      border-color: color-mix(in srgb, var(--copper) 22%, transparent);
+      background: #fff;
+      color: var(--copper);
+    }
   }
 
   .card[data-zero] {
     border-color: var(--line);
     box-shadow: none;
-    opacity: 0.72;
+    opacity: 0.6;
 
     .cardIcon {
       border-color: var(--line);
@@ -1180,8 +1182,8 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
 
   .cardN {
     align-self: center;
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
     line-height: 1;
     letter-spacing: -0.02em;
   }
