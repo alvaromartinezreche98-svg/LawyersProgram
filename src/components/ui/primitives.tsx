@@ -186,6 +186,9 @@ export function EmptyState({ icon: Icon, title, children, tone = "neutral", inse
  */
 export const HEADER_BAR = "h-14 sm:h-16";
 export const HEADER_LOGO = 32;
+/** The emblem's drawing starts 6/40 in from its left edge: pulling it back by that much (5px at 32px)
+ * puts the visible mark on the content's left edge, in line with the cards below. */
+export const HEADER_LOGO_ALIGN = "-ml-[5px]";
 export const HEADER_ICON_BTN = "relative grid size-10 shrink-0 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink transition-colors hover:bg-sunk active:bg-sunk";
 export const HEADER_LANG = "h-9";
 

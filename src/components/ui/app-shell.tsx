@@ -184,7 +184,7 @@ function Cobrand({ org, inSidebar }: { org?: string; inSidebar?: boolean }) {
         // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
         <img src={url} alt="" className={cx("shrink-0 rounded-lg border border-line object-contain", inSidebar ? "size-10" : "size-8")} />
       ) : (
-        <FirmEmblem size={inSidebar ? 40 : HEADER_LOGO} className="shrink-0" />
+        <FirmEmblem size={inSidebar ? 40 : HEADER_LOGO} className={cx("shrink-0", !inSidebar && "md:-ml-[5px]")} />
       )}
       {/* Between 768 and 1280px the tabs need the room: the logo slot alone stands for the gestoría. */}
       <FirmWordmark name={org} className={cx(!inSidebar && "md:max-xl:sr-only")} />

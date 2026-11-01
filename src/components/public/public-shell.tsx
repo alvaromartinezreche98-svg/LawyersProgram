@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { LEGAL_DOCS } from "@/lib/legal/content";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { LangSwitch } from "@/components/ui/lang-switch";
-import { Brand, ButtonLink, cx, HEADER_BAR, HEADER_LANG, HEADER_LOGO } from "@/components/ui/primitives";
+import { Brand, ButtonLink, cx, HEADER_BAR, HEADER_LANG, HEADER_LOGO, HEADER_LOGO_ALIGN } from "@/components/ui/primitives";
 import { LogIn, Mail, MapPin, Phone } from "lucide-react";
 import { useAppState } from "@/lib/data/store";
 import { useFileUrl } from "@/lib/data/files";
@@ -64,7 +64,7 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
                 </span>
               ) : (
                 // No logo uploaded yet: the gestoría's emblem.
-                <FirmEmblem size={HEADER_LOGO} className="shrink-0" />
+                <FirmEmblem size={HEADER_LOGO} className={cx("shrink-0", HEADER_LOGO_ALIGN)} />
               )}
               <span className={f.firmBrand}>
                 <FirmWordmark name={firmName} />
