@@ -20,6 +20,8 @@ export type ApiErrorKind =
   | "conflict"
   /** 413: the upload is too large. */
   | "tooLarge"
+  /** 415: the upload is not PDF, JPEG, PNG, WebP, GIF or HEIC/HEIF (detected from content). */
+  | "unsupportedType"
   /** 422: a field did not pass validation. */
   | "invalid"
   /** 5xx or an unexpected status. */
@@ -27,7 +29,7 @@ export type ApiErrorKind =
   /** No response at all (offline, DNS, CORS, timeout). */
   | "network";
 
-const KIND: Record<number, ApiErrorKind> = { 401: "unauthenticated", 403: "forbidden", 404: "notFound", 409: "conflict", 413: "tooLarge", 422: "invalid" };
+const KIND: Record<number, ApiErrorKind> = { 401: "unauthenticated", 403: "forbidden", 404: "notFound", 409: "conflict", 413: "tooLarge", 415: "unsupportedType", 422: "invalid" };
 
 export const kindOf = (status: number): ApiErrorKind => KIND[status] ?? "server";
 

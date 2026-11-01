@@ -11,7 +11,7 @@
 import { SCHEMA } from "@/lib/questionnaire/schema";
 import { ITEM_ID, type AnswerValue, type Answers, type Field, type FileRef } from "@/lib/questionnaire/types";
 import type { ChatMessage, Expediente, Status } from "@/lib/data/types";
-import type { ApiCase, ApiCaseDetail, ApiDocument, ApiMessage, ApiSection, ApiStaffCase, ApiStatus } from "./types";
+import type { ApiCase, ApiCaseDetail, ApiDefinitionField, ApiDocument, ApiMessage, ApiSection, ApiStaffCase, ApiStatus } from "./types";
 
 export const TO_API_STATUS: Record<Status, ApiStatus> = { borrador: "draft", enviado: "submitted", revision: "in_review", listo: "ready_to_file" };
 export const FROM_API_STATUS: Record<ApiStatus, Status> = { draft: "borrador", submitted: "enviado", in_review: "revision", ready_to_file: "listo" };
@@ -193,4 +193,24 @@ export function caseFromApi(c: ApiCase | ApiCaseDetail | ApiStaffCase, base?: Ex
       cursor: base?.remote?.cursor ?? null,
     },
   };
+}
+
+/**
+ * Keeps only the answers the case's pinned definition knows (the API rejects
+ * unknown keys with 422), so a question this app has and that definition
+ * lacks never blocks saving the rest of the section.
+ */
+export function pruneToDefinition(answers: Record<string, unknown>, fields: ApiDefinitionField[]): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const f of fields) {
+    if (!(f.key in answers) || f.type === "upload") continue;
+    const v = answers[f.key];
+    out[f.key] = f.type === "list" && Array.isArray(v)
+      ? v.map((it) => {
+          const item = (it ?? {}) as Record<string, unknown>;
+          return { ...(typeof item.id === "string" ? { id: item.id } : {}), ...pruneToDefinition(item, f.item_fields ?? []) };
+        })
+      : v;
+  }
+  return out;
 }

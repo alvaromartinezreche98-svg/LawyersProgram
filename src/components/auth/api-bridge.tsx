@@ -10,7 +10,7 @@ import "@/lib/api/remote";
 export function ApiBridge() {
   const { getToken, isSignedIn } = useAuth();
   useEffect(() => {
-    setTokenGetter(isSignedIn ? () => getToken({ template: JWT_TEMPLATE }) : null);
+    setTokenGetter(isSignedIn ? (fresh) => getToken({ template: JWT_TEMPLATE, skipCache: fresh }) : null);
     return () => setTokenGetter(null);
   }, [getToken, isSignedIn]);
   return null;

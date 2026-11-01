@@ -17,12 +17,25 @@ import type { Expediente, Status } from "@/lib/data/types";
 import type { Answers, FileRef } from "@/lib/questionnaire/types";
 import { isApiError } from "./client";
 import { api } from "./endpoints";
-import { TO_API_STATUS, answersFromApi, applySection, caseFromApi, changedSections, messageFromApi, sectionToApi } from "./mapping";
-import type { ApiStaffCase } from "./types";
+import { TO_API_STATUS, answersFromApi, applySection, caseFromApi, changedSections, messageFromApi, pruneToDefinition, sectionToApi } from "./mapping";
+import type { ApiDefinition, ApiStaffCase } from "./types";
 
 const get = (id: string) => remoteStore.get().exps[id];
 
 /* ---------- Reads ---------- */
+
+/** The questionnaire definitions by version (a case is pinned to one for life); fetched once each. */
+const definitions = new Map<string, Promise<ApiDefinition | null>>();
+function definition(version: string) {
+  if (!definitions.has(version)) {
+    const p = api.definition(version).catch(() => {
+      definitions.delete(version); // try again on the next save
+      return null;
+    });
+    definitions.set(version, p);
+  }
+  return definitions.get(version)!;
+}
 
 /** The signed-in client's current case (newest tax year), loaded in full; null when they have none. */
 export async function loadClientCase(): Promise<string | null> {
@@ -54,6 +67,7 @@ export async function loadCase(id: string, staff: boolean) {
     api.messages(id),
     staff ? api.note(id) : Promise.resolve(null),
   ]);
+  void definition(detail.definition_version);
   const base = get(id);
   const e = caseFromApi(detail, base);
   e.answers = answersFromApi(sections.items, docs.items, id);
@@ -145,7 +159,11 @@ export async function flush(): Promise<void> {
 async function saveOne(id: string, key: string, retried = false): Promise<void> {
   const e = get(id);
   if (!e?.remote) return;
-  const answers = sectionToApi(key, e.answers);
+  const defn = await definition(e.remote.definitionVersion);
+  const def = defn?.sections.find((s) => s.key === key);
+  // A section the pinned definition does not have cannot be saved (the API answers 404): skip it.
+  if (defn && !def) return;
+  const answers = def ? pruneToDefinition(sectionToApi(key, e.answers), def.fields) : sectionToApi(key, e.answers);
   try {
     const res = await api.saveSection(id, key, { definition_version: e.remote.definitionVersion, answers, expected_case_version: e.remote.version });
     baseOf(id).set(key, res.answers ?? answers);

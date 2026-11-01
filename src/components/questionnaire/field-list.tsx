@@ -6,6 +6,7 @@ import { ITEM_ID, type AnswerValue, type Answers, type Field, type FileRef, type
 import { asFiles, asItems, asText, getIn, progressOf, sectionState, showsKids } from "@/lib/questionnaire/progress";
 import { actions, useAppState } from "@/lib/data/store";
 import { slotKey, type ClientTask, type Expediente } from "@/lib/data/types";
+import { isApiError } from "@/lib/api/client";
 import { ACCEPTED, MAX_FILE_BYTES, deleteFile, isAccepted, isHeic, putFile, typeOf, useFileUrl } from "@/lib/data/files";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDayMonth, uid } from "@/lib/format";
@@ -355,8 +356,13 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
         }
         added.push(ref);
         setPending((p) => p.filter((x) => x.key !== b.key));
-      } catch {
-        setPending((p) => p.map((x) => (x.key === b.key ? { ...x, failed: true } : x)));
+      } catch (err) {
+        // The API refused the file itself (size or type): retrying would not help, so say why and drop it.
+        const kind = isApiError(err) ? err.kind : null;
+        if (kind === "tooLarge" || kind === "unsupportedType") {
+          notify(t.sync.error[kind]);
+          setPending((p) => p.filter((x) => x.key !== b.key));
+        } else setPending((p) => p.map((x) => (x.key === b.key ? { ...x, failed: true } : x)));
       }
     }
     return added;

@@ -4,10 +4,17 @@
  */
 import { API_URL, ApiError, apiRequest } from "./client";
 import { apiToken } from "./token";
-import type { ApiCase, ApiCaseDetail, ApiClientItem, ApiCurrentUser, ApiDocument, ApiInvitation, ApiMessage, ApiNote, ApiSection, ApiStaffCase, ApiStatus, Page } from "./types";
+import type { ApiCase, ApiCaseDetail, ApiClientItem, ApiCurrentUser, ApiDefinition, ApiDocument, ApiInvitation, ApiMessage, ApiNote, ApiSection, ApiStaffCase, ApiStatus, Page } from "./types";
 
-const call = async <T>(path: string, init: { method?: "GET" | "POST" | "PUT" | "DELETE"; body?: unknown } = {}) =>
-  apiRequest<T>(path, { ...init, token: await apiToken() });
+/** A 401 means the token expired on the way: ask Clerk for a fresh one and try once more. */
+const call = async <T>(path: string, init: { method?: "GET" | "POST" | "PUT" | "DELETE"; body?: unknown } = {}) => {
+  try {
+    return await apiRequest<T>(path, { ...init, token: await apiToken() });
+  } catch (err) {
+    if (!(err instanceof ApiError) || err.kind !== "unauthenticated") throw err;
+    return apiRequest<T>(path, { ...init, token: await apiToken(true) });
+  }
+};
 const enc = encodeURIComponent;
 
 export const api = {
@@ -29,6 +36,7 @@ export const api = {
   submit: (id: string, expected_version: number) => call<ApiCaseDetail>(`/v1/cases/${enc(id)}/submit`, { method: "POST", body: { expected_version } }),
 
   /* Questionnaire */
+  definition: (version: string) => call<ApiDefinition>(`/v1/questionnaire/definitions/${enc(version)}`),
   sections: (id: string) => call<{ items: ApiSection[] }>(`/v1/cases/${enc(id)}/sections`),
   saveSection: (id: string, key: string, body: { definition_version: string; answers: Record<string, unknown>; expected_case_version: number }) =>
     call<ApiSection & { case_version: number }>(`/v1/cases/${enc(id)}/sections/${enc(key)}`, { method: "PUT", body }),

@@ -948,6 +948,7 @@ export const va: Dict = {
       notFound: "No hem trobat el que busca. Pot ser que ja no existisca o que no hi tinga accés.",
       conflict: "Això ha canviat mentres el tenia obert. Recarregue per a veure l'última versió i repetisca el canvi.",
       tooLarge: "L'arxiu és massa gran. El màxim és 20 MB.",
+      unsupportedType: "Aquest tipus d'arxiu no s'admet. Pugeu un PDF o una foto (JPG, PNG, WebP, GIF o HEIC).",
       invalid: "Alguna dada no és vàlida. Revise els camps marcats.",
       server: "Hi ha hagut un problema en el servidor. Torne-ho a provar d'ací a uns segons.",
       network: "No hi ha connexió amb el servidor. Comprove la connexió i torne-ho a provar.",

@@ -10,16 +10,15 @@ const DB_NAME = "prerenta-files";
 const STORE = "files";
 export const MAX_FILE_BYTES = 20 * 1024 * 1024;
 /** HEIC/HEIF (iPhone photos) are listed by extension: some browsers report no type for them. */
-export const ACCEPTED = "image/*,.heic,.heif,application/pdf";
+export const ACCEPTED = "image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif,application/pdf";
 
 const HEIC = /\.(heic|heif)$/i;
 /** MIME type for a picked file, filling in HEIC/HEIF photos the browser left untyped. */
 export const typeOf = (f: { name: string; type: string }) => f.type || (HEIC.test(f.name) ? (/f$/i.test(f.name) ? "image/heif" : "image/heic") : "");
-/** Files the questionnaire accepts: images (HEIC included) and PDF. */
-export const isAccepted = (f: { name: string; type: string }) => {
-  const t = typeOf(f);
-  return t.startsWith("image/") || t === "application/pdf";
-};
+/** The types the API stores (it checks the content, and rejects SVG, BMP, TIFF and the rest with 415). */
+const TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
+/** Files the questionnaire accepts: PDF and photos (JPEG, PNG, WebP, GIF, HEIC/HEIF). */
+export const isAccepted = (f: { name: string; type: string }) => TYPES.includes(typeOf(f));
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 function db() {

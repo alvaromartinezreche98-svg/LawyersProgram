@@ -104,3 +104,16 @@ export interface Page<T> {
   items: T[];
   next_cursor: string | null;
 }
+
+/** GET /v1/questionnaire/definitions/{version}: the questionnaire a case is pinned to. */
+export interface ApiDefinitionField {
+  key: string;
+  label: string;
+  type: "string" | "text" | "boolean" | "integer" | "money" | "date" | "enum" | "list" | "upload";
+  item_fields?: ApiDefinitionField[];
+}
+export interface ApiDefinition {
+  version: string;
+  tax_year: number;
+  sections: { key: string; label: string; fields: ApiDefinitionField[] }[];
+}
