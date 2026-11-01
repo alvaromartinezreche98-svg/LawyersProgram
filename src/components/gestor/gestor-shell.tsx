@@ -81,7 +81,7 @@ export function GestorShell({ children }: { children: ReactNode }) {
       style={{ "--side-w": `${compact ? SIDE_W.folded : SIDE_W.open}px` } as CSSProperties}
       className="gestor-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[var(--side-w)_minmax(0,1fr)] lg:overflow-hidden motion-safe:lg:transition-[grid-template-columns] motion-safe:lg:duration-300 motion-safe:lg:ease-out print:block print:h-auto print:overflow-visible"
     >
-      <div className={cx("sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-surface/90 px-4 backdrop-blur-md sm:px-6 lg:hidden print:hidden", HEADER_BAR)}>
+      <div className={cx("sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-surface/95 px-4 shadow-[0_1px_3px_rgb(0_0_0/0.06),0_4px_12px_-6px_rgb(var(--accent-rgb)/0.15)] backdrop-blur-md sm:px-6 lg:hidden print:hidden", HEADER_BAR)}>
         <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className={HEADER_ICON_BTN}>
           <Menu size={18} strokeWidth={1.9} aria-hidden="true" />
         </button>
@@ -106,7 +106,7 @@ export function GestorShell({ children }: { children: ReactNode }) {
 
       <div className="min-w-0 lg:h-dvh lg:p-3 print:h-auto print:p-0">
         <QuickSearch open={searching} onClose={() => setSearching(false)} />
-        <div data-app-frame className="min-h-[calc(100dvh-56px)] max-lg:overflow-x-clip bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain thin-scroll lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet print:h-auto print:overflow-visible print:border-0 print:shadow-none">{children}</div>
+        <div data-app-frame className="min-h-[calc(100dvh-56px)] max-lg:overflow-x-clip max-lg:bg-bg bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain thin-scroll lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet print:h-auto print:overflow-visible print:border-0 print:shadow-none">{children}</div>
       </div>
     </div>
   );

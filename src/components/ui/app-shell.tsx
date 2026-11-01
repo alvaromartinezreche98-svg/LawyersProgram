@@ -66,7 +66,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
     >
       {nav.length > 0 && <ClientSidebar nav={nav} who={who} org={org} isOn={isOn} folded={folded} onFold={() => setFolded(!folded)} />}
       {/* Hidden (height 0) beside the sidebar, so --app-header drops to 0 and sticky columns sit at the top. */}
-      <header ref={head} className={cx("sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur-md supports-[not(backdrop-filter:blur(1px))]:bg-surface", nav.length > 0 && "xl:hidden")}>
+      <header ref={head} className={cx("sticky top-0 z-30 border-b border-line bg-surface/95 shadow-[0_1px_3px_rgb(0_0_0/0.06),0_4px_12px_-6px_rgb(var(--accent-rgb)/0.15)] backdrop-blur-md supports-[not(backdrop-filter:blur(1px))]:bg-surface", nav.length > 0 && "xl:hidden")}>
         <div className={cx("mx-auto flex max-w-client items-center gap-x-5 px-4 max-md:gap-x-3 sm:px-6", HEADER_BAR)}>
           {/* Phones: the menu on the left opens every section in a drawer */}
           {nav.length > 0 && <MobileDrawer nav={nav} who={who} org={org} isOn={isOn} />}
