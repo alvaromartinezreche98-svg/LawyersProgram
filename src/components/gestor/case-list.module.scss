@@ -1098,12 +1098,13 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
       "n     icon";
     row-gap: space(2);
     padding: space(5) space(5) space(4);
-    border: 0;
+    // a clear 1px edge all round and a modest shadow: each tile reads as its own card
+    border: 1px solid color-mix(in srgb, var(--line-strong) 45%, var(--line));
     border-radius: 14px;
-    background: var(--surface);
+    background: #fff;
     box-shadow:
-      0 1px 2px rgb(15 23 42 / 0.04),
-      0 12px 32px -14px rgb(15 23 42 / 0.18);
+      0 1px 2px rgb(15 23 42 / 0.06),
+      0 4px 12px -4px rgb(15 23 42 / 0.1);
 
     // the glow rule
     &::before {
@@ -1119,15 +1120,15 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
     &[data-zero] { --rule: var(--line-strong); }
 
     @include hover {
-      border-color: transparent;
+      border-color: var(--line-strong);
       box-shadow:
         0 1px 2px rgb(15 23 42 / 0.05),
         0 18px 40px -14px rgb(var(--accent-rgb) / 0.28);
     }
 
     &[data-hot] {
-      border: 0;
-      background: var(--surface);
+      border: 1px solid color-mix(in srgb, var(--line-strong) 45%, var(--line));
+      background: #fff;
 
       .cardN {
         color: var(--ink);
@@ -1142,6 +1143,10 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
       background: var(--accent-soft);
       box-shadow: 0 0 0 1.5px var(--accent), 0 12px 32px -14px rgb(var(--accent-rgb) / 0.3);
     }
+  }
+
+  .cards {
+    gap: space(4);
   }
 
   .cardIcon {
