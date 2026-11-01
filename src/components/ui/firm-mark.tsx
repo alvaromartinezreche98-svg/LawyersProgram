@@ -23,7 +23,7 @@ export function FirmEmblem({ size = 40, tone = "light", className }: { size?: nu
       {/* the figures: two in the page's ink, the last one in terracotta */}
       <rect x="11" y="23" width="4" height="9" rx="1.2" fill={dark ? "#20364f" : "#ffffff"} fillOpacity={dark ? 0.85 : 0.92} />
       <rect x="17.5" y="19" width="4" height="13" rx="1.2" fill={dark ? "#20364f" : "#ffffff"} fillOpacity={dark ? 0.85 : 0.92} />
-      <rect x="24" y="15" width="4" height="17" rx="1.2" fill={dark ? "#b45309" : "#f2a93b"} />
+      <rect x="24" y="15" width="4" height="17" rx="1.2" fill="#b45309" />
     </svg>
   );
 }

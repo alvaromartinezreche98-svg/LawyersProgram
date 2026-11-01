@@ -7,11 +7,15 @@
 // client approved (2026-10-30) in place of the skill's warm ivory and warm borders.
 $navy: #20364f;
 $navy-hover: #172a3e;
-// Burnt amber, the platform's one accent (2026-11-01): #B45309, its dark #92400E, its light
-// ground #FEF3C7. The token keeps the name "copper" so every component follows it; warnings use
-// the very same family, so accent and caution never show two different oranges. Navy leads.
-$copper: #b45309; // 5:1 on white: fills, text, icons, active edges
-$copper-deep: #92400e; // hover/pressed and dark text (7.1:1 on white)
+// Two-tone accent (2026-11-01, strict): the platform has exactly two accent colours and no other
+// amber, orange or yellow anywhere —
+//   $primary        #B45309  strong: emphasis text, badges, active edges, buttons, icons (5:1 on white)
+//   $primary-light  #FEF3C7  soft: badge and alert grounds, faint highlights (and the accent on navy)
+// Warnings use the same two. Older token names (copper, warn, chrome-mark…) all point here.
+$primary: #b45309;
+$primary-light: #fef3c7;
+$copper: $primary;
+$copper-deep: $primary;
 $white: #ffffff;
 $ink: #202a35;
 $text: #536273;
@@ -60,14 +64,14 @@ $color-light: (
   "icon-soft": #e8edf4,
   "copper": $copper,
   "copper-hover": $copper-deep,
-  "copper-text": #92400e, // amber as text: 7.1:1 on white, 6.4:1 on copper-soft
-  "copper-soft": #fef3c7,
+  "copper-text": $primary, // 5:1 on white, 4.6:1 on the soft ground
+  "copper-soft": $primary-light,
   "focus": $focus,
   "focus-on-dark": $focus-on-dark,
   "ok": $success,
   "ok-soft": #e2f0e7,
   "warn": $warning,
-  "warn-soft": #fef3c7,
+  "warn-soft": $primary-light,
   "bad": $danger,
   "bad-soft": #f8e3e4,
   "info": $info,
@@ -78,7 +82,7 @@ $color-light: (
   "band-ink": $white,
   "band-muted": rgba(255, 255, 255, 0.72),
   "band-line": rgba(255, 255, 255, 0.16),
-  "band-copper": #f2a93b, // the amber lightened for the navy band (5.6:1): wordmark and stamps
+  "band-copper": $primary-light, // the accent on the navy band (12:1): wordmark and stamps
   "chrome": $navy,
   "chrome-ink": $white,
   "chrome-muted": rgba(255, 255, 255, 0.72),
@@ -86,7 +90,7 @@ $color-light: (
   "chrome-hover": rgba(255, 255, 255, 0.07),
   "chrome-active": rgba(255, 255, 255, 0.13),
   "chrome-tile": rgba(255, 255, 255, 0.1),
-  "chrome-mark": #f2a93b, // the amber lightened for the navy sidebar (5.6:1)
+  "chrome-mark": $primary-light, // the accent on the navy sidebar (12:1)
   "field-shadow": 0 1px 1px rgba($ink, 0.05),
   "shadow": rgba($ink, 0.16),
   "shadow-sheet-c": rgba($ink, 0.06),
@@ -121,15 +125,15 @@ $color-dark: (
   "icon": #9cbde6,
   "icon-soft": #1c2a3b,
   "field-shadow": 0 1px 2px rgba(0, 0, 0, 0.4),
-  "copper": #f59e0b,
-  "copper-hover": #fbbf24,
-  "copper-text": #fcd34d,
-  "copper-soft": #2b1f0b,
+  "copper": $primary-light,
+  "copper-hover": $primary-light,
+  "copper-text": $primary-light,
+  "copper-soft": rgba($primary, 0.22),
   "focus": #86b4ff,
   "ok": #78cfa0,
   "ok-soft": #15291f,
-  "warn": #f59e0b,
-  "warn-soft": #2d2410,
+  "warn": $primary-light,
+  "warn-soft": rgba($primary, 0.22),
   "bad": #f39197,
   "bad-soft": #351a1c,
   "info": #8dbbe8,
