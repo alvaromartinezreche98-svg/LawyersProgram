@@ -225,7 +225,7 @@ const esc = (v: string) => v.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "
 
 /** Email-client-safe HTML: one table, inline styles, PreRenta tokens (navy #20364F, warm #F5F4F0). */
 export function renderHtml(e: ReturnType<typeof buildEmail>, d: EmailData, lang: Lang): string {
-  const font = "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+  const font = "'IBM Plex Sans','Helvetica Neue',Arial,sans-serif";
   const p = (txt: string) => `<p style="margin:0 0 14px;font:15px/1.6 ${font};color:#252B33">${esc(txt)}</p>`;
   return `<!doctype html>
 <html lang="${lang === "va" ? "ca-ES-valencia" : lang}">

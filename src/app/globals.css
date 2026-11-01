@@ -51,8 +51,8 @@
   --color-info-soft: var(--info-soft);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-plex), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-plex), "Helvetica Neue", Arial, sans-serif;
   --font-serif: var(--font-source-serif), "Source Serif Pro", Georgia, serif;
   --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
   --shadow-card: var(--shadow-overlay-value); /* shadow-overlay */
@@ -90,7 +90,7 @@
   text-wrap: balance;
 }
 
-/* Headings: Inter, semibold, slightly tightened. */
+/* Headings: IBM Plex Sans, semibold, slightly tightened. */
 @utility display-tight {
   font-family: var(--font-display);
   letter-spacing: -0.01em;
