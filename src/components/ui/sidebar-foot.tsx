@@ -79,19 +79,20 @@ export function LangMenu({ compact = false, item, theme = "dark" }: { compact?: 
 }
 
 const SIGN_OUT: Record<Theme, { btn: string; tile: string }> = {
-  // terracotta tint on navy: lighter than the sidebar, warm, plainly the way out
-  dark: { btn: "bg-chrome-hover text-chrome-ink hover:bg-chrome-hover", tile: "bg-chrome-mark text-chrome" },
+  // on navy: a quiet row like the links above — white text, a line icon with no tile, a hairline
+  // that firms up and a faint white wash on hover
+  dark: { btn: "border border-white/10 bg-transparent text-white hover:border-white/20 hover:bg-white/5", tile: "text-white/80" },
   light: { btn: "bg-sunk text-copper-text hover:bg-hover", tile: "bg-copper text-accent-ink" },
 };
 
-/** Sign-out: its own tinted box under a hairline, with its icon on a terracotta tile. */
+/** Sign-out: under a hairline; on navy a quiet outlined row with a line icon, on light a grey row with the accent tile. */
 export function SignOutButton({ onClick, label, compact = false, title, theme = "dark" }: { onClick: () => void; label: string; compact?: boolean; title?: string; theme?: Theme }) {
   const c = SIGN_OUT[theme];
   return (
     <div className={cx("mt-1 border-t pt-2", theme === "dark" ? "border-chrome-line" : "border-accent/10")}>
-      <button type="button" onClick={onClick} title={title ?? (compact ? label : undefined)} className={cx("flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-left text-[14px] font-semibold transition-colors", c.btn, compact && "lg:justify-center lg:px-0")}>
+      <button type="button" onClick={onClick} title={title ?? (compact ? label : undefined)} className={cx("flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-left text-[14px] font-medium transition-colors", c.btn, compact && "lg:justify-center lg:px-0")}>
         <span className={cx("grid size-7 shrink-0 place-items-center rounded-md", c.tile)} aria-hidden="true">
-          <LogOut size={14} strokeWidth={2.2} />
+          <LogOut size={theme === "dark" ? 17 : 14} strokeWidth={theme === "dark" ? 1.75 : 2.2} />
         </span>
         <span className={cx("flex-1", compact && "lg:sr-only")}>{label}</span>
       </button>
