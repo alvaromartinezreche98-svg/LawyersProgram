@@ -1080,3 +1080,59 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
   }
 }
 
+
+// ---------- From 640px: the overview cards in the campaign board's style ----------
+// White, a hairline and the resting shadow; the icon on a navy (accent) tile, the figure large
+// in ink, its label muted. No tinted grounds: urgency shows only in the figure (red when items
+// are missing) and a thin navy rule at the top of a card that has something waiting.
+@include from("sm") {
+  .card {
+    --tone: var(--accent);
+    --tone-soft: var(--accent-soft);
+
+    border-color: var(--line);
+    background: var(--surface);
+
+    &[data-hot] {
+      border-color: var(--line);
+      border-top: 3px solid var(--accent);
+      background: var(--surface);
+
+      .cardN {
+        color: var(--ink);
+      }
+    }
+
+    &[data-hot][data-tone="bad"] .cardN {
+      color: var(--bad);
+    }
+
+    &[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+  }
+
+  .cardIcon {
+    border-color: color-mix(in srgb, var(--accent) 18%, transparent);
+    background: var(--accent-soft);
+    box-shadow: none;
+    color: var(--accent);
+  }
+
+  .card[data-zero] .cardIcon {
+    border-color: var(--line);
+    background: var(--sunk);
+    color: var(--muted);
+  }
+
+  .cardN {
+    font-size: 1.625rem;
+    font-weight: 600;
+  }
+
+  .cardLabel {
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+}
