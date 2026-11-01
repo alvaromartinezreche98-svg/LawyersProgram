@@ -1091,28 +1091,24 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
 
     position: relative;
     overflow: hidden;
-    grid-template-columns: minmax(0, 1fr) auto;
+    // compact: the icon on the left, the small label over the large figure beside it, the
+    // filter mark at the end (the label gets the card's width, so it stays whole in any language)
+    grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
-      "label go"
-      "n     icon";
-    row-gap: space(2);
-    padding: space(5) space(5) space(4);
+      "icon label go"
+      "icon n     go";
+    align-items: center;
+    column-gap: space(3);
+    row-gap: 2px;
+    padding: space(3) space(4);
     // a clear 1px edge all round and a modest shadow: each tile reads as its own card
     border: 1px solid color-mix(in srgb, var(--line-strong) 45%, var(--line));
-    border-radius: 14px;
+    border-radius: 12px;
     background: #fff;
     box-shadow:
       0 1px 2px rgb(15 23 42 / 0.06),
       0 4px 12px -4px rgb(15 23 42 / 0.1);
 
-    // the glow rule
-    &::before {
-      position: absolute;
-      inset: 0 0 auto;
-      height: 3px;
-      background: var(--rule);
-      content: "";
-    }
 
     &[data-tone="bad"] { --rule: var(--bad); }
     &[data-tone="warn"] { --rule: var(--copper); }
@@ -1149,9 +1145,9 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
   }
 
   .cardIcon {
-    width: 36px;
-    height: 36px;
-    align-self: end;
+    width: 34px;
+    height: 34px;
+    align-self: center;
     border: 0;
     border-radius: 10px;
     background: var(--sunk);
@@ -1165,18 +1161,31 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
   }
 
   .cardN {
-    align-self: end;
-    font-size: 2rem;
+    align-self: center;
+    font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.02em;
   }
 
   .cardLabel {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.25;
     color: var(--muted);
+  }
+
+  // narrower columns (the sidebar open on a laptop): the icon steps aside so the label stays whole
+  @media (max-width: 1599px) {
+    .card {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        "label go"
+        "n     go";
+    }
+
+    .cardIcon {
+      display: none;
+    }
   }
 }
