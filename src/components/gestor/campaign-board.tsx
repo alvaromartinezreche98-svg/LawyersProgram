@@ -25,11 +25,14 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
  * Each column's colour, after what its status means: grey draft, blue sent, amber under
  * review, green ready. The column gets a faint wash of it, the header the full colour.
  */
+// One palette for every column: a pale grey ground with a hairline, white cards, and a navy head
+// (the sidebar's brand navy). The column's name says its status; colour is kept for alerts only.
+const NAVY_COLUMN = { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent" };
 const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string }> = {
-  borrador: { col: "bg-neutral-soft/70", border: "border-line-strong/25", head: "bg-muted", ink: "text-muted" },
-  enviado: { col: "bg-info-soft/70", border: "border-info/25", head: "bg-info", ink: "text-info" },
-  revision: { col: "bg-warn-soft", border: "border-warn/25", head: "bg-warn", ink: "text-warn" },
-  listo: { col: "bg-ok-soft/70", border: "border-ok/25", head: "bg-ok", ink: "text-ok" },
+  borrador: NAVY_COLUMN,
+  enviado: NAVY_COLUMN,
+  revision: NAVY_COLUMN,
+  listo: NAVY_COLUMN,
 };
 
 export function CampaignBoard() {
@@ -174,9 +177,9 @@ export function CampaignBoard() {
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-md px-3 py-2.5 text-white shadow-sm max-md:hidden", tone.head)} title={tr(s.help)}>
-                    <h2 className="flex-1 text-[13.5px] font-semibold">{tr(s.label)}</h2>
-                    <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full bg-white px-1.5 text-[11.5px] font-bold", tone.ink)}>{col.length}</span>
+                  <header className={cx("flex items-center gap-2 rounded-md px-3 py-2.5 text-accent-ink shadow-sm max-md:hidden", tone.head)} title={tr(s.help)}>
+                    <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em]">{tr(s.label)}</h2>
+                    <span className="figures grid h-5 min-w-6 place-items-center rounded-full bg-white/15 px-1.5 text-[11.5px] font-semibold text-accent-ink ring-1 ring-white/20">{col.length}</span>
                   </header>
                   {col.length === 0 && (
                     <p className={cx("grid flex-1 place-items-center rounded-md border border-dashed px-2 py-6 text-center text-[12.5px] transition-colors", over === s.id ? "border-copper text-copper-text" : "border-line-strong/50 text-muted")}>
