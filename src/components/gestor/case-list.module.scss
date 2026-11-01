@@ -1081,21 +1081,52 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
 }
 
 
-// ---------- From 640px: the overview cards in the campaign board's style ----------
-// White, a hairline and the resting shadow; the icon on a navy (accent) tile, the figure large
-// in ink, its label muted. No tinted grounds: urgency shows only in the figure (red when items
-// are missing) and a thin navy rule at the top of a card that has something waiting.
+// ---------- From 640px: the overview as a bento of four ----------
+// White tiles with no hairline, lifted by one soft wide shadow, a thin gradient rule along the
+// top in the card's own tone (red for what is missing, bronze for points to check, navy for the
+// rest, grey when nothing is waiting). Inside: a small muted label over a large figure, the icon
+// quiet on the right; the filter mark stays top right.
 @include from("sm") {
   .card {
-    --tone: var(--accent);
-    --tone-soft: var(--accent-soft);
+    --rule: var(--accent);
 
-    border-color: var(--line);
+    position: relative;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "label go"
+      "n     icon";
+    row-gap: space(2);
+    padding: space(5) space(5) space(4);
+    border: 0;
+    border-radius: 14px;
     background: var(--surface);
+    box-shadow:
+      0 1px 2px rgb(15 23 42 / 0.04),
+      0 12px 32px -14px rgb(15 23 42 / 0.18);
+
+    // the glow rule
+    &::before {
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: linear-gradient(90deg, var(--rule), color-mix(in srgb, var(--rule) 25%, transparent));
+      content: "";
+    }
+
+    &[data-tone="bad"] { --rule: var(--bad); }
+    &[data-tone="warn"] { --rule: var(--copper); }
+    &[data-zero] { --rule: var(--line-strong); }
+
+    @include hover {
+      border-color: transparent;
+      box-shadow:
+        0 1px 2px rgb(15 23 42 / 0.05),
+        0 18px 40px -14px rgb(var(--accent-rgb) / 0.28);
+    }
 
     &[data-hot] {
-      border-color: var(--line);
-      border-top: 3px solid var(--accent);
+      border: 0;
       background: var(--surface);
 
       .cardN {
@@ -1108,31 +1139,40 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
     }
 
     &[aria-pressed="true"] {
-      border-color: var(--accent);
       background: var(--accent-soft);
+      box-shadow: 0 0 0 1.5px var(--accent), 0 12px 32px -14px rgb(var(--accent-rgb) / 0.3);
     }
   }
 
   .cardIcon {
-    border-color: color-mix(in srgb, var(--accent) 18%, transparent);
-    background: var(--accent-soft);
-    box-shadow: none;
-    color: var(--accent);
-  }
-
-  .card[data-zero] .cardIcon {
-    border-color: var(--line);
+    width: 36px;
+    height: 36px;
+    align-self: end;
+    border: 0;
+    border-radius: 10px;
     background: var(--sunk);
+    box-shadow: none;
     color: var(--muted);
+
+    .card[data-hot] & {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
   }
 
   .cardN {
-    font-size: 1.625rem;
-    font-weight: 600;
+    align-self: end;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
   }
 
   .cardLabel {
-    font-size: 0.8125rem;
-    font-weight: 500;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 }
