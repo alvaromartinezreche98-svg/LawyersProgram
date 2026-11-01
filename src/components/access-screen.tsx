@@ -255,7 +255,7 @@ function DemoCard(p: {
   return (
     <>
       <button type="button" aria-haspopup="dialog" onClick={() => p.setOpen(true)} className={cx(s.switchRole, s.demoTrigger)}>
-        <span className={s.demoTag}>{t.landing.demoTag}</span>
+        <span className={s.switchIcon} aria-hidden="true"><span className={s.demoTag}>{t.landing.demoTag}</span></span>
         <span className={s.switchText}>
           <b>{t.landing.samples}</b>
           <span>{t.landing.samplesHint}</span>
@@ -265,7 +265,7 @@ function DemoCard(p: {
       {/* A click on the backdrop (the dialog itself, outside its content) or Escape closes it. */}
       <dialog ref={dialog} tabIndex={-1} aria-labelledby="demo-title" className={s.demoDialog} onClose={() => p.setOpen(false)} onClick={(e) => e.target === e.currentTarget && p.setOpen(false)}>
         <div className={s.demoHead}>
-          <span className={s.demoTag}>{t.landing.demoTag}</span>
+          <span className={s.switchIcon} aria-hidden="true"><span className={s.demoTag}>{t.landing.demoTag}</span></span>
           <span className={s.demoTitle}>
             <span id="demo-title">{t.landing.samples}</span>
             <span className={s.demoHint}>{t.landing.samplesHint}</span>
