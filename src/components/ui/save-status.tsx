@@ -35,9 +35,9 @@ export function SaveStatus({ idle, className }: { idle: string; className?: stri
     <span role="status" className={cx(base, "text-muted", className)}>
       {save.status === "saving" ? (
         <span className="size-3.5 rounded-full border-2 border-line border-t-accent motion-safe:animate-spin" aria-hidden="true" />
-      ) : save.status === "saved" && save.at ? (
+      ) : (
         <Check size={14} strokeWidth={2.4} className="text-ok" aria-hidden="true" />
-      ) : null}
+      )}
       {save.status === "saving" ? t.sync.saving : save.status === "saved" && save.at ? t.sync.saved(fmtClock(save.at, locale)) : idle}
     </span>
   );

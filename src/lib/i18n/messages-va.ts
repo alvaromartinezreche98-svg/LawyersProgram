@@ -935,7 +935,7 @@ export const va: Dict = {
   sync: {
     notSaved: "No s'ha guardat",
     saving: "S'està guardant…",
-    saved: (t) => `Guardat a les ${t}.`,
+    saved: (t) => `Tot guardat · ${t}`,
     merged: "Guardat. També s'ha canviat des d'una altra sessió: revise les seues respostes.",
     failedTitle: "No s'han pogut guardar els últims canvis",
     failedBody: "Continuen en esta pantalla, però encara no estan guardats. No tanque la pàgina i polse «Tornar a provar».",

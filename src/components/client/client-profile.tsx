@@ -7,6 +7,7 @@ import { LANGS } from "@/lib/i18n";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtTime } from "@/lib/format";
 import { QuestionnaireForm } from "@/components/questionnaire/field-list";
+import { SaveStatus } from "@/components/ui/save-status";
 import { PageTitle } from "@/components/ui/app-shell";
 import { IconTile } from "@/components/ui/icons";
 import { Card, Eyebrow, StatusPill, cx } from "@/components/ui/primitives";
@@ -36,7 +37,8 @@ export function ClientProfile() {
               <p className="truncate text-[18px] font-semibold">{name || "—"}</p>
               <p className="truncate text-[14px] text-muted">{typeof exp.answers.email === "string" ? exp.answers.email : ""}</p>
             </div>
-            <span className="text-[12.5px] whitespace-nowrap text-muted max-sm:hidden">{t.profile.autosaved}</span>
+            {/* Live: saving… with a spinner while a field changes, then a tick and the time it was saved */}
+            <SaveStatus idle={t.profile.autosaved} className="text-[12.5px] max-sm:hidden" />
           </div>
           <div className="pad-card">
             <h2 className="mb-4 text-[15px] font-semibold">{t.profile.contact}</h2>

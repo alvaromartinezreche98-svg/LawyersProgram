@@ -935,7 +935,7 @@ const es = {
   sync: {
     notSaved: "No se ha guardado",
     saving: "Guardando…",
-    saved: (t: string) => `Guardado a las ${t}.`,
+    saved: (t: string) => `Todo guardado · ${t}`,
     merged: "Guardado. Se cambió también desde otra sesión: revise sus respuestas.",
     failedTitle: "No se han podido guardar los últimos cambios",
     failedBody: "Siguen en esta pantalla, pero aún no están guardados. No cierre la página y pulse «Reintentar».",
@@ -1949,7 +1949,7 @@ const en: Dict = {
   sync: {
     notSaved: "Not saved",
     saving: "Saving…",
-    saved: (t) => `Saved at ${t}.`,
+    saved: (t) => `All changes saved · ${t}`,
     merged: "Saved. It was also changed in another session: please check your answers.",
     failedTitle: "Your latest changes could not be saved",
     failedBody: "They are still on this screen but not saved yet. Keep the page open and press “Try again”.",
