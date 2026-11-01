@@ -155,6 +155,25 @@
   }
 }
 
+/* The board's columns: no visible bar while resting; a hair-thin, glassy one shows on hover. */
+@utility board-scroll {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: transparent;
+  }
+  &:hover {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(15 23 42 / 0.18) transparent;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgb(15 23 42 / 0.18);
+  }
+}
+
 /* Fades the edges of a horizontal scroller only while there is more to scroll to (Chrome, Safari; elsewhere it just scrolls). */
 @property --fade-start {
   syntax: "<length>";

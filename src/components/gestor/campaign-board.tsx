@@ -25,15 +25,15 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
  * Each column's colour, after what its status means: grey draft, blue sent, amber under
  * review, green ready. The column gets a faint wash of it, the header the full colour.
  */
-// Each column a bento with its own muted shell (3–4% of its stage tone over the page grey) and a
-// matching fine border; its head is white with a 1px border in the same tone, the count in it.
+// Each column a bento with its own clearly told-apart shell (draft slate grey, sent smoke blue,
+// review the accent, ready slate green; 6–11% of the tone over white) and a matching border; its head is white with a 1px border in the same tone, the count in it.
 // Draft neutral slate, sent slate-blue, under review the accent (the one place it is used as a
 // faint wash, by request), ready slate-green. All washes stay under 5%: pastel, matt, formal.
 const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string; rule: string; badge: string; headBg: string }> = {
-  borrador: { col: "bg-[color-mix(in_srgb,var(--line-strong)_3%,var(--bg))]", border: "border-line", head: "", ink: "", rule: "border-line-strong/40", badge: "bg-sunk text-muted ring-line", headBg: "" },
-  enviado: { col: "bg-[color-mix(in_srgb,var(--info)_3%,var(--bg))]", border: "border-info/20", head: "", ink: "", rule: "border-info/35", badge: "bg-info-soft text-info ring-info/25", headBg: "" },
-  revision: { col: "bg-[color-mix(in_srgb,var(--copper)_4%,var(--bg))]", border: "border-copper/20", head: "", ink: "", rule: "border-copper/40", badge: "bg-surface text-copper ring-copper/40", headBg: "" },
-  listo: { col: "bg-[color-mix(in_srgb,var(--ok)_3%,var(--bg))]", border: "border-ok/20", head: "", ink: "", rule: "border-ok/35", badge: "bg-ok-soft text-ok ring-ok/25", headBg: "" },
+  borrador: { col: "bg-[color-mix(in_srgb,#8a8f98_11%,var(--surface))]", border: "border-line-strong/35", head: "", ink: "", rule: "border-line-strong/45", badge: "bg-sunk text-muted ring-line", headBg: "" },
+  enviado: { col: "bg-[color-mix(in_srgb,var(--info)_12%,var(--surface))]", border: "border-info/30", head: "", ink: "", rule: "border-info/40", badge: "bg-info-soft text-info ring-info/25", headBg: "" },
+  revision: { col: "bg-[color-mix(in_srgb,var(--copper)_6%,var(--surface))]", border: "border-copper/30", head: "", ink: "", rule: "border-copper/45", badge: "bg-surface text-copper ring-copper/40", headBg: "" },
+  listo: { col: "bg-[color-mix(in_srgb,var(--ok)_7%,var(--surface))]", border: "border-ok/30", head: "", ink: "", rule: "border-ok/40", badge: "bg-ok-soft text-ok ring-ok/25", headBg: "" },
 };
 
 export function CampaignBoard() {
@@ -189,7 +189,7 @@ export function CampaignBoard() {
                   )}
                   {/* The cards scroll inside the column; its header stays put. */}
                   {col.length > 0 && (
-                  <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-1 pt-px pb-1 [scrollbar-width:thin]">
+                  <div className="board-scroll -mx-1 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-1 pt-px pb-1">
                   {col.map((x) => (
                     <Card
                       key={x.exp.id}
