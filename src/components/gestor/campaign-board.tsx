@@ -25,14 +25,14 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
  * Each column's colour, after what its status means: grey draft, blue sent, amber under
  * review, green ready. The column gets a faint wash of it, the header the full colour.
  */
-// One palette for every column: a pale grey ground with a hairline, white cards, and a navy head
-// (the sidebar's brand navy). The column's name says its status; colour is kept for alerts only.
-const NAVY_COLUMN = { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent" };
-const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string }> = {
-  borrador: NAVY_COLUMN,
-  enviado: NAVY_COLUMN,
-  revision: NAVY_COLUMN,
-  listo: NAVY_COLUMN,
+// Every column on the same pale ground with white cards; the head is white too, and a thin
+// coloured rule along its top (with its count in the same tone) tells the stages apart at a glance:
+// draft slate, sent blue, under review bronze (the gestoría is on it), ready green.
+const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string; rule: string; badge: string }> = {
+  borrador: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-sunk text-muted ring-line" },
+  enviado: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-info-soft text-info ring-info/20" },
+  revision: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-copper-soft text-copper-text ring-copper/25" },
+  listo: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-ok-soft text-ok ring-ok/20" },
 };
 
 export function CampaignBoard() {
@@ -127,7 +127,7 @@ export function CampaignBoard() {
                 className={cx("inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors", on ? cx("border-transparent text-white", COLUMN_TONE[s.id].head) : "border-line bg-surface text-muted")}
               >
                 {tr(s.label)}
-                <span className={cx("figures grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold", on ? cx("bg-white", COLUMN_TONE[s.id].ink) : "bg-sunk text-muted")}>{n}</span>
+                <span className={cx("figures grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold", on ? "bg-white text-accent" : COLUMN_TONE[s.id].badge)}>{n}</span>
               </button>
             );
           })}
@@ -177,9 +177,9 @@ export function CampaignBoard() {
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-md px-3 py-2.5 text-accent-ink shadow-sm max-md:hidden", tone.head)} title={tr(s.help)}>
-                    <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em]">{tr(s.label)}</h2>
-                    <span className="figures grid h-5 min-w-6 place-items-center rounded-full bg-white/15 px-1.5 text-[11.5px] font-semibold text-accent-ink ring-1 ring-white/20">{col.length}</span>
+                  <header className={cx("flex items-center gap-2 rounded-md border border-line border-t-[3px] bg-surface px-3 py-2.5 shadow-sm max-md:hidden", tone.rule)} title={tr(s.help)}>
+                    <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em] text-ink">{tr(s.label)}</h2>
+                    <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold ring-1", tone.badge)}>{col.length}</span>
                   </header>
                   {col.length === 0 && (
                     <p className={cx("grid flex-1 place-items-center rounded-md border border-dashed px-2 py-6 text-center text-[12.5px] transition-colors", over === s.id ? "border-copper text-copper-text" : "border-line-strong/50 text-muted")}>
