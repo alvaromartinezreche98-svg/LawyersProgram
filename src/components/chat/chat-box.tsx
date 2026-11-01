@@ -106,7 +106,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
             return (
               <Fragment key={x.id}>
                 {newDay && <DaySep label={dayLabel(en.at)} />}
-                <div className="my-2 flex max-w-[min(90%,520px)] flex-col gap-1.5 self-start rounded-2xl border border-copper/30 border-l-[3px] border-l-copper bg-surface px-4 py-3 text-[14px] shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
+                <div className="my-2 flex max-w-[min(90%,520px)] flex-col gap-1.5 self-start rounded-2xl border border-copper border-l-[3px] border-l-copper bg-surface px-4 py-3 text-[14px] shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
                   <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     <span className="flex items-center gap-1.5 text-[12px] font-semibold text-copper-text">
                       <ClipboardList size={14} aria-hidden="true" />
@@ -130,7 +130,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
               {newDay && <DaySep label={dayLabel(m.at)} />}
               {m.request ? (
                 // API mode: an information request from the gestoría, shown as a request card.
-                <div className="my-2 flex max-w-[min(90%,520px)] flex-col gap-1.5 self-start rounded-2xl border border-copper/30 border-l-[3px] border-l-copper bg-surface px-4 py-3 text-[14px] shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
+                <div className="my-2 flex max-w-[min(90%,520px)] flex-col gap-1.5 self-start rounded-2xl border border-copper border-l-[3px] border-l-copper bg-surface px-4 py-3 text-[14px] shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
                   <span className="flex items-center justify-between gap-3 text-[12px] font-semibold text-copper-text">
                     <span className="flex items-center gap-1.5">
                       <ClipboardList size={14} aria-hidden="true" />

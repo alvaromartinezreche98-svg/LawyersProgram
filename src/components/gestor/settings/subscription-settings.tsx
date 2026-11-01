@@ -52,7 +52,7 @@ export function SubscriptionSettings() {
               {named.map((x) => {
                 const on = sub?.planId === x.id;
                 return (
-                  <li key={x.id} className={cx("flex flex-col gap-2 rounded-lg border pad-tile", on ? "border-copper bg-copper-soft/50" : "border-line")}>
+                  <li key={x.id} className={cx("flex flex-col gap-2 rounded-lg border pad-tile", on ? "border-copper bg-sunk" : "border-line")}>
                     <b className="text-[15.5px] font-semibold">{x.name}</b>
                     <span className="figures text-[20px] font-semibold">{x.price ? `${x.price} € ${p.pricing.perMonth}` : <span className="text-[15px] text-copper-text">{p.pricing.tbd}</span>}</span>
                     {x.cases && <span className="text-[13.5px] text-muted">{p.pricing.casesN(x.cases)}</span>}

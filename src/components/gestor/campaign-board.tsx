@@ -25,14 +25,14 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
  * Each column's colour, after what its status means: grey draft, blue sent, amber under
  * review, green ready. The column gets a faint wash of it, the header the full colour.
  */
-// Each column a bento of its own: one fine 1px border all round (the accent at 20%), a very faint
-// shell of its stage's tone, its head a touch deeper; the cards stay white.
+// Each column a bento of its own: one fine neutral 1px border all round, the page grey inside,
+// a grey head; the stage shows in its count (slate, blue, the accent, green). Cards stay white.
 // Draft slate, sent blue, under review amber (the gestoría is on it), ready green.
 const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string; rule: string; badge: string; headBg: string }> = {
-  borrador: { col: "bg-[color-mix(in_srgb,var(--line-strong)_9%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-surface text-muted ring-line", headBg: "bg-[color-mix(in_srgb,var(--line-strong)_14%,var(--surface))]" },
-  enviado: { col: "bg-[color-mix(in_srgb,var(--info)_5%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-surface text-info ring-info/25", headBg: "bg-[color-mix(in_srgb,var(--info)_10%,var(--surface))]" },
-  revision: { col: "bg-[color-mix(in_srgb,var(--copper)_5%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-surface text-copper-text ring-copper/25", headBg: "bg-[color-mix(in_srgb,var(--copper)_10%,var(--surface))]" },
-  listo: { col: "bg-[color-mix(in_srgb,var(--ok)_5%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-surface text-ok ring-ok/25", headBg: "bg-[color-mix(in_srgb,var(--ok)_10%,var(--surface))]" },
+  borrador: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-surface text-muted ring-line", headBg: "bg-sunk" },
+  enviado: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-surface text-info ring-info/25", headBg: "bg-sunk" },
+  revision: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-surface text-copper-text ring-copper", headBg: "bg-sunk" },
+  listo: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-surface text-ok ring-ok/25", headBg: "bg-sunk" },
 };
 
 export function CampaignBoard() {
@@ -326,7 +326,7 @@ function AlertChip({ level, alerts, label }: { level: "bad" | "warn"; alerts: Al
       }
       className="relative z-10 rounded-md"
     >
-      <span className={cx(CHIP, level === "bad" ? "bg-bad-soft text-bad ring-bad/25" : "bg-warn-soft text-warn ring-warn/25")}>
+      <span className={cx(CHIP, level === "bad" ? "bg-bad-soft text-bad ring-bad/25" : "bg-warn-soft text-warn ring-copper")}>
         <Icon size={12} strokeWidth={2.4} aria-hidden="true" />
         {label}
       </span>

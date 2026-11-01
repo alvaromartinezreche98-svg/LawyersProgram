@@ -66,7 +66,7 @@ export function Onboarding() {
             return (
               <li key={s.id} className="border-t border-line first:border-t-0">
                 {/* The step's icon, then its title with its state beside it, the line of explanation under them */}
-                <Link href={s.href} className={cx("grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1 px-4 py-4 transition-colors hover:bg-hover max-sm:gap-x-3 max-sm:px-3 max-sm:py-3 sm:items-center sm:px-5", next && "bg-copper-soft/60 shadow-[inset_3px_0_0_var(--copper)]")}>
+                <Link href={s.href} className={cx("grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1 px-4 py-4 transition-colors hover:bg-hover max-sm:gap-x-3 max-sm:px-3 max-sm:py-3 sm:items-center sm:px-5", next && "bg-sunk shadow-[inset_3px_0_0_var(--copper)]")}>
                   <span className="relative max-sm:mt-0.5">
                     <IconTile icon={s.icon} size="sm" tone={next ? "copper" : "accent"} className="max-sm:size-7" />
                     {st && <span className="absolute -right-1.5 -bottom-1.5 grid size-[18px] place-items-center rounded-full border-2 border-surface bg-ok text-surface"><Check size={10} strokeWidth={3.5} aria-hidden="true" /></span>}

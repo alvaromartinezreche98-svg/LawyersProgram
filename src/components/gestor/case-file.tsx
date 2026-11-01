@@ -670,8 +670,8 @@ function openSection(slug: string) {
 // The four cards share one white ground; the colour lives only in the icon box and the figure.
 const KPI_TONE = {
   bad: { tile: "bg-bad-soft text-bad ring-1 ring-bad/15", n: "text-bad" },
-  warn: { tile: "bg-warn-soft text-warn ring-1 ring-warn/15", n: "text-warn" },
-  copper: { tile: "bg-copper-soft text-copper-text ring-1 ring-copper/15", n: "text-copper-text" },
+  warn: { tile: "bg-warn-soft text-warn ring-1 ring-copper", n: "text-warn" },
+  copper: { tile: "bg-copper-soft text-copper-text ring-1 ring-copper", n: "text-copper-text" },
   ok: { tile: "bg-ok-soft text-ok ring-1 ring-ok/15", n: "text-ok" },
   info: { tile: "bg-info-soft text-info ring-1 ring-info/15", n: "text-info" },
   accent: { tile: "bg-accent-soft text-accent ring-1 ring-accent/10", n: "text-ink" },

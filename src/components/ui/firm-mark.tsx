@@ -44,7 +44,7 @@ export function FirmWordmark({ name, tone = "light", size = "md", className }: {
       {last && (
         <>
           {" "}
-          <span className={`font-serif text-[1.12em] font-semibold tracking-[0.005em] ${dark ? "text-chrome-mark" : "text-copper-text"}`}>{last}</span>
+          <span className={`font-serif text-[1.12em] font-semibold tracking-[0.005em] ${dark ? "text-white" : "text-copper-text"}`}>{last}</span>
         </>
       )}
     </span>

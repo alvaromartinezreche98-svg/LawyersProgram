@@ -299,7 +299,7 @@
 
   .demoTrigger .demoTag {
     @include from("xl") {
-      color: var(--chrome-mark);
+      color: #fff;
     }
   }
 }

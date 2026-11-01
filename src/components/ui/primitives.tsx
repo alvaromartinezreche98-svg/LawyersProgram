@@ -90,12 +90,12 @@ type Tone = "neutral" | "info" | "warn" | "ok" | "bad" | "accent" | "copper";
 const TONE: Record<Tone, string> = {
   neutral: "border-line bg-sunk text-muted",
   info: "border-info/25 bg-info-soft text-info",
-  warn: "border-warn/25 bg-warn-soft text-warn",
+  warn: "border-copper bg-warn-soft text-warn",
   ok: "border-ok/25 bg-ok-soft text-ok",
   bad: "border-bad/25 bg-bad-soft text-bad",
   accent: "border-accent/20 bg-accent-soft text-accent",
   /** Only for what the gestoría asked of the client. */
-  copper: "border-copper/30 bg-copper-soft text-copper-text",
+  copper: "border-copper bg-copper-soft text-copper-text",
 };
 
 /** Compact label for states and counts. Pair colour with text (and an icon where it helps). */

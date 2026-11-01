@@ -79,7 +79,7 @@ export function SaveToast({ idle }: { idle: string }) {
         "transition-[opacity,translate] duration-300 ease-out",
         shown ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0",
         "flex max-w-[calc(100vw-32px)] items-center gap-2 rounded-full border bg-surface/95 py-2 pr-4 pl-2.5 text-[13.5px] font-medium shadow-[0_10px_15px_-3px_rgb(var(--accent-rgb)/0.14),0_4px_6px_-4px_rgb(var(--accent-rgb)/0.12)] backdrop-blur-sm transition-colors duration-300",
-        failed ? "border-bad/30 text-bad" : merged ? "border-warn/30 text-warn" : "border-line text-ink",
+        failed ? "border-bad/30 text-bad" : merged ? "border-copper text-warn" : "border-line text-ink",
       )}
     >
       {/* keyed by state, so every change slides in */}

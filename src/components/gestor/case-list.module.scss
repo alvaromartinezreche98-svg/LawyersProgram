@@ -186,8 +186,8 @@
 
   // something urgent waits here: a soft wash and edge in the card's own colour
   &[data-hot] {
-    border-color: color-mix(in srgb, var(--tone) 35%, var(--line));
-    background: linear-gradient(135deg, color-mix(in srgb, var(--tone-soft) 70%, var(--surface)), var(--surface) 70%);
+    border-color: var(--line);
+    background: var(--surface);
 
     .cardN {
       color: var(--tone);
@@ -245,9 +245,8 @@
   border-radius: radius(md);
   // a richer wash of the card's colour than its soft token, a hairline in the same colour and a
   // faint lift, so the icon box stands clear of the card (also on a tinted, urgent card)
-  border: 1px solid color-mix(in srgb, var(--tone) 35%, transparent);
-  background: color-mix(in srgb, var(--tone) 18%, var(--surface));
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--tone) 18%, transparent);
+  border: 1px solid var(--line);
+  background: var(--tone-soft);
   color: var(--tone);
 
   // nothing here: a modern grey box, still clearly drawn
@@ -1111,7 +1110,7 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
       position: absolute;
       inset: 0 0 auto;
       height: 3px;
-      background: linear-gradient(90deg, var(--rule), color-mix(in srgb, var(--rule) 25%, transparent));
+      background: var(--rule);
       content: "";
     }
 

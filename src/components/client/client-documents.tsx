@@ -93,7 +93,7 @@ export function ClientDocuments() {
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3 max-sm:grid-cols-2 max-sm:gap-2">
                       {d0.files.map((f) => <FileCard key={f.id} file={f} replaceHref={href} />)}
                       {/* the way to add one: a dashed tile that leads to the question; on phones it fills the free slot beside an odd last file, or a slim full-width row */}
-                      <Link href={href} className={cx("group/up flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-3 text-center transition-colors", d0.files.length % 2 === 0 && "max-sm:col-span-full max-sm:min-h-12 max-sm:flex-row max-sm:gap-2.5 max-sm:py-2", d0.files.length ? "border-line text-muted hover:border-accent/50 hover:bg-accent-soft/40 hover:text-accent" : "border-warn/40 bg-warn-soft/40 text-warn hover:border-warn hover:bg-warn-soft")}>
+                      <Link href={href} className={cx("group/up flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-3 text-center transition-colors", d0.files.length % 2 === 0 && "max-sm:col-span-full max-sm:min-h-12 max-sm:flex-row max-sm:gap-2.5 max-sm:py-2", d0.files.length ? "border-line text-muted hover:border-accent/50 hover:bg-accent-soft/40 hover:text-accent" : "border-copper bg-sunk text-warn hover:border-warn hover:bg-warn-soft")}>
                         <span className="grid size-8 place-items-center rounded-full bg-surface shadow-sm transition-transform group-hover/up:scale-110 max-sm:size-7">
                           {d0.files.length ? <Plus size={15} aria-hidden="true" /> : <Upload size={15} aria-hidden="true" />}
                         </span>

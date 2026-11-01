@@ -57,7 +57,7 @@ export function AskButton({ exp, text, target, compact }: { exp: Expediente; tex
         <span className={cx(compact && "max-sm:sr-only")}>{t.tasks.ask}</span>
       </Button>
       {open && (
-        <form onSubmit={send} className="flex w-full basis-full flex-col gap-2 rounded-lg border border-copper/40 bg-surface pad-tile text-left">
+        <form onSubmit={send} className="flex w-full basis-full flex-col gap-2 rounded-lg border border-copper bg-surface pad-tile text-left">
           <label className="text-[12.5px] font-medium text-muted" htmlFor={`ask-${exp.id}-${text.es.length}`}>{t.file.clientText}</label>
           <textarea id={`ask-${exp.id}-${text.es.length}`} autoFocus rows={3} value={draft} onChange={(ev) => setDraft(ev.target.value)} className={cx(inputCls, "h-auto resize-y py-2 text-[14px] leading-snug")} />
           <span className="flex justify-end gap-2">

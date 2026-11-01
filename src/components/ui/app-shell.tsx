@@ -101,7 +101,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
               {/* Phones: the person's initials, straight to their profile */}
               {profile && (
                 <Link href={profile.href} aria-label={`${t.side.account}: ${who}`} aria-current={isOn(profile) ? "page" : undefined} className="grid size-10 shrink-0 place-items-center rounded-full md:hidden">
-                  <span className={cx("grid size-9 place-items-center rounded-full text-[12.5px] font-semibold ring-2 transition-colors", isOn(profile) ? "bg-copper text-accent-ink ring-copper/30" : "bg-accent text-accent-ink ring-accent/15")} aria-hidden="true">{initialsOf(who)}</span>
+                  <span className={cx("grid size-9 place-items-center rounded-full text-[12.5px] font-semibold ring-2 transition-colors", isOn(profile) ? "bg-copper text-accent-ink ring-copper" : "bg-accent text-accent-ink ring-accent/15")} aria-hidden="true">{initialsOf(who)}</span>
                 </Link>
               )}
             </>
@@ -358,7 +358,7 @@ function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; or
                   <span className="text-muted">{t.common.language}</span>
                   <LangSwitch />
                 </div>
-                <button type="button" onClick={signOut} className="flex min-h-11 w-full items-center gap-3 rounded-xl bg-copper/10 px-3 text-left text-[14.5px] font-semibold text-copper-text transition-colors hover:bg-copper/20">
+                <button type="button" onClick={signOut} className="flex min-h-11 w-full items-center gap-3 rounded-xl bg-sunk px-3 text-left text-[14.5px] font-semibold text-copper-text transition-colors hover:bg-hover">
                   <span className="grid size-8 place-items-center rounded-lg bg-copper text-accent-ink" aria-hidden="true"><LogOut size={16} strokeWidth={2.2} /></span>
                   {t.common.signOut}
                 </button>

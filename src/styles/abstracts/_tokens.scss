@@ -7,13 +7,13 @@
 // client approved (2026-10-30) in place of the skill's warm ivory and warm borders.
 $navy: #20364f;
 $navy-hover: #172a3e;
-// Two-tone accent (2026-11-01, strict): the platform has exactly two accent colours and no other
-// amber, orange or yellow anywhere —
-//   $primary        #B45309  strong: emphasis text, badges, active edges, buttons, icons (5:1 on white)
-//   $primary-light  #FEF3C7  soft: badge and alert grounds, faint highlights (and the accent on navy)
-// Warnings use the same two. Older token names (copper, warn, chrome-mark…) all point here.
+// ONE accent (2026-11-01, strict): #B45309 and nothing else — no tints, no transparency, no
+// cream, no second orange. It is always used at full strength (text, icons, badges, active
+// edges, fills). Where a soft ground is needed (a badge, a highlighted row, a tag) the ground
+// is the neutral grey ($mist-sunk) and the accent stays in the text, icon or edge. Warnings use
+// it too. Older token names (copper, warn, chrome-mark, band-copper…) all point here.
 $primary: #b45309;
-$primary-light: #fef3c7;
+$primary-light: #eef1f5; // = $mist-sunk: the soft ground is neutral, never an amber tint
 $copper: $primary;
 $copper-deep: $primary;
 $white: #ffffff;
@@ -30,7 +30,7 @@ $mist-line-strong: #7a8796; // control borders: 3:1 on every light ground
 
 $success: #28734d;
 $warning: $copper; // one amber across the platform
-$danger: #a43d36;
+$danger: #b42332; // a clear crimson (6:1 on white), well apart from the amber accent
 $info: #315f8a;
 $focus: #1d5fd1;
 $focus-on-dark: #a9c8ff;
@@ -64,7 +64,7 @@ $color-light: (
   "icon-soft": #e8edf4,
   "copper": $copper,
   "copper-hover": $copper-deep,
-  "copper-text": $primary, // 5:1 on white, 4.6:1 on the soft ground
+  "copper-text": $primary, // 5:1 on white, 4.4:1 on the grey ground
   "copper-soft": $primary-light,
   "focus": $focus,
   "focus-on-dark": $focus-on-dark,
@@ -73,7 +73,7 @@ $color-light: (
   "warn": $warning,
   "warn-soft": $primary-light,
   "bad": $danger,
-  "bad-soft": #f8e3e4,
+  "bad-soft": #fbe6e8,
   "info": $info,
   "info-soft": #e3ecf6,
   "neutral-soft": #eaeef3,
@@ -82,7 +82,7 @@ $color-light: (
   "band-ink": $white,
   "band-muted": rgba(255, 255, 255, 0.72),
   "band-line": rgba(255, 255, 255, 0.16),
-  "band-copper": $primary-light, // the accent on the navy band (12:1): wordmark and stamps
+  "band-copper": $primary, // marks and fills on the navy band (text on navy is white)
   "chrome": $navy,
   "chrome-ink": $white,
   "chrome-muted": rgba(255, 255, 255, 0.72),
@@ -90,7 +90,7 @@ $color-light: (
   "chrome-hover": rgba(255, 255, 255, 0.07),
   "chrome-active": rgba(255, 255, 255, 0.13),
   "chrome-tile": rgba(255, 255, 255, 0.1),
-  "chrome-mark": $primary-light, // the accent on the navy sidebar (12:1)
+  "chrome-mark": $primary, // the active marker and tiles on the navy sidebar
   "field-shadow": 0 1px 1px rgba($ink, 0.05),
   "shadow": rgba($ink, 0.16),
   "shadow-sheet-c": rgba($ink, 0.06),
@@ -125,15 +125,15 @@ $color-dark: (
   "icon": #9cbde6,
   "icon-soft": #1c2a3b,
   "field-shadow": 0 1px 2px rgba(0, 0, 0, 0.4),
-  "copper": $primary-light,
-  "copper-hover": $primary-light,
-  "copper-text": $primary-light,
-  "copper-soft": rgba($primary, 0.22),
+  "copper": $primary,
+  "copper-hover": $primary,
+  "copper-text": $primary,
+  "copper-soft": #1b2027,
   "focus": #86b4ff,
   "ok": #78cfa0,
   "ok-soft": #15291f,
-  "warn": $primary-light,
-  "warn-soft": rgba($primary, 0.22),
+  "warn": $primary,
+  "warn-soft": #1b2027,
   "bad": #f39197,
   "bad-soft": #351a1c,
   "info": #8dbbe8,

@@ -102,7 +102,7 @@ function PanelPreview() {
       </div>
 
       {/* The client's answer to a request, landing in the case */}
-      <div className="absolute -bottom-2 -left-6 flex w-[240px] rotate-[1.5deg] flex-col gap-1 rounded-lg border border-copper/30 bg-copper-soft p-3 shadow-card">
+      <div className="absolute -bottom-2 -left-6 flex w-[240px] rotate-[1.5deg] flex-col gap-1 rounded-lg border border-copper bg-copper-soft p-3 shadow-card">
         <span className="flex items-center gap-2 text-[11.5px] font-semibold text-copper-text">
           <span className="grid size-5 place-items-center rounded-full bg-copper text-[9px] text-surface">GT</span>
           {t.tasks.state.done}

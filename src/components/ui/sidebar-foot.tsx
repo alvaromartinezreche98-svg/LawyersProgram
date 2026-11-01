@@ -23,7 +23,7 @@ const LANG: Record<Theme, { box: string; row: string; tile: "chrome" | "accent";
     muted: "text-chrome-muted",
     on: "bg-chrome-active font-semibold text-chrome-ink",
     off: "text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink",
-    check: "text-chrome-mark",
+    check: "text-white",
   },
   light: {
     box: "border-accent/10 bg-surface/60",
@@ -80,8 +80,8 @@ export function LangMenu({ compact = false, item, theme = "dark" }: { compact?: 
 
 const SIGN_OUT: Record<Theme, { btn: string; tile: string }> = {
   // terracotta tint on navy: lighter than the sidebar, warm, plainly the way out
-  dark: { btn: "bg-chrome-mark/15 text-chrome-ink hover:bg-chrome-mark/25", tile: "bg-chrome-mark text-chrome" },
-  light: { btn: "bg-copper/10 text-copper-text hover:bg-copper/20", tile: "bg-copper text-accent-ink" },
+  dark: { btn: "bg-chrome-hover text-chrome-ink hover:bg-chrome-hover", tile: "bg-chrome-mark text-chrome" },
+  light: { btn: "bg-sunk text-copper-text hover:bg-hover", tile: "bg-copper text-accent-ink" },
 };
 
 /** Sign-out: its own tinted box under a hairline, with its icon on a terracotta tile. */
