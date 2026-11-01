@@ -961,7 +961,7 @@ const es = {
     inLast: (d: string) => `Incluidos en el reenvío del ${d}`,
   },
   auth: {
-    codeIntro: (email: string) => `Ha iniciado sesión${email ? ` como ${email}` : ""}. Para entrar en su expediente, escriba el código de invitación que le dio su gestoría (está en el enlace o el QR).`,
+    codeIntro: (email: string) => `Ha iniciado sesión${email ? ` como ${email}` : ""}, pero esta cuenta aún no tiene acceso a ningún expediente. Si tiene el código de invitación que le dio su gestoría (está en el enlace o el QR), escríbalo aquí; si no, pida a su gestoría que le invite.`,
     codeLabel: "Código de invitación",
     codeSubmit: "Entrar con el código",
     badCode: "Este código no es válido o ha caducado. Pida a su gestoría uno nuevo.",
@@ -1976,7 +1976,7 @@ const en: Dict = {
     inLast: (d) => `Included in the resubmission of ${d}`,
   },
   auth: {
-    codeIntro: (email) => `You are signed in${email ? ` as ${email}` : ""}. To open your case, enter the invitation code your gestoría gave you (it is in the link or the QR).`,
+    codeIntro: (email) => `You are signed in${email ? ` as ${email}` : ""}, but this account has no case yet. If you have the invitation code your gestoría gave you (it is in the link or the QR), enter it here; otherwise ask your gestoría to invite you.`,
     codeLabel: "Invitation code",
     codeSubmit: "Continue with the code",
     badCode: "This code is not valid or has expired. Ask your gestoría for a new one.",

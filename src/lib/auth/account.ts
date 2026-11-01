@@ -70,7 +70,12 @@ export async function acceptInvitationCode(code: string): Promise<AccountLookup>
     await api.acceptInvitation(code.trim());
     return resolveAccount();
   } catch (err) {
-    if (isApiError(err) && err.kind === "notFound") return { status: "badCode" };
+    // 404 (unknown, used, expired code) or 409 (this account already belongs to a client):
+    // an account that is already linked just goes to its own case, so reopening a link is harmless.
+    if (isApiError(err) && (err.kind === "notFound" || err.kind === "conflict")) {
+      const own = await resolveAccount();
+      return own.status === "linked" ? own : { status: "badCode" };
+    }
     return lookupFromError(err);
   }
 }

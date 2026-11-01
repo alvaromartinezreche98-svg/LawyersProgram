@@ -961,7 +961,7 @@ export const va: Dict = {
     inLast: (d) => `Inclosos en el reenviament del ${d}`,
   },
   auth: {
-    codeIntro: (email) => `Ha iniciat la sessió${email ? ` com a ${email}` : ""}. Per a entrar en el seu expedient, escriga el codi d'invitació que li va donar la seua gestoria (està en l'enllaç o el QR).`,
+    codeIntro: (email) => `Ha iniciat la sessió${email ? ` com a ${email}` : ""}, però este compte encara no té accés a cap expedient. Si té el codi d'invitació que li va donar la seua gestoria (està en l'enllaç o el QR), escriga'l ací; si no, demane a la seua gestoria que el convide.`,
     codeLabel: "Codi d'invitació",
     codeSubmit: "Entrar amb el codi",
     badCode: "Este codi no és vàlid o ha caducat. Demane'n un de nou a la seua gestoria.",
