@@ -41,7 +41,7 @@ export function SignupPage() {
           </ol>
         </div>
 
-        <Card className="p-5 sm:p-7">
+        <Card pad="lg">
           {sent ? (
             <div className="flex flex-col items-start gap-3" role="status">
               <CircleCheck size={28} className="text-ok" aria-hidden="true" />

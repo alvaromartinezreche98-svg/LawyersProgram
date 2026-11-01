@@ -4,13 +4,13 @@ import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
-import { Menu, Search, CalendarDays, Contact, Inbox, LayoutDashboard, ListChecks, Settings, Wallet, type LucideIcon } from "lucide-react";
+import { Menu, Search, X, CalendarDays, Contact, Inbox, LayoutDashboard, ListChecks, Settings, Wallet, type LucideIcon } from "lucide-react";
 import { unreadFor, useAppState } from "@/lib/data/store";
 import { LangMenu, SignOutButton } from "@/components/ui/sidebar-foot";
 import { SIDE_W, SideFoldButton, SideLink, SideTip, sideRowCls, useSideFold } from "@/components/ui/side-nav";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
-import { Badge, Brand, Loading, cx } from "@/components/ui/primitives";
+import { Badge, Loading, cx } from "@/components/ui/primitives";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
 import { useRemoteInbox } from "@/lib/api/use-remote";
 import { QuickSearch, useQuickSearchKey } from "./quick-search";
@@ -20,7 +20,7 @@ import { FirmEmblem, FirmWordmark } from "@/components/ui/firm-mark";
 
 /** Gestoría panel frame: left sidebar (drawer on mobile) + content panel. */
 export function GestorShell({ children }: { children: ReactNode }) {
-  const { ready, session } = useAppState();
+  const { ready, session, firm } = useAppState();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -39,7 +39,14 @@ export function GestorShell({ children }: { children: ReactNode }) {
     if (!open) return;
     const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", k);
-    return () => document.removeEventListener("keydown", k);
+    // the page behind the open drawer stays still
+    const html = document.documentElement;
+    const was = html.style.overflow;
+    html.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", k);
+      html.style.overflow = was;
+    };
   }, [open]);
 
   // Alt + Shift + Q signs out, as shown in the account menu.
@@ -57,19 +64,22 @@ export function GestorShell({ children }: { children: ReactNode }) {
       className="gestor-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[var(--side-w)_minmax(0,1fr)] lg:overflow-hidden motion-safe:lg:transition-[grid-template-columns] motion-safe:lg:duration-300 motion-safe:lg:ease-out print:block print:h-auto print:overflow-visible"
     >
       <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 lg:hidden print:hidden">
-        <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className="grid size-9 place-items-center rounded-lg border border-line transition-colors hover:bg-sunk active:bg-sunk">
-          <Menu size={18} strokeWidth={1.9} aria-hidden="true" />
+        <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className="grid size-10 place-items-center rounded-lg border border-line transition-colors hover:bg-sunk active:bg-sunk">
+          <Menu size={19} strokeWidth={1.9} aria-hidden="true" />
         </button>
-        <Brand />
-        <button type="button" aria-label={t.extra.search.open} onClick={openSearch} className="ml-auto grid size-9 place-items-center rounded-lg bg-accent-soft text-accent">
+        <span className="flex min-w-0 items-center gap-2">
+          <FirmEmblem size={28} />
+          <FirmWordmark name={firm.name.trim() || "Gestoría"} />
+        </span>
+        <button type="button" aria-label={t.extra.search.open} onClick={openSearch} className="ml-auto grid size-10 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
           <Search size={18} strokeWidth={2} aria-hidden="true" />
         </button>
       </div>
 
-      {open && <div className="fixed inset-0 z-40 bg-[var(--scrim)] lg:hidden" onClick={() => setOpen(false)} />}
+      <div aria-hidden="true" className={cx("fixed inset-0 z-40 bg-[var(--scrim)] backdrop-blur-[2px] transition-opacity duration-250 lg:hidden", open ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setOpen(false)} />
       <aside
         className={cx(
-          "fixed inset-y-0 left-0 z-50 w-[272px] bg-chrome motion-safe:transition-[translate] motion-safe:duration-250 motion-safe:ease-out lg:sticky lg:top-0 lg:z-40 lg:h-dvh lg:w-auto lg:translate-x-0 lg:bg-transparent lg:py-3 lg:pl-3 print:hidden",
+          "fixed inset-y-0 left-0 z-50 h-dvh w-[min(86vw,300px)] bg-chrome motion-safe:transition-[translate] motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] lg:sticky lg:top-0 lg:z-40 lg:h-dvh lg:w-auto lg:translate-x-0 lg:bg-transparent lg:py-3 lg:pl-3 print:hidden",
           open ? "translate-x-0 shadow-card" : "-translate-x-full",
         )}
       >
@@ -126,8 +136,8 @@ function Sidebar({ onNavigate, onSearch, compact, onFold }: { onNavigate: () => 
           <FirmWordmark name={firmName} tone="dark" />
         </span>
         <SideFoldButton folded={compact} onToggle={onFold} theme="dark" className="max-lg:hidden" />
-        <button type="button" aria-label={t.side.closeMenu} onClick={onNavigate} className="px-2 text-xl text-chrome-muted lg:hidden">
-          ×
+        <button type="button" aria-label={t.side.closeMenu} onClick={onNavigate} className="grid size-10 shrink-0 place-items-center rounded-lg text-chrome-muted transition-colors hover:bg-chrome-hover hover:text-chrome-ink lg:hidden">
+          <X size={20} aria-hidden="true" />
         </button>
       </div>
 

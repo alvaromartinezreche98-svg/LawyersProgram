@@ -5,6 +5,8 @@ import type { AnswerValue, Answers, Field } from "@/lib/questionnaire/types";
 import { asItems, isFilled, showsKids } from "@/lib/questionnaire/progress";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDate } from "@/lib/format";
+import { CircleAlert } from "lucide-react";
+import { cx } from "@/components/ui/primitives";
 
 const mono = (x: Field) => x.type === "money" || x.type === "pct" || x.type === "number" || !!x.mono;
 
@@ -50,17 +52,17 @@ export function AnswersSummary({ fields, scope, layout = "rows" }: { fields: Fie
           const items = asItems(v);
           if (!items.length)
             return (
-              <Row key={x.id} label={tr(x.label)}>
+              <Row key={x.id} label={tr(x.label)} missing>
                 <span className="font-semibold text-bad">{t.common.noneAdded}</span>
               </Row>
             );
           return items.map((it, i) =>
             grid ? (
-              <div key={x.id + i} className="col-span-full my-2 rounded-lg border border-line bg-sunk/40 px-4 pt-3 pb-2">
-                <div className="mb-1 text-[13px] font-semibold text-ink">
+              <div key={x.id + i} className="col-span-full overflow-hidden rounded-xl border border-line bg-surface shadow-sm">
+                <div className="border-b border-line bg-sunk/50 px-4 py-2.5 text-[13.5px] font-semibold text-ink">
                   {x.item && tr(x.item)} {i + 1}
                 </div>
-                <div className="grid gap-x-8 md:grid-cols-2">
+                <div className="grid gap-3 pad-tile md:grid-cols-2">
                   <AnswersSummary fields={x.fields ?? []} scope={it} layout="grid" />
                 </div>
               </div>
@@ -78,9 +80,16 @@ export function AnswersSummary({ fields, scope, layout = "rows" }: { fields: Fie
         return (
           <div key={x.id} className={grid ? "contents" : undefined}>
             {!(x.opt && val == null) && (
-              <Row label={tr(x.label)}>
+              <Row label={tr(x.label)} missing={val == null}>
                 {val == null ? (
-                  grid ? <span className="inline-flex items-center gap-1 rounded-sm bg-bad-soft px-1.5 py-0.5 text-[12px] font-semibold text-bad">{t.common.notAnswered}</span> : <span className="font-semibold text-bad">{t.common.notAnswered}</span>
+                  grid ? (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-bad px-1.5 py-0.5 text-[11.5px] font-semibold text-white">
+                      <CircleAlert size={12} strokeWidth={2.4} aria-hidden="true" />
+                      {t.common.notAnswered}
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-bad">{t.common.notAnswered}</span>
+                  )
                 ) : (
                   <span className={mono(x) ? "font-mono" : undefined}>{val}</span>
                 )}
@@ -88,7 +97,7 @@ export function AnswersSummary({ fields, scope, layout = "rows" }: { fields: Fie
             )}
             {showsKids(x, v) &&
               (grid ? (
-                <div className="col-span-full my-2 grid gap-x-8 rounded-lg border-l-2 border-accent/20 bg-sunk/40 py-1 pr-4 pl-4 md:grid-cols-2">
+                <div className="col-span-full grid gap-3 border-l-2 border-accent/25 pl-4 md:grid-cols-2">
                   <AnswersSummary fields={x.kids ?? []} scope={scope} layout="grid" />
                 </div>
               ) : (
@@ -103,17 +112,17 @@ export function AnswersSummary({ fields, scope, layout = "rows" }: { fields: Fie
   );
 }
 
-/** Grid layout: a small muted label over the value. */
-function Cell({ label, children }: { label: string; children: ReactNode }) {
+/** Grid layout: each answer on its own soft field, a small muted label over the value; a missing answer is tinted red. */
+function Cell({ label, missing, children }: { label: string; missing?: boolean; children: ReactNode }) {
   return (
-    <div className="min-w-0 border-t border-line/70 py-2.5">
-      <dt className="text-[12.5px] leading-[18px] text-muted">{label}</dt>
-      <dd className="mt-0.5 min-w-0 text-[14px] font-medium break-words text-ink">{children}</dd>
+    <div className={cx("flex min-w-0 flex-col gap-1 rounded-lg border px-3 py-2.5", missing ? "border-bad/25 bg-bad-soft/50" : "border-transparent bg-sunk/70")}>
+      <dt className={cx("text-[12.5px] leading-[18px]", missing ? "text-bad" : "text-muted")}>{label}</dt>
+      <dd className="min-w-0 text-[14px] leading-5 font-medium break-words text-ink">{children}</dd>
     </div>
   );
 }
 
-function Line({ label, children }: { label: string; children: ReactNode }) {
+function Line({ label, children }: { label: string; missing?: boolean; children: ReactNode }) {
   return (
     <div className="grid grid-cols-1 gap-0 border-t border-dashed border-line py-1.5 text-[13.5px] sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] sm:gap-3 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] xl:gap-6">
       <dt className="text-muted">{label}</dt>

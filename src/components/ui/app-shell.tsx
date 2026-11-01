@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { ChevronDown, CircleUserRound, LogOut, type LucideIcon } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ChevronDown, CircleUserRound, LogOut, Menu, X, type LucideIcon } from "lucide-react";
 import { IconTile } from "./icons";
 import { useAppState } from "@/lib/data/store";
 import { useFileUrl } from "@/lib/data/files";
@@ -43,6 +44,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
   useHtmlLang();
   const isOn = (n: NavItem) => path === n.href || (!!n.match && path.startsWith(n.match));
   const tabs = nav.slice(0, 4);
+  const profile = nav.find((n) => n.href === "/perfil");
   const more = nav.slice(4);
   const [foldPref, setFolded] = useSideFold("client");
   const folded = !!foldPref;
@@ -65,7 +67,9 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
       {nav.length > 0 && <ClientSidebar nav={nav} who={who} org={org} isOn={isOn} folded={folded} onFold={() => setFolded(!folded)} />}
       {/* Hidden (height 0) beside the sidebar, so --app-header drops to 0 and sticky columns sit at the top. */}
       <header ref={head} className={cx("z-20 border-b border-line bg-surface md:sticky md:top-0", nav.length > 0 && "xl:hidden")}>
-        <div className="mx-auto flex min-h-16 max-w-client items-center gap-x-5 px-4 sm:px-6">
+        <div className="mx-auto flex min-h-16 max-w-client items-center gap-x-5 px-4 max-md:gap-x-3 sm:px-6">
+          {/* Phones: the menu on the left opens every section in a drawer */}
+          {nav.length > 0 && <MobileDrawer nav={nav} who={who} org={org} isOn={isOn} />}
           <Link href={nav[0]?.href ?? "/"} className="mr-auto flex min-w-0 items-center gap-3 py-2 md:mr-2">
             <Cobrand org={org} />
           </Link>
@@ -92,7 +96,15 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
           </nav>
           {/* One quiet control on the right: the account (language and sign-out live in it). */}
           {nav.length > 0 ? (
-            <AccountMenu who={who} items={more} isOn={isOn} className="max-md:hidden" />
+            <>
+              <AccountMenu who={who} items={more} isOn={isOn} className="max-md:hidden" />
+              {/* Phones: the person's initials, straight to their profile */}
+              {profile && (
+                <Link href={profile.href} aria-label={`${t.side.account}: ${who}`} aria-current={isOn(profile) ? "page" : undefined} className="grid size-11 shrink-0 place-items-center rounded-full md:hidden">
+                  <span className={cx("grid size-9 place-items-center rounded-full text-[13px] font-semibold ring-2 transition-colors", isOn(profile) ? "bg-copper text-accent-ink ring-copper/30" : "bg-accent text-accent-ink ring-accent/15")} aria-hidden="true">{initialsOf(who)}</span>
+                </Link>
+              )}
+            </>
           ) : (
             <>
               <LangSwitch />
@@ -255,6 +267,107 @@ function AccountMenu({ who, items, isOn, className }: { who: string; items: NavI
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Phones: a menu button that opens every section in a drawer from the left. Large icon tiles
+ * and labels, the person at the top, language and sign-out at the foot; closes on a choice,
+ * on the scrim or with Escape, and the page behind stays still. Portalled into <body>, so it
+ * sits above the sticky header and the tab bar.
+ */
+function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; org?: string; isOn: (n: NavItem) => boolean }) {
+  const { t } = useI18n();
+  const signOut = useSignOut();
+  const [open, setOpen] = useState(false);
+  const path = usePathname();
+  // a new page closes the drawer
+  const [at, setAt] = useState(path);
+  if (at !== path) {
+    setAt(path);
+    setOpen(false);
+  }
+  // the portal needs document.body: only after the first render on the client
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  useEffect(() => {
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", esc);
+    const html = document.documentElement;
+    const was = html.style.overflow;
+    html.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", esc);
+      html.style.overflow = was;
+    };
+  }, [open]);
+  const badge = nav.reduce((n, x) => n + (x.badge ?? 0), 0);
+  return (
+    <div className="md:hidden">
+      <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className="relative grid size-11 shrink-0 place-items-center rounded-xl border border-line bg-surface text-ink transition-colors active:bg-sunk">
+        <Menu size={20} strokeWidth={1.9} aria-hidden="true" />
+        {badge > 0 && <span className="absolute -top-1 -right-1"><Badge n={badge} /></span>}
+      </button>
+      {mounted &&
+        createPortal(
+          <>
+            <div aria-hidden="true" onClick={() => setOpen(false)} className={cx("fixed inset-0 z-40 bg-[var(--scrim)] backdrop-blur-[2px] transition-opacity duration-300 md:hidden", open ? "opacity-100" : "pointer-events-none opacity-0")} />
+            <aside
+              aria-label={t.nav.sections}
+              aria-hidden={!open}
+              inert={!open}
+              className={cx(
+                "client-scale fixed inset-y-0 left-0 z-50 flex h-dvh w-[min(86vw,320px)] flex-col bg-surface shadow-card md:hidden motion-safe:transition-[translate] motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]",
+                open ? "translate-x-0" : "-translate-x-full",
+              )}
+            >
+              <div className="flex min-h-16 items-center gap-3 border-b border-line px-4">
+                <span className="flex min-w-0 flex-1 items-center gap-3"><Cobrand org={org} /></span>
+                <button type="button" aria-label={t.side.closeMenu} onClick={() => setOpen(false)} className="grid size-11 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-sunk hover:text-ink">
+                  <X size={20} aria-hidden="true" />
+                </button>
+              </div>
+              {/* The person: initials, name; their profile is one of the rows below */}
+              <div className="flex items-center gap-3 border-b border-line px-5 py-4">
+                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-[14px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
+                <span className="min-w-0">
+                  <b className="block truncate text-[15.5px] font-semibold">{who}</b>
+                  <span className="text-[13px] text-muted">{t.side.account}</span>
+                </span>
+              </div>
+              <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
+                {nav.map((n) => {
+                  const on = isOn(n);
+                  return (
+                    <li key={n.href}>
+                      <Link href={n.href} onClick={() => setOpen(false)} aria-current={on ? "page" : undefined} className={cx("relative flex min-h-14 items-center gap-3.5 rounded-xl px-3 text-[16px] font-medium transition-colors", on ? "bg-accent-soft font-semibold text-accent before:absolute before:inset-y-3 before:left-0 before:w-[3px] before:rounded-r-full before:bg-copper" : "text-ink hover:bg-sunk")}>
+                        {n.icon && <IconTile icon={n.icon} size="md" tone={on ? "copperSolid" : "accent"} />}
+                        <span className="flex-1">{n.label}</span>
+                        <Badge n={n.badge ?? 0} />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="flex flex-col gap-2 border-t border-line p-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+                <div className="flex min-h-12 items-center justify-between gap-3 px-3 text-[15px]">
+                  <span className="text-muted">{t.common.language}</span>
+                  <LangSwitch />
+                </div>
+                <button type="button" onClick={signOut} className="flex min-h-12 w-full items-center gap-3 rounded-xl bg-copper/10 px-3 text-left text-[15px] font-semibold text-copper-text transition-colors hover:bg-copper/20">
+                  <span className="grid size-8 place-items-center rounded-lg bg-copper text-accent-ink" aria-hidden="true"><LogOut size={16} strokeWidth={2.2} /></span>
+                  {t.common.signOut}
+                </button>
+              </div>
+            </aside>
+          </>,
+          document.body,
+        )}
     </div>
   );
 }

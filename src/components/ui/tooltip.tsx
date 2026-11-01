@@ -9,9 +9,11 @@ import { cx } from "./primitives";
  * The trigger becomes focusable and points at the card (aria-describedby). The card is
  * portalled and fixed above the trigger (below when there is no room), so no box clips it.
  */
-export function Tooltip({ title, text, children, className, side = "top", disabled, plain }: {
+export function Tooltip({ title, text, body, children, className, side = "top", disabled, plain, inline }: {
   title?: string;
   text: string;
+  /** Richer content in place of `text` (a short list); `text` stays as its plain summary. */
+  body?: ReactNode;
   children: ReactNode;
   className?: string;
   /** "right": beside the trigger, centred on it (the folded sidebar's labels). */
@@ -19,6 +21,8 @@ export function Tooltip({ title, text, children, className, side = "top", disabl
   disabled?: boolean;
   /** The trigger is already focusable (a link or button): no tab stop or help cursor of its own. */
   plain?: boolean;
+  /** With `plain`: the trigger sits in a line of text (a chip), not as a block. */
+  inline?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number; below: boolean; right?: boolean } | null>(null);
@@ -50,7 +54,7 @@ export function Tooltip({ title, text, children, className, side = "top", disabl
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
         onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-        className={cx(plain ? "block" : "inline-flex cursor-help rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-focus", className)}
+        className={cx(plain ? (inline ? "inline-flex" : "block") : "inline-flex cursor-help rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-focus", className)}
       >
         {children}
       </span>
@@ -65,7 +69,7 @@ export function Tooltip({ title, text, children, className, side = "top", disabl
             className="pointer-events-none fixed z-[70] flex w-max max-w-72 flex-col gap-1 rounded-lg bg-ink px-3.5 py-2.5 text-left text-[13px] leading-[19px] text-white shadow-[0_10px_24px_-8px_rgb(0_0_0/0.45)] motion-safe:animate-[tip-in_140ms_ease-out]"
           >
             {title && <b className="font-semibold">{title}</b>}
-            <span className="text-white/80">{text}</span>
+            {body ?? <span className="text-white/80">{text}</span>}
             <i className={cx("absolute size-2.5 rotate-45 bg-ink", pos.right ? "top-1/2 -left-1 -translate-y-1/2" : cx("left-1/2 -translate-x-1/2", pos.below ? "-top-1" : "-bottom-1"))} aria-hidden="true" />
           </span>,
           document.body,

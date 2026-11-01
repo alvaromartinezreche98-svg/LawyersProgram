@@ -155,6 +155,17 @@ $space: (
   "10": 80px,
 );
 
+// ---------- Insets: the padding inside every bordered box, three sizes only ----------
+// tile: small clickable figures (KPI, metric and kanban cards); card: every card, panel and
+// sectioned box (20px on phones, 24px from 640px); card-lg: a page's lead card (24 → 32px).
+// Inside a box, elements stack on gap 8 (a title and its line), 16 (default) or 24 (groups).
+$inset: (
+  "tile": 16px,
+  "card-sm": 20px,
+  "card": 24px,
+  "card-lg": 32px,
+);
+
 // ---------- Radii: small and restrained; nothing rounder than 10px except avatars ----------
 $radius: (
   "sm": 4px, // badges, checkboxes, chips

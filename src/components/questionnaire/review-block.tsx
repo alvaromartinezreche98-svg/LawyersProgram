@@ -51,7 +51,7 @@ export function ReviewBlock({ answers, sent, onGo, onSend, signDone }: { answers
           );
         })}
       </div>
-      <div className="rounded-lg border border-line bg-sunk px-4 py-3.5 text-sm">
+      <div className="rounded-lg border border-line bg-sunk pad-tile text-sm">
         <h3 className="mb-1.5 font-bold">{t.q.noNeedTitle}</h3>
         <ul className="list-disc pl-5 text-muted">
           {NO_NEED_TO_UPLOAD.map((x) => (

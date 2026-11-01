@@ -67,11 +67,11 @@ export function TeamSettings() {
       {/* The team on the left; what each role is for beside it (below on narrower screens). */}
       <div data-wide className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div className="min-w-0">
-      <Card className="overflow-clip">
-        {firm.team.length === 0 && <p className="px-5 py-8 text-center text-muted">{s.empty}</p>}
+      <Card pad="none" className="overflow-clip">
+        {firm.team.length === 0 && <p className="pad-card text-center text-muted">{s.empty}</p>}
         <ul>
           {firm.team.map((m, i) => (
-            <li key={m.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-t border-line px-4 py-3 first:border-t-0 sm:grid-cols-[36px_minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto]">
+            <li key={m.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-t border-line pad-x-card py-3 first:border-t-0 sm:grid-cols-[36px_minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto]">
               <span className={cx("grid size-9 place-items-center rounded-full text-[13px] font-bold", AVATAR[i % AVATAR.length])}>{initials(m.name)}</span>
               <input aria-label={s.name} value={m.name} onChange={(e) => actions.updateMember(m.id, { name: e.target.value })} className={cx(compact, "font-semibold")} />
               <input aria-label={s.email} type="email" value={m.email} onChange={(e) => actions.updateMember(m.id, { email: e.target.value })} className={cx(compact, "col-start-2 text-muted sm:col-start-auto")} />
@@ -83,7 +83,7 @@ export function TeamSettings() {
           ))}
         </ul>
 
-        <form onSubmit={add} className="grid gap-2.5 border-t border-line bg-sunk p-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto]">
+        <form onSubmit={add} className="grid gap-2 border-t border-line bg-sunk pad-card sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto]">
           <label className="sr-only" htmlFor="tm-name">{s.name}</label>
           <input id="tm-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder={s.name} autoComplete="off" className={inputCls} />
           <label className="sr-only" htmlFor="tm-email">{s.email}</label>
@@ -102,7 +102,7 @@ export function TeamSettings() {
       </p>
       </div>
 
-      <aside aria-labelledby="roles-title" className="flex flex-col gap-4 rounded-lg border border-line bg-sunk p-5">
+      <aside aria-labelledby="roles-title" className="flex flex-col gap-4 rounded-lg border border-line bg-sunk pad-card">
         <h2 id="roles-title" className="text-[15px] font-semibold">{s.rolesTitle}</h2>
         <dl className="flex flex-col gap-4">
           {ROLES.map((r) => (

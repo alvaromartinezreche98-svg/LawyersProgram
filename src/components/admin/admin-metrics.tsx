@@ -36,7 +36,7 @@ export function AdminMetrics() {
         </dl>
 
         <div className="grid items-start gap-5 lg:grid-cols-2">
-          <Card className="p-5">
+          <Card >
             <h2 className="mb-4 text-[15px] font-semibold">{m.byCampaign}</h2>
             <ul className="flex flex-col gap-3">
               {years.map((y) => {
@@ -51,7 +51,7 @@ export function AdminMetrics() {
               })}
             </ul>
           </Card>
-          <Card className="p-5">
+          <Card >
             <h2 className="mb-4 text-[15px] font-semibold">{m.byStatus}</h2>
             <ul className="flex flex-col">
               {STATUSES.map((s) => (
@@ -70,7 +70,7 @@ export function AdminMetrics() {
 
 function Tile({ label, value, note, copper }: { label: string; value: string; note?: string; copper?: boolean }) {
   return (
-    <div className="rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet">
+    <div className="rounded-lg border border-line bg-surface pad-tile shadow-sheet">
       <dt className="text-[13px] text-muted">{label}</dt>
       <dd className={`figures mt-1 text-[22px] leading-7 font-semibold ${copper ? "text-copper-text" : ""}`}>{value}</dd>
       {note && <p className="mt-1 text-[12.5px] text-muted">{note}</p>}

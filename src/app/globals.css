@@ -102,6 +102,33 @@
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Box insets (tokens: $inset): every card, panel and sectioned box uses one of these, so the
+ * padding is the same everywhere. `pad-card` 20 → 24px, `pad-card-lg` 24 → 32px, `pad-tile` 16px.
+ * `pad-x-card` is the card's side inset alone, for a header bar or a row that runs edge to edge.
+ */
+@utility pad-card {
+  padding: var(--inset-card-sm);
+  @media (width >= 40rem) {
+    padding: var(--inset-card);
+  }
+}
+@utility pad-card-lg {
+  padding: var(--inset-card);
+  @media (width >= 40rem) {
+    padding: var(--inset-card-lg);
+  }
+}
+@utility pad-tile {
+  padding: var(--inset-tile);
+}
+@utility pad-x-card {
+  padding-inline: var(--inset-card-sm);
+  @media (width >= 40rem) {
+    padding-inline: var(--inset-card);
+  }
+}
+
 /* Former gradient wash, kept as a name so existing panels stay flat and consistent. */
 @utility soft-wash {
   background: var(--surface);

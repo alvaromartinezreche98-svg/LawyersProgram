@@ -12,7 +12,8 @@
   width: 100%;
   max-width: map.get($width, "page");
   margin: auto;
-  padding: space(5) space(4);
+  // phones: the standard 16px gutter all round; the frame starts close under the header
+  padding: space(3) space(4) space(4);
 
   @include from("xl") {
     padding-block: space(4);
@@ -46,10 +47,15 @@
 .intro {
   min-width: 0;
   align-self: center;
-  padding: space(6) space(5);
+  // phones and tablets: compact, so the sign-in comes into view right after the headline
+  padding: space(5) space(5) space(4);
 
   @include from("sm") {
-    padding: space(7);
+    padding: space(6);
+  }
+
+  @include from("md") {
+    padding: space(6) space(7);
   }
 
   @include from("xl") {
@@ -65,7 +71,8 @@
   flex-direction: column;
   justify-content: center;
   gap: space(3);
-  padding: space(5) space(4);
+  // phones: a narrow navy margin, so the cards take nearly the full width
+  padding: space(4) space(3);
   // two close navies on a diagonal (a touch lighter top left, deeper bottom right), with a faint glow behind the card
   background:
     radial-gradient(90% 60% at 50% 42%, rgb(255 255 255 / 0.06), transparent 70%),
@@ -98,6 +105,7 @@
   // one 16px rhythm between every block (tag, title, text, field, button); the label stays 8px from its field
   .panel {
     gap: space(4);
+    @include pad;
     border-color: transparent;
     border-top: 4px solid var(--copper);
     box-shadow:
@@ -245,9 +253,14 @@
 // throughout, sharp lettering and tight leading, so the sentence reads as one block.
 .title {
   max-width: 19ch;
-  margin-block: space(4) space(5);
+  margin-block: space(3) space(4);
   font-family: var(--font-hero), $font-sans;
-  font-size: clamp(2.5rem, 1.4rem + 3.1vw, 4.5rem);
+  // 32px on a 375px phone, ~46px on a tablet, 72px on a large desktop
+  font-size: clamp(2rem, 1.2rem + 3.6vw, 4.5rem);
+
+  @include from("xl") {
+    margin-block: space(4) space(5);
+  }
   font-weight: 600;
   line-height: 1.08;
   letter-spacing: -0.025em;
@@ -259,7 +272,7 @@
 .titleSm {
   max-width: 20ch;
   margin-block: 0;
-  font-size: clamp(2.25rem, 1.3rem + 2.5vw, 3.5rem);
+  font-size: clamp(1.875rem, 1.2rem + 2.8vw, 3.5rem);
 }
 
 // The promise of the page, underlined in terracotta; inline, so it wraps on narrow screens.
@@ -272,16 +285,48 @@
 
 .lede {
   @include type("body-lg");
-  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.1875rem);
+  font-size: clamp(0.9375rem, 0.85rem + 0.45vw, 1.1875rem);
   max-width: 46ch;
   color: var(--muted);
   line-height: 1.6;
   text-wrap: pretty;
 }
 
+// The intro text: beside the headline from 1280px; below that, after the sign-in, so the
+// sign-in card comes straight under the headline (in view without scrolling on a phone).
+.ledeWide {
+  @media (max-width: 1279px) {
+    display: none;
+  }
+}
+
+.ledeNarrow {
+  max-width: none;
+  padding: space(5) space(5) space(5);
+  font-size: 0.9375rem;
+
+  @include from("sm") {
+    padding: space(6);
+  }
+
+  @include from("md") {
+    padding: space(6) space(7);
+  }
+
+  @include from("xl") {
+    display: none;
+  }
+}
+
 .ledger {
   max-width: 440px;
   margin-top: space(7);
+
+  // phones and tablets: the firm is already in the header and the sign-in text, the year in
+  // the eyebrow; dropping the repeat brings the sign-in up
+  @media (max-width: 1279px) {
+    display: none;
+  }
 }
 
 // ---------- Sign-in panel ----------
@@ -332,9 +377,16 @@
 // a translucent glass card, so the white sign-in stays the only bright thing).
 .switchRole {
   display: flex;
+  width: 100%;
+  min-height: 60px;
   align-items: center;
   gap: space(3);
-  padding: space(3) space(5);
+  padding: space(3) space(4);
+
+  @include from("sm") {
+    padding-inline: space(5);
+  }
+
   border: 1px solid var(--line);
   border-radius: radius(lg);
   background: var(--surface);

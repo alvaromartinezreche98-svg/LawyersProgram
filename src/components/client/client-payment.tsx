@@ -28,7 +28,7 @@ export function ClientPayment() {
         <p className="mt-2 text-muted">{t.pay.intro}</p>
       </div>
 
-      <Card className="overflow-clip">
+      <Card pad="none" className="overflow-clip">
         {!fee ? (
           <EmptyState inset center icon={CreditCard} title={t.pay.nothingYet}>
             <p>{t.pay.noFees}</p>
@@ -41,23 +41,23 @@ export function ClientPayment() {
           <>
             <dl className="divide-y divide-line">
               {fee.lines.map((l) => (
-                <div key={l.key} className="flex items-baseline justify-between gap-4 px-5 py-3 text-[14.5px]">
+                <div key={l.key} className="flex items-baseline justify-between gap-4 pad-x-card py-3 text-[14.5px]">
                   <dt>{label(l.key, l.qty)}</dt>
                   <dd className="figures font-medium">{fmtEuros(l.amount, locale)}</dd>
                 </div>
               ))}
-              <div className="flex items-baseline justify-between gap-4 bg-sunk px-5 py-3.5">
+              <div className="flex items-baseline justify-between gap-4 bg-sunk pad-x-card py-4">
                 <dt className="font-semibold">{t.pay.total}</dt>
                 <dd className="figures text-[18px] font-semibold">{fmtEuros(fee.total, locale)}</dd>
               </div>
             </dl>
             {firm.fees.notes.trim() && (
-              <div className="border-t border-line px-5 py-3 text-[13.5px]">
+              <div className="border-t border-line pad-x-card py-3 text-[13.5px]">
                 <span className="font-medium">{t.pay.notes}: </span>
                 <span className="text-muted">{firm.fees.notes}</span>
               </div>
             )}
-            <div className="flex flex-col gap-3 border-t border-line px-5 py-4">
+            <div className="flex flex-col gap-4 border-t border-line pad-card">
               {exp.payment ? (
                 <div className="flex items-center gap-3">
                   <IconTile icon={CircleCheck} tone="ok" />

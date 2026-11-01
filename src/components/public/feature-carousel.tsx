@@ -55,7 +55,7 @@ export function FeatureCarousel({ items, icons, labels }: { items: [string, stri
           return (
             <li
               key={title}
-              className="group relative flex w-[min(80vw,288px)] shrink-0 snap-start flex-col gap-3 overflow-hidden rounded-xl border border-line bg-bg p-6 transition-[translate,box-shadow,border-color,background-color] duration-300 ease-out hover:border-accent/30 hover:bg-surface hover:shadow-[0_14px_30px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-1"
+              className="group relative flex w-[min(80vw,288px)] shrink-0 snap-start flex-col gap-4 overflow-hidden rounded-xl border border-line bg-bg pad-card transition-[translate,box-shadow,border-color,background-color] duration-300 ease-out hover:border-accent/30 hover:bg-surface hover:shadow-[0_14px_30px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-1"
             >
               <span className="flex items-start justify-between">
                 <span className="grid size-12 place-items-center rounded-xl bg-icon-soft text-icon transition-colors duration-300 group-hover:bg-accent group-hover:text-accent-ink" aria-hidden="true">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { ArrowRight, CalendarClock, Check, ChevronDown, ChevronRight, CircleCheck, ClipboardList, FileText, MessageCircle, PenLine, Send, type LucideIcon } from "lucide-react";
 import { SCHEMA, REVIEW_SLUG, SIGN_SLUG } from "@/lib/questionnaire/schema";
-import { collectDocs, progressOf, sectionState } from "@/lib/questionnaire/progress";
+import { collectDocs, overall, progressOf, sectionState } from "@/lib/questionnaire/progress";
 import { signingDone } from "@/lib/data/legal";
 import { feeFor, fmtEuros } from "@/lib/data/fees";
 import { clientName, openTasks, unreadFor, useAppState } from "@/lib/data/store";
@@ -14,7 +14,7 @@ import { useFileUrl } from "@/lib/data/files";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { fmtDate, fmtDayMonth, fmtTime } from "@/lib/format";
 import { PageTitle } from "@/components/ui/app-shell";
-import { Badge, ButtonLink, EmptyState, Pill, cx } from "@/components/ui/primitives";
+import { Badge, ButtonLink, EmptyState, Pill, ProgressBar, cx } from "@/components/ui/primitives";
 import { StepDot } from "@/components/ui/progress";
 import { useClientExp } from "./client-shell";
 import { AP_TONE } from "./client-appointment";
@@ -52,6 +52,7 @@ export function ClientHome() {
   const firmName = firm.name.trim() || t.home.yourFirm;
   const mark = initials(firmName);
   const sections = SCHEMA.map((s) => ({ s, p: progressOf(s.fields, a) })).map((x) => ({ ...x, st: sectionState(x.p) }));
+  const ov = overall(a);
   const open = sections.filter((x) => x.st !== "done");
   const docs = collectDocs(a);
   const missing = docs.filter((d) => !d.files.length).length;
@@ -228,7 +229,14 @@ export function ClientHome() {
           <section aria-labelledby="secs" className={h.block}>
             <div className={h.blockHead}>
               <h2 id="secs" className={h.sectionTitle}>{t.home.yourReturn}</h2>
-              <span className={h.count}>{t.q.sectionsDone(sections.length - open.length, sections.length)}</span>
+            </div>
+            {/* The whole questionnaire in one figure: large, with its bar, so progress reads at a glance */}
+            <div className={h.progress}>
+              <div className={h.progressTop}>
+                <span className={h.progressPct}>{ov.pct}<small>%</small></span>
+                <span className={h.progressMeta}>{[t.q.sectionsDone(sections.length - open.length, sections.length), ov.pending > 0 && t.home.answersPending(ov.pending)].filter(Boolean).join(" · ")}</span>
+              </div>
+              <ProgressBar pct={ov.pct} className="h-2.5! rounded-full" />
             </div>
             <ul className={h.list} id="sec-list">
               {sections.map(({ s, p, st }, i) => {

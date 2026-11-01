@@ -6,6 +6,7 @@
   color-scheme: light;
   @include custom-properties($color-light);
   @include custom-properties($space, "space-");
+  @include custom-properties($inset, "inset-");
   @include custom-properties($width, "width-");
   @include custom-properties($control, "control-");
   --shadow-sheet-value: #{map.get($shadow, "sheet")};
@@ -17,6 +18,22 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   @include custom-properties($color-dark);
+}
+
+// Touch screens (phones, tablets): every workspace control grows to a finger's size,
+// 32 → 40px for small buttons and filters, 40 → 44px for the default.
+@media (pointer: coarse) {
+  :root {
+    --control-h-sm: 2.5rem;
+    --control-h: 2.75rem;
+  }
+
+  // 16px or more in fields, so phones do not zoom the page when one is focused
+  input:not([type="checkbox"], [type="radio"], [type="range"]),
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
 }
 
 // Client screens: 48px controls, comfortable on touch (the workspace keeps 40px).

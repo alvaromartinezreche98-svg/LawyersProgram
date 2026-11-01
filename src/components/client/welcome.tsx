@@ -31,7 +31,7 @@ export function Welcome() {
 
       <ol className="grid gap-3 sm:grid-cols-3">
         {t.welcome.steps.map(([title, d], i) => (
-          <li key={title} className="flex flex-col gap-2 rounded-lg border border-line bg-surface p-4">
+          <li key={title} className="flex flex-col gap-2 rounded-lg border border-line bg-surface pad-tile">
             <IconTile icon={STEP_ICONS[i]} size="sm" />
             <b className="text-[14.5px] font-semibold">{title}</b>
             <span className="text-[13px] text-muted">{d}</span>
@@ -39,7 +39,7 @@ export function Welcome() {
         ))}
       </ol>
 
-      <Card className="flex flex-col gap-4 p-5 sm:p-6">
+      <Card className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-[13px] text-muted">{t.welcome.notYou}</span>
           <Button variant="primary" size="lg" onClick={go}>

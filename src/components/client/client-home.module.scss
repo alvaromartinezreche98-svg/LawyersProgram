@@ -55,17 +55,13 @@
 .lead {
   display: flex;
   flex-direction: column;
-  gap: space(3);
-  padding: space(5);
+  gap: space(4);
+  @include pad("lg");
   border: 1px solid var(--line);
   border-top: 3px solid var(--copper); // terracotta = what to do next
   border-radius: radius(lg);
   background: var(--surface);
   box-shadow: var(--shadow-sheet-value);
-
-  @include from("sm") {
-    padding: space(6);
-  }
 
   // from the gestoría: its voice, terracotta
   &[data-kind="request"] {
@@ -282,6 +278,49 @@
   gap: space(3);
 }
 
+// The questionnaire's progress: a large figure and a thick bar on a quiet card.
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: space(3);
+  margin-bottom: space(3);
+  @include pad;
+  border: 1px solid var(--line);
+  border-radius: radius(md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sheet-value);
+}
+
+.progressTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: space(1) space(3);
+}
+
+.progressPct {
+  font-family: var(--font-hero), $font-sans;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+
+  small {
+    margin-left: 2px;
+    font-size: 0.55em;
+    font-weight: 600;
+    color: var(--muted);
+  }
+}
+
+.progressMeta {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
 .count {
   font-size: 0.875rem;
   color: var(--muted);
@@ -439,7 +478,7 @@
   display: flex;
   flex-direction: column;
   gap: space(4);
-  padding: space(5);
+  @include pad;
   border: 1px solid var(--line);
   border-radius: radius(md);
   background: var(--surface);

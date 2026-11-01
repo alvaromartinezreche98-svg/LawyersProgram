@@ -37,7 +37,7 @@ export function SectionGuide({ exp, slug, onGo }: { exp: Expediente; slug: strin
   const docs = collectDocs(exp.answers).filter((d) => d.section === slug && !d.files.length);
 
   return (
-    <aside aria-label={g.title} className="mb-6 rounded-lg border border-line bg-sunk/60 px-4 py-4 sm:px-5">
+    <aside aria-label={g.title} className="mb-6 rounded-lg border border-line bg-sunk/60 pad-card">
       <p className="mb-3 flex items-center gap-2 text-[13.5px] font-semibold">
         <Compass size={16} className="text-accent" aria-hidden="true" />
         {g.title}

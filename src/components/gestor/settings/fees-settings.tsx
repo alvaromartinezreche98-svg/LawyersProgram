@@ -21,7 +21,7 @@ export function FeesSettings() {
     <>
       <SectionHead title={s.title} intro={s.intro} />
       <div className="flex flex-col gap-4">
-        <Card className="flex flex-col gap-4 p-5 sm:p-7">
+        <Card pad="lg" className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {AMOUNTS.map((k) => (
               <Field key={k} id={`fee-${k}`} label={s[k]}>
@@ -37,7 +37,7 @@ export function FeesSettings() {
           </Field>
         </Card>
 
-        <Card className="soft-wash flex flex-col gap-3 p-5 sm:p-6">
+        <Card className="soft-wash flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <IconTile icon={Landmark} tone="info" />
             <h2 className="display-tight flex-1 text-[15px] font-semibold">{s.payoutTitle}</h2>

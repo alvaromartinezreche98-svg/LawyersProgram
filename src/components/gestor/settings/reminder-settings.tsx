@@ -40,7 +40,7 @@ export function ReminderSettings() {
     <>
       <SectionHead title={r.title} intro={r.intro} />
       <div data-wide className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
-        <Card className="flex flex-col gap-6 p-5 sm:p-7">
+        <Card pad="lg" className="flex flex-col gap-6">
           <label className="flex cursor-pointer items-center gap-3 text-[15px] font-medium">
             <input type="checkbox" checked={rules.enabled} onChange={(e) => set({ enabled: e.target.checked })} className="size-5 accent-[var(--accent)]" />
             {r.enabled}
@@ -89,7 +89,7 @@ export function ReminderSettings() {
           </Link>
         </Card>
 
-        <Card className="flex flex-col gap-3 p-5">
+        <Card className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <IconTile icon={BellRing} size="sm" tone={due.length && rules.enabled ? "copper" : "accent"} />
             <h2 className="flex-1 text-[15px] font-semibold">{r.preview}</h2>

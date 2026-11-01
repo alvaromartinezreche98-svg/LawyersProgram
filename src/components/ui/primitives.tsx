@@ -56,13 +56,16 @@ export function ButtonLink({ variant = "secondary", size = "md", className, ...p
 
 /* ---------- Surfaces ---------- */
 
-export function Card({ className, ...p }: ComponentProps<"div">) {
-  return <div className={cx("min-w-0 rounded-xl border border-line bg-surface shadow-sheet", className)} {...p} />;
+/** Card padding, one of the box insets (globals.css): `card` by default, `lg` for a page's lead card, `none` when a table or list runs edge to edge. */
+const CARD_PAD = { card: "pad-card", lg: "pad-card-lg", tile: "pad-tile", none: "" } as const;
+
+export function Card({ className, pad = "card", ...p }: ComponentProps<"div"> & { pad?: keyof typeof CARD_PAD }) {
+  return <div className={cx("min-w-0 rounded-xl border border-line bg-surface shadow-sheet", CARD_PAD[pad], className)} {...p} />;
 }
 
 export function CardTitle({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
   return (
-    <h3 className="display-tight mb-3 flex items-baseline justify-between gap-2 text-[15px] font-semibold">
+    <h3 className="display-tight mb-4 flex items-baseline justify-between gap-2 text-[15px] font-semibold">
       <span>{children}</span>
       {aside != null && <small className="font-sans text-xs font-normal tracking-normal text-muted">{aside}</small>}
     </h3>

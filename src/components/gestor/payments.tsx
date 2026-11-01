@@ -90,7 +90,7 @@ export function Payments() {
 
 function Stat({ label, value, tone }: { label: string; value: string; tone: string }) {
   return (
-    <div className="rounded-lg border border-line bg-surface px-4 py-3">
+    <div className="rounded-lg border border-line bg-surface pad-tile">
       <span className="block text-[12.5px] text-muted">{label}</span>
       <b className={`figures mt-1 block text-[20px] font-semibold ${tone}`}>{value}</b>
     </div>

@@ -62,7 +62,7 @@ export function HowPage() {
         <ol ref={timeline} className="how-steps grid gap-4 sm:grid-cols-2 min-[75rem]:grid-cols-4">
           {h.steps.map(([title, d], i) => (
             // Keyed by position, not title: a language switch must keep the same nodes, or the new ones stay hidden by the reveal.
-            <li key={i} data-step className="group flex flex-col rounded-xl border border-line bg-surface p-4 shadow-sheet transition-[border-color,box-shadow,translate] duration-300 hover:border-accent/30 hover:shadow-[0_18px_34px_-20px_rgb(var(--accent-rgb)/0.4)] motion-safe:hover:-translate-y-1">
+            <li key={i} data-step className="group flex flex-col rounded-xl border border-line bg-surface pad-card shadow-sheet transition-[border-color,box-shadow,translate] duration-300 hover:border-accent/30 hover:shadow-[0_18px_34px_-20px_rgb(var(--accent-rgb)/0.4)] motion-safe:hover:-translate-y-1">
               <div className="how-art overflow-clip rounded-lg bg-sunk/60 px-10 py-2">
                 <SpotArt name={SPOTS[i]} className="mx-auto h-auto w-full max-w-[150px] transition-transform duration-500 ease-out motion-safe:group-hover:-rotate-1 motion-safe:group-hover:scale-[1.03]" />
               </div>
@@ -76,7 +76,7 @@ export function HowPage() {
               <p className="how-text mt-2.5 text-[14.5px] leading-[22px] text-muted">{d}</p>
             </li>
           ))}
-          <li className="flex flex-col justify-center gap-4 rounded-xl border border-accent bg-accent p-6 text-accent-ink on-dark">
+          <li className="flex flex-col justify-center gap-4 rounded-xl border border-accent bg-accent pad-card text-accent-ink on-dark">
             <h2 className="display-serif text-[22px] leading-7 font-semibold">{t.landing.panelTitle}</h2>
             <ButtonLink href="/acceso" variant="inverse" size="lg" className="self-start">
               {h.cta}
@@ -94,7 +94,7 @@ export function HowPage() {
           sunk ground, closing with why).
         */}
         <div className="grid items-stretch gap-4 md:grid-cols-2">
-          <Card className="flex flex-col gap-4 border-l-[3px] border-l-ok p-5 sm:p-6">
+          <Card className="flex flex-col gap-4 border-l-[3px] border-l-ok">
             <h2 className="flex items-center gap-3 display-tight text-[18px] font-semibold">
               <IconTile icon={ClipboardCheck} tone="ok" size="sm" />
               {h.haveTitle}
@@ -108,7 +108,7 @@ export function HowPage() {
               ))}
             </ul>
           </Card>
-          <Card className="flex flex-col gap-4 bg-sunk p-5 shadow-none sm:p-6">
+          <Card className="flex flex-col gap-4 bg-sunk shadow-none">
             <h2 className="flex items-center gap-3 display-tight text-[18px] font-semibold">
               <IconTile icon={FileX2} tone="neutral" size="sm" />
               {h.noNeedTitle}

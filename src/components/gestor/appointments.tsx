@@ -146,7 +146,7 @@ function NewAppointment({ onClose, onSaved }: { onClose: () => void; onSaved: (n
   };
 
   return (
-    <form onSubmit={save} aria-labelledby="ap-new" className="flex flex-col gap-4 rounded-lg border border-line border-t-[3px] border-t-copper bg-surface p-5 shadow-sheet">
+    <form onSubmit={save} aria-labelledby="ap-new" className="flex flex-col gap-4 rounded-lg border border-line border-t-[3px] border-t-copper bg-surface pad-card shadow-sheet">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 id="ap-new" className="text-[16px] font-semibold">{t.citas.newTitle}</h2>

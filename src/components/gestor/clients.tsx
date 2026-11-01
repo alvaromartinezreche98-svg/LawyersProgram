@@ -362,7 +362,7 @@ function ApiClients() {
         </div>
 
         <aside className="flex flex-col gap-4 xl:sticky xl:top-[calc(var(--app-header,64px)+1.25rem)]">
-          <Card className="p-5">
+          <Card >
             <CardTitle>{c.invite}</CardTitle>
             <form onSubmit={create} className="flex flex-col gap-2.5">
               <label className="sr-only" htmlFor="cl-name">{c.name}</label>
@@ -375,7 +375,7 @@ function ApiClients() {
           </Card>
 
           {fresh && link && (
-            <Card className="flex flex-col gap-3 p-5">
+            <Card className="flex flex-col gap-4">
               <CardTitle>{fresh.name}</CardTitle>
               <Notice tone="warn">{c.api.once}</Notice>
               <QrCode value={link} size={168} downloadName={`invitacion-${initials(fresh.name).toLowerCase()}`} downloadLabel={c.downloadQr} />

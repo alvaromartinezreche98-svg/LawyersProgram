@@ -31,7 +31,7 @@ export function PricingPage() {
       <section className="mx-auto grid w-full max-w-page items-start gap-6 px-4 pb-16 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
         <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-4">
           {(named.length ? named : [null]).map((x, i) => (
-            <li key={x?.id ?? i} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-6 shadow-sheet first:border-t-[3px] first:border-t-copper">
+            <li key={x?.id ?? i} className="flex flex-col gap-4 rounded-xl border border-line bg-surface pad-card shadow-sheet first:border-t-[3px] first:border-t-copper">
               {x && <b className="text-[17px] font-semibold">{x.name}</b>}
               <p className="flex items-baseline gap-1.5">
                 {x?.price ? (
@@ -56,7 +56,7 @@ export function PricingPage() {
           ))}
         </ul>
 
-        <aside className="rounded-xl border border-line bg-surface p-6">
+        <aside className="rounded-xl border border-line bg-surface pad-card">
           <h2 className="mb-4 text-[16px] font-semibold">{r.included}</h2>
           <ul className="flex flex-col gap-3">
             {r.features.map((f) => (

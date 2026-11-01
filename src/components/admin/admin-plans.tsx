@@ -28,7 +28,7 @@ export function AdminPlans() {
       <div className="flex flex-col gap-5 px-4 py-5 sm:px-6">
         <PageHead eyebrow={p.admin.area} title={l.title} intro={l.intro} actions={plans.length > 0 && add} />
         {plans.length === 0 ? (
-          <Card className="flex flex-col items-center gap-4 p-8">
+          <Card pad="lg" className="flex flex-col items-center gap-4">
             <EmptyState icon={Tags} title={l.emptyTitle} center>{l.emptyBody}</EmptyState>
             {add}
           </Card>
@@ -36,7 +36,7 @@ export function AdminPlans() {
           <ul className="grid gap-4 xl:grid-cols-2">
             {plans.map((x) => (
               <li key={x.id}>
-                <Card className="grid gap-4 p-5 sm:grid-cols-2">
+                <Card className="grid gap-4 sm:grid-cols-2">
                   <Field id={`plan-name-${x.id}`} label={l.name} className="sm:col-span-2">
                     <input id={`plan-name-${x.id}`} value={x.name} onChange={(e) => platform.updatePlan(x.id, { name: e.target.value })} className={inputCls} />
                   </Field>

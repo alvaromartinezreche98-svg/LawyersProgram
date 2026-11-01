@@ -70,7 +70,7 @@ export function ClerkAccess({ render }: { render: (gate?: ReactNode, banner?: Re
     acceptInvitationCode(code).catch(lookupFromError).then(handle);
   };
 
-  const panel = (children: ReactNode) => <Card className="flex flex-col gap-4 p-6 sm:p-7">{children}</Card>;
+  const panel = (children: ReactNode) => <Card pad="lg" className="flex flex-col gap-4">{children}</Card>;
   const signOutBtn = <Button onClick={signOut}>{t.common.signOut}</Button>;
 
   if (auth.status === "loading") return render(panel(<Loading label={t.auth.loading} />));

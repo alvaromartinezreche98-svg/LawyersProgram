@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Outfit, Plus_Jakarta_Sans, Source_Serif_4 } from "next/font/google";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import "./globals.css";
@@ -12,6 +12,13 @@ const plexMono = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"
 const headline = Plus_Jakarta_Sans({ variable: "--font-headline", subsets: ["latin", "latin-ext"], weight: ["600", "700"] });
 // The entry pages' hero headline: a clean geometric sans.
 const hero = Outfit({ variable: "--font-hero", subsets: ["latin", "latin-ext"], weight: ["600", "700"] });
+
+// On phones the on-screen keyboard shrinks the layout (dvh follows it), so the chat's box stays in view above it.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
+};
 
 export const metadata: Metadata = {
   title: { default: "PreRenta", template: "%s · PreRenta" },

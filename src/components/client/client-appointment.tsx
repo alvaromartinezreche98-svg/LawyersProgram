@@ -46,7 +46,7 @@ export function ClientAppointment() {
       </div>
       {/* Both cards start level under the heading. */}
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <Card className="p-5 sm:p-6">
+        <Card >
           <form onSubmit={submit} className="flex flex-col gap-4">
             <div role="radiogroup" aria-label={t.cita.title} className="flex flex-wrap gap-2">
               {(["llamada", "presencial"] as const).map((k) => (
@@ -85,7 +85,7 @@ export function ClientAppointment() {
           </form>
         </Card>
 
-      <Card className="p-5 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)]">
+      <Card className="lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)]">
         <CardTitle>{t.cita.mine}</CardTitle>
         {list.length === 0 ? (
           <div className="rounded-xl border border-line bg-sunk/50">

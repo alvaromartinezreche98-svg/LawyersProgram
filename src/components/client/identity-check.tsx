@@ -53,7 +53,7 @@ export function IdentityCheck() {
         <p className="mt-2 max-w-[60ch] text-muted">{i.intro}</p>
       </div>
 
-      <Card className="flex flex-col gap-5 p-5 sm:p-6">
+      <Card className="flex flex-col gap-4">
         <label className={cx("flex cursor-pointer items-start gap-3 rounded-md border px-3.5 py-3 text-[15px] transition-colors", ok ? "border-accent bg-accent-soft" : missing === "confirm" ? "border-bad bg-bad-soft" : "border-line-strong hover:bg-sunk")}>
           <input ref={box} type="checkbox" checked={ok} onChange={(e) => { setOk(e.target.checked); setMissing(""); }} className="mt-0.5 size-5 shrink-0 accent-[var(--accent)]" />
           {t.welcome.confirm(clientName(exp))}

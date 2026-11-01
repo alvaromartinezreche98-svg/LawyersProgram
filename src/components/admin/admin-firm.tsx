@@ -158,7 +158,7 @@ export function AdminFirm({ id }: { id: string }) {
 
 function Block({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
   return (
-    <Card className="flex flex-col p-5">
+    <Card className="flex flex-col">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2 className="text-[15px] font-semibold">{title}</h2>
         {aside}

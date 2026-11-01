@@ -277,7 +277,7 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
   const [open, setOpen] = useState(() => st !== "done" || (!!itemId && typeof window !== "undefined" && window.location.hash.endsWith(`-${itemId}`)));
   const name = asText(scope.dir) || asText(scope.nombre) || asText(scope.valor);
   return (
-    <div className="rounded-xl border border-line-strong/40 bg-surface px-4 pb-2 shadow-sheet sm:px-5">
+    <div className="rounded-xl border border-line-strong/40 bg-surface pad-x-card pb-2 shadow-sheet">
       <div className="flex items-center gap-3 py-2.5">
         <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
           <StepDot n={n} state={st} />

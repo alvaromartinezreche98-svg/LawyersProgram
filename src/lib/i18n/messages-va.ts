@@ -280,6 +280,8 @@ export const va: Dict = {
     hint: "Retorn per a enviar · Maj + Retorn per a una línia nova",
     today: "Hui",
     you: "Vosté",
+    seen: "Llegit",
+    delivered: "Enviat",
     sys: { sent: "Qüestionari enviat a la gestoria.", resent: "Qüestionari actualitzat i enviat de nou a la gestoria.", result: "La gestoria ha enviat el resultat de la declaració.", approved: "El client ha donat la conformitat al resultat." },
     quick: [
       { label: "Demanar document", text: "Hola. Per a acabar la seua declaració ens falta el document següent: " },
@@ -386,7 +388,7 @@ export const va: Dict = {
     sectionsNav: "Qüestionari", expandAll: "Desplegar-ho tot", collapseAll: "Plegar-ho tot",
     anchors: { label: "Anar a", attention: "Necessita atenció", requests: "Peticions", answers: "Respostes", docs: "Documents", chat: "Xat", result: "Resultat", history: "Historial" },
     tabs: { label: "Seccions de l'expedient", overview: "Resum", answers: "Dades fiscals", docs: "Documents", result: "Resultat", history: "Activitat" },
-    kpi: { questionnaire: "Qüestionari", docs: "Documents", alerts: "Avisos", requests: "Peticions obertes", docsOf: (up, miss) => (miss ? `${miss} per pujar` : `${up} pujats`), none: "Cap" },
+    kpi: { questionnaire: "Qüestionari", docs: "Documents", alerts: "Avisos", requests: "Peticions obertes", docsOf: (up, miss) => (miss ? `${miss} per pujar` : `${up} pujats`), sections: (done, total) => `${done}/${total} seccions`, none: "Cap" },
     fromClient: "Del client: ",
     notesPh: "Notes del gestor sobre este expedient…",
     properties: "Propietats",

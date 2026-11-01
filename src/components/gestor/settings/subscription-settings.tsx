@@ -28,7 +28,7 @@ export function SubscriptionSettings() {
     <>
       <SectionHead title={s.title} intro={s.intro} />
       <div data-wide className="flex flex-col gap-4">
-        <Card className="flex flex-col gap-3 p-5 sm:p-6">
+        <Card className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <IconTile icon={CreditCard} />
             <h2 className="flex-1 text-[15px] font-semibold">{s.current}</h2>
@@ -38,7 +38,7 @@ export function SubscriptionSettings() {
           <p className="text-[14px] text-muted">{sub ? s.requested(fmtDate(sub.requestedAt.slice(0, 10))) : s.noBilling}</p>
         </Card>
 
-        <Card className="flex flex-col gap-4 p-5 sm:p-6">
+        <Card className="flex flex-col gap-4">
           <h2 className="text-[15px] font-semibold">{s.plans}</h2>
           {named.length === 0 ? (
             <div className="flex flex-col items-start gap-3">
@@ -52,7 +52,7 @@ export function SubscriptionSettings() {
               {named.map((x) => {
                 const on = sub?.planId === x.id;
                 return (
-                  <li key={x.id} className={cx("flex flex-col gap-2 rounded-lg border p-4", on ? "border-copper bg-copper-soft/50" : "border-line")}>
+                  <li key={x.id} className={cx("flex flex-col gap-2 rounded-lg border pad-tile", on ? "border-copper bg-copper-soft/50" : "border-line")}>
                     <b className="text-[15.5px] font-semibold">{x.name}</b>
                     <span className="figures text-[20px] font-semibold">{x.price ? `${x.price} € ${p.pricing.perMonth}` : <span className="text-[15px] text-copper-text">{p.pricing.tbd}</span>}</span>
                     {x.cases && <span className="text-[13.5px] text-muted">{p.pricing.casesN(x.cases)}</span>}
@@ -67,7 +67,7 @@ export function SubscriptionSettings() {
           )}
         </Card>
 
-        <Card className="soft-wash flex flex-col gap-3 p-5 sm:p-6">
+        <Card className="soft-wash flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <IconTile icon={Receipt} tone="info" />
             <h2 className="flex-1 text-[15px] font-semibold">{s.billing}</h2>

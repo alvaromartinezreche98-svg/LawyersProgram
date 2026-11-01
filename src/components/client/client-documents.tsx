@@ -53,7 +53,7 @@ export function ClientDocuments() {
         </Notice>
       )}
       {docs.length === 0 && (
-        <Card className="soft-wash flex flex-col items-center gap-3 p-8 text-center">
+        <Card pad="lg" className="soft-wash flex flex-col items-center gap-4 text-center">
           <IconTile icon={FolderOpen} tone="neutral" size="lg" />
           <p className="text-muted">{t.docs.none}</p>
           <Link href="/declaracion" className="font-semibold text-accent">
@@ -79,24 +79,24 @@ export function ClientDocuments() {
                 <ArrowRight size={14} aria-hidden="true" />
               </Link>
             </div>
-            <ul className="flex flex-col gap-6">
+            <ul className="flex flex-col gap-4">
               {list.map((d0, i) => {
                 const href = `/declaracion/${d0.section}#q-${d0.field}${d0.item ? `-${d0.item}` : ""}`;
                 return (
-                  <li key={i} className="flex flex-col gap-2.5">
+                  <li key={i} className="flex flex-col gap-2">
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                       <span className="text-[14.5px] font-semibold text-ink">{tr(d0.label)}</span>
                       {d0.context && <span className="text-[12.5px] text-muted">· {tr(d0.context)}</span>}
                       {!d0.files.length && <Pill tone="warn">{t.common.missing}</Pill>}
                     </div>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3">
                       {d0.files.map((f) => <FileCard key={f.id} file={f} replaceHref={href} />)}
                       {/* the way to add one: a dashed tile that leads to the question */}
-                      <Link href={href} className={cx("group/up flex min-h-[150px] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center transition-colors", d0.files.length ? "border-line text-muted hover:border-accent/50 hover:bg-accent-soft/40 hover:text-accent" : "border-warn/40 bg-warn-soft/40 text-warn hover:border-warn hover:bg-warn-soft")}>
-                        <span className="grid size-10 place-items-center rounded-full bg-surface shadow-sm transition-transform group-hover/up:scale-110">
-                          {d0.files.length ? <Plus size={18} aria-hidden="true" /> : <Upload size={18} aria-hidden="true" />}
+                      <Link href={href} className={cx("group/up flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-3 text-center transition-colors", d0.files.length ? "border-line text-muted hover:border-accent/50 hover:bg-accent-soft/40 hover:text-accent" : "border-warn/40 bg-warn-soft/40 text-warn hover:border-warn hover:bg-warn-soft")}>
+                        <span className="grid size-8 place-items-center rounded-full bg-surface shadow-sm transition-transform group-hover/up:scale-110">
+                          {d0.files.length ? <Plus size={15} aria-hidden="true" /> : <Upload size={15} aria-hidden="true" />}
                         </span>
-                        <span className="text-[13px] font-semibold">{d0.files.length ? t.docs.reg.add : t.docs.card.uploadHere}</span>
+                        <span className="text-[12.5px] font-semibold">{d0.files.length ? t.docs.reg.add : t.docs.card.uploadHere}</span>
                       </Link>
                     </div>
                   </li>

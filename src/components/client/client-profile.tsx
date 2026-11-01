@@ -28,9 +28,9 @@ export function ClientProfile() {
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <Card className="overflow-clip">
+        <Card pad="none" className="overflow-clip">
           {/* Who this is, at a glance: initials, name and email, then the fields in two columns. */}
-          <div className="flex items-center gap-4 border-b border-line bg-sunk/50 px-5 py-5 sm:px-7">
+          <div className="flex items-center gap-4 border-b border-line bg-sunk/50 pad-card">
             <span className="grid size-16 shrink-0 place-items-center rounded-full bg-accent text-[22px] font-semibold text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{initialsOf(name)}</span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-[18px] font-semibold">{name || "—"}</p>
@@ -38,7 +38,7 @@ export function ClientProfile() {
             </div>
             <span className="text-[12.5px] whitespace-nowrap text-muted max-sm:hidden">{t.profile.autosaved}</span>
           </div>
-          <div className="px-5 pt-5 pb-6 sm:px-7">
+          <div className="pad-card">
             <h2 className="mb-4 text-[15px] font-semibold">{t.profile.contact}</h2>
             <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
               {CONTACT.map((f) => (
@@ -51,7 +51,7 @@ export function ClientProfile() {
         </Card>
 
         <div className="flex flex-col gap-5">
-          <Card className="p-5 sm:p-6">
+          <Card >
             <div className="mb-4 flex items-center gap-3">
               <IconTile icon={Globe} tone="info" />
               <h2 className="display-tight text-[15px] font-semibold">{t.common.language}</h2>
@@ -72,7 +72,7 @@ export function ClientProfile() {
             </div>
           </Card>
 
-          <Card className="p-5 sm:p-6">
+          <Card >
             <div className="mb-4 flex items-center gap-3">
               <IconTile icon={FolderOpen} tone="neutral" />
               <h2 className="display-tight text-[15px] font-semibold">{t.profile.caseTitle}</h2>

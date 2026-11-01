@@ -94,7 +94,8 @@ function DemoAccess({ gate, banner }: { gate?: ReactNode; banner?: ReactNode }) 
           <header className={s.intro}>
             <Eyebrow>{t.landing.eyebrow(EJERCICIO)}</Eyebrow>
             <HeroTitle parts={t.landing.title} />
-            <p className={cx("hero-rise", s.lede)} style={{ "--d": "420ms" } as CSSProperties}>{t.landing.intro}</p>
+            {/* From 1280px here; on phones and tablets it moves under the sign-in (below), so the sign-in sits right under the headline */}
+            <p className={cx("hero-rise", s.lede, s.ledeWide)} style={{ "--d": "420ms" } as CSSProperties}>{t.landing.intro}</p>
             {/* Who prepares the return, set like the head of a tax form. */}
             <dl className={cx("ledger hero-rise", s.ledger)} style={{ "--d": "500ms" } as CSSProperties}>
               {firm.name.trim() && (
@@ -138,6 +139,8 @@ function DemoAccess({ gate, banner }: { gate?: ReactNode; banner?: ReactNode }) 
               </>
             )}
           </div>
+          {/* Phones and tablets: the page's promise, after the sign-in */}
+          <p className={cx(s.lede, s.ledeNarrow)}>{t.landing.intro}</p>
         </div>
       </div>
     </PublicShell>

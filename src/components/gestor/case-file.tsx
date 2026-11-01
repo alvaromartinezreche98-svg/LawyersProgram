@@ -14,7 +14,7 @@ import { fmtTime } from "@/lib/format";
 import { AnswersSummary } from "@/components/questionnaire/answers-summary";
 import { ChatBox } from "@/components/chat/chat-box";
 import { PageTitle } from "@/components/ui/app-shell";
-import { FileChip } from "@/components/ui/file-chip";
+import { FileTile } from "@/components/ui/file-card";
 import { Button, ButtonLink, Loading, Pill, StatusPill, cx } from "@/components/ui/primitives";
 import { StepDot } from "@/components/ui/progress";
 import { usePlatformText } from "@/lib/i18n/messages-platform";
@@ -35,8 +35,11 @@ import { casesOfClient } from "@/lib/data/years";
 import { SIGN_TONE } from "@/components/client/sign-step";
 import { Select } from "@/components/ui/select";
 import { Tooltip } from "@/components/ui/tooltip";
+import type { Alert } from "@/lib/questionnaire/alerts";
 
-const ALERT_PILL = { bad: "bad", warn: "warn", info: "info" } as const;
+// An alert's card: a faint wash of its colour and a solid edge; its badge in the full colour.
+const ALERT_CARD = { bad: "border-l-bad bg-bad-soft/35", warn: "border-l-warn bg-warn-soft/35", info: "border-l-info bg-info-soft/35" } as const;
+const ALERT_BADGE = { bad: "bg-bad text-white", warn: "bg-warn text-white", info: "bg-info text-white" } as const;
 const ALERT_ICON = { bad: CircleAlert, warn: TriangleAlert, info: Info } as const;
 const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
 
@@ -427,12 +430,31 @@ export function CaseFile({ id }: { id: string }) {
           {main === "overview" && (
             <>
               {/* The case at a glance: four figures, each a way into its tab */}
-              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-                <Kpi icon={ListChecks} tone={tt.pct === 100 ? "ok" : "info"} label={t.file.kpi.questionnaire} value={`${tt.pct} %`} sub={t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length)} onClick={() => setMain("answers")} />
-                <Kpi icon={FileText} tone={nPend ? "warn" : "ok"} label={t.file.kpi.docs} value={String(nDocs)} sub={t.file.kpi.docsOf(nDocs, nPend)} onClick={() => setMain("docs")} />
-                <Kpi icon={TriangleAlert} tone={alBad ? "bad" : alWarn ? "warn" : al.length ? "info" : "ok"} zero={!al.length} label={t.file.kpi.alerts} value={String(al.length)} sub={al.length ? (["bad", "warn", "info"] as const).map((lv) => [lv, al.filter((x) => x.level === lv).length] as const).filter(([, n]) => n > 0).map(([lv, n]) => `${n} ${t.file.alertLevel[lv].toLowerCase()}`).join(" · ") : t.file.kpi.none} href="#avisos" />
+              <div className="@container"><div className="grid grid-cols-2 gap-3 @[680px]:grid-cols-4">
+                <Kpi icon={ListChecks} tone={tt.pct === 100 ? "ok" : "accent"} label={t.file.kpi.questionnaire} value={`${tt.pct} %`} sub={<Tooltip plain inline text={t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length) + (tt.pending ? ` · ${t.home.answersPending(tt.pending)}` : "")}><span className="cursor-help">{t.file.kpi.sections(SCHEMA.length - openSecs, SCHEMA.length)}</span></Tooltip>} onClick={() => setMain("answers")} />
+                <Kpi icon={FileText} tone="info" zero={!nDocs} label={t.file.kpi.docs} value={String(nDocs)} sub={t.file.kpi.docsOf(nDocs, nPend)} onClick={() => setMain("docs")} />
+                <Kpi icon={TriangleAlert} tone={alBad ? "bad" : alWarn ? "warn" : al.length ? "info" : "ok"} zero={!al.length} label={t.file.kpi.alerts} value={String(al.length)} sub={al.length ? (
+                  <span className="flex gap-1.5">
+                    {(["bad", "warn", "info"] as const).map((lv) => [lv, al.filter((x) => x.level === lv).length] as const).filter(([, n]) => n > 0).map(([lv, n]) => (
+                      <Tooltip
+                        key={lv}
+                        plain
+                        inline
+                        title={`${t.file.alertLevel[lv]} · ${n}`}
+                        text={al.filter((x) => x.level === lv).map((x) => tr(x.title)).join(" · ")}
+                        body={<AlertList alerts={al.filter((x) => x.level === lv)} />}
+                      >
+                        <span className={cx("inline-flex h-5 cursor-help items-center gap-1 rounded-full px-2 text-[11.5px] leading-none font-semibold", KPI_CHIP[lv])}>
+                          <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+                          {n}
+                          <span className="sr-only">{t.file.alertLevel[lv]}: {al.filter((x) => x.level === lv).map((x) => tr(x.title)).join("; ")}</span>
+                        </span>
+                      </Tooltip>
+                    ))}
+                  </span>
+                ) : t.file.kpi.none} href="#avisos" />
                 <Kpi icon={ClipboardList} tone={openTasks(e).length ? "copper" : "neutral"} zero={!openTasks(e).length} label={t.file.kpi.requests} value={String(openTasks(e).length)} sub={tasksToCheck(e).length ? t.tasks.aside(openTasks(e).length, tasksToCheck(e).length) : t.file.kpi.none} href="#peticiones" />
-              </div>
+              </div></div>
 
 
           <Block id="avisos" icon={TriangleAlert} title={t.file.alerts} aside={al.length || undefined}>
@@ -440,19 +462,27 @@ export function CaseFile({ id }: { id: string }) {
               <span className="font-medium">{t.file.auto}.</span> {t.file.suggest}
             </p>
             {al.length ? (
-              <ul className="flex flex-col gap-1.5">
+              <ul className="flex flex-col gap-3">
                 {al.map((x, i) => {
                   const Icon = ALERT_ICON[x.level];
+                  const sec = SCHEMA.find((s) => s.slug === x.target.section);
                   return (
-                    <li key={i} className="flex flex-col gap-2 border-t border-line py-3 first:border-t-0 first:pt-0">
-                      <span className="flex flex-wrap items-start gap-x-3 gap-y-1.5">
+                    <li key={i} className={cx("flex flex-col gap-4 rounded-lg border border-line border-l-[3px] pad-tile", ALERT_CARD[x.level])}>
+                      {/* Severity in a fixed place, top left; where it comes from, top right */}
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <Tooltip title={t.file.alertHelp[x.level].title} text={t.file.alertHelp[x.level][x.target.kind === "docs" ? "docs" : "answers"]}>
-                          <Pill tone={ALERT_PILL[x.level]} icon={Icon}>{t.file.alertLevel[x.level]}</Pill>
+                          <span className={cx("inline-flex h-6 items-center gap-1.5 rounded-md px-2 text-[12px] font-semibold tracking-[0.01em]", ALERT_BADGE[x.level])}>
+                            <Icon size={13} strokeWidth={2.4} aria-hidden="true" />
+                            {t.file.alertLevel[x.level]}
+                          </span>
                         </Tooltip>
-                        <span className="min-w-0 flex-1 basis-[16rem] text-[15px] leading-[22px]">{tr(x.text)}</span>
-                      </span>
-                      <span className="text-[13px] text-muted">{[SCHEMA.find((s) => s.slug === x.target.section) && tr(SCHEMA.find((s) => s.slug === x.target.section)!.short), t.file.auto.toLowerCase()].filter(Boolean).join(" · ")}</span>
-                      <span className="flex flex-wrap items-center gap-2">
+                        {sec && <span className="text-[12.5px] text-muted">{tr(sec.short)}</span>}
+                      </div>
+                      <div className="flex min-w-0 flex-col gap-1">
+                        <p className="text-[15px] leading-[22px] font-semibold text-ink">{tr(x.title)}</p>
+                        {x.detail && <p className="text-[13.5px] leading-5 text-muted">{tr(x.detail)}</p>}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
                         <ButtonLink href={x.target.kind === "docs" ? "#documentos" : `#sec-${x.target.section}`} size="sm">
                           {x.target.kind === "docs" ? t.file.goDocs : t.file.goAnswer}
                         </ButtonLink>
@@ -463,7 +493,7 @@ export function CaseFile({ id }: { id: string }) {
                             {t.file.review}
                           </Button>
                         )}
-                      </span>
+                      </div>
                     </li>
                   );
                 })}
@@ -477,7 +507,7 @@ export function CaseFile({ id }: { id: string }) {
                 <ul className="mt-2 flex flex-col gap-1.5">
                   {alDone.map((x) => (
                     <li key={x.text.es} className="flex flex-wrap items-baseline justify-between gap-x-3 rounded-md border border-line bg-sunk px-3 py-2 text-muted">
-                      <span className="min-w-0 flex-1 line-through decoration-line-strong">{tr(x.text)}</span>
+                      <span className="min-w-0 flex-1 line-through decoration-line-strong">{tr(x.title)}</span>
                       <span className="flex items-center gap-3 whitespace-nowrap">
                         <span className="text-[12.5px]">{t.file.reviewed} · {fmtTime(e.reviewedAlerts![x.text.es].at, locale)}</span>
                         <button type="button" onClick={() => actions.reviewAlert(e.id, x.text.es, x.text, false)} className="font-medium text-accent hover:underline">{t.file.undo}</button>
@@ -520,8 +550,8 @@ export function CaseFile({ id }: { id: string }) {
                 const st = sectionState(pr);
                 // Only sections with questions still open start unfolded: complete and empty ones stay folded.
                 return (
-                  <details key={s.slug} id={`sec-${s.slug}`} open={st === "partial"} className={cx("group scroll-mt-[124px] rounded-xl border bg-surface transition-colors open:shadow-sheet", st === "partial" ? "border-copper/30" : "border-line")}>
-                    <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors hover:bg-hover/60 [&::-webkit-details-marker]:hidden">
+                  <details key={s.slug} id={`sec-${s.slug}`} open={st === "partial"} className={cx("group scroll-mt-[124px] rounded-2xl border bg-surface shadow-sm transition-shadow open:shadow-sheet", st === "partial" ? "border-copper/30" : "border-line")}>
+                    <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 rounded-2xl pad-x-card py-3 font-semibold transition-colors hover:bg-hover/60 [&::-webkit-details-marker]:hidden">
                       <StepDot n={i + 1} state={st} />
                       <span className="min-w-0 flex-1 text-[15px]">{tr(s.title)}</span>
                       {st === "done" ? (
@@ -533,7 +563,7 @@ export function CaseFile({ id }: { id: string }) {
                       )}
                       <ChevronDown size={16} className="text-muted motion-safe:transition-[rotate] motion-safe:duration-200 group-open:rotate-180" aria-hidden="true" />
                     </summary>
-                    <dl className="grid gap-x-8 border-t border-line px-4 pt-1 pb-4 md:grid-cols-2">
+                    <dl className="grid gap-3 border-t border-line pad-card md:grid-cols-2">
                       <AnswersSummary fields={s.fields} scope={a} layout="grid" />
                     </dl>
                   </details>
@@ -547,8 +577,8 @@ export function CaseFile({ id }: { id: string }) {
           {main === "docs" && (
           <Block id="documentos" icon={FileText} title={t.file.docs} aside={<span className="flex flex-wrap items-center gap-3">{t.file.docsAside(nDocs, nPend)}<DownloadAll exp={e} /></span>}>
             {docs.length ? (
-              <div className="@container -mx-4 -my-4">
-                <div className="table-head hidden grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto_minmax(0,1.2fr)] gap-4 @2xl:grid">
+              <div className="@container -m-5 sm:-m-6">
+                <div className="table-head hidden grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_7.5rem_minmax(0,1.5fr)] gap-4 pad-x-card @2xl:grid">
                   <span>{t.file.docCols.doc}</span>
                   <span>{t.file.docCols.where}</span>
                   <span>{t.file.docCols.state}</span>
@@ -559,17 +589,17 @@ export function CaseFile({ id }: { id: string }) {
                     const later = e.notYet?.[slotKey(d.field, d.item)];
                     const sec = SCHEMA.find((s) => s.slug === d.section);
                     return (
-                      <li key={i} className="grid gap-x-4 gap-y-1.5 border-t border-line px-4 py-3 text-[14px] first:border-t-0 @2xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto_minmax(0,1.2fr)] @2xl:items-center">
-                        <span className="font-medium">{tr(d.label)}</span>
-                        <span className="text-[13px] text-muted">{[sec && tr(sec.short), d.context && tr(d.context)].filter(Boolean).join(" · ")}</span>
+                      <li key={i} className={cx("grid gap-x-4 gap-y-2 border-t border-line pad-x-card py-3.5 text-[14px] transition-colors first:border-t-0 hover:bg-sunk/40 @2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_7.5rem_minmax(0,1.5fr)] @2xl:items-center", !d.files.length && !later && "bg-bad-soft/25")}>
+                        <span className="font-medium leading-5 text-ink">{tr(d.label)}</span>
+                        <span className="text-[13px] leading-5 text-muted">{[sec && tr(sec.short), d.context && tr(d.context)].filter(Boolean).join(" · ")}</span>
                         <span className="flex flex-wrap items-center gap-1.5">
                           {d.files.length ? <Pill tone="ok" icon={Check}>{t.upload.done}</Pill> : later ? <Pill icon={Clock}>{t.file.laterBadge}</Pill> : <Pill tone="bad" icon={CircleAlert}>{t.common.missing}</Pill>}
                           {!d.files.length && isAsked(e, docTask(d.label, d.context)) && <Pill tone="copper" icon={Clock}>{t.tasks.state.open}</Pill>}
                         </span>
-                        <span className="flex min-w-0 flex-wrap items-center gap-1.5">
-                          {d.files.map((f) => <FileChip key={f.id} file={f} />)}
+                        <span className="grid min-w-0 gap-1.5 @lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
+                          {d.files.map((f) => <FileTile key={f.id} file={f} />)}
                           {!d.files.length && later?.note && <span className="text-[13px] text-muted">«{later.note}»</span>}
-                          {!d.files.length && <AskButton exp={e} text={docTask(d.label, d.context)} target={{ section: d.section, kind: "docs", field: d.field, item: d.item }} />}
+                          {!d.files.length && <span><AskButton exp={e} text={docTask(d.label, d.context)} target={{ section: d.section, kind: "docs", field: d.field, item: d.item }} /></span>}
                         </span>
                       </li>
                     );
@@ -631,31 +661,52 @@ function openSection(slug: string) {
  * short line; it opens the part it counts. `bad`, `warn` and `copper` (something to act on) tint
  * the card and its figure in their colour; `ok` gets a quiet green edge; `zero` steps back.
  */
+// The four cards share one white ground; the colour lives only in the icon box and the figure.
 const KPI_TONE = {
-  bad: { tile: "bg-bad text-white", card: "border-bad/35 bg-[linear-gradient(135deg,var(--bad-soft),var(--surface)_70%)]", n: "text-bad" },
-  warn: { tile: "bg-warn-soft text-warn", card: "border-warn/35 bg-[linear-gradient(135deg,var(--warn-soft),var(--surface)_70%)]", n: "text-warn" },
-  copper: { tile: "bg-copper-soft text-copper-text", card: "border-copper/35 bg-[linear-gradient(135deg,var(--copper-soft),var(--surface)_70%)]", n: "text-copper-text" },
-  ok: { tile: "bg-ok-soft text-ok", card: "border-ok/25 bg-surface", n: "text-ok" },
-  info: { tile: "bg-info-soft text-info", card: "border-line bg-surface", n: "text-ink" },
-  accent: { tile: "bg-icon-soft text-icon", card: "border-line bg-surface", n: "text-ink" },
-  neutral: { tile: "bg-sunk text-muted", card: "border-line bg-surface", n: "text-disabled" },
+  bad: { tile: "bg-bad-soft text-bad ring-1 ring-bad/15", n: "text-bad" },
+  warn: { tile: "bg-warn-soft text-warn ring-1 ring-warn/15", n: "text-warn" },
+  copper: { tile: "bg-copper-soft text-copper-text ring-1 ring-copper/15", n: "text-copper-text" },
+  ok: { tile: "bg-ok-soft text-ok ring-1 ring-ok/15", n: "text-ok" },
+  info: { tile: "bg-info-soft text-info ring-1 ring-info/15", n: "text-info" },
+  accent: { tile: "bg-accent-soft text-accent ring-1 ring-accent/10", n: "text-ink" },
+  neutral: { tile: "bg-sunk text-muted ring-1 ring-line", n: "text-disabled" },
 } as const;
 
-function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { icon: LucideIcon; tone: keyof typeof KPI_TONE; label: string; value: string; sub: string; href?: string; onClick?: () => void; zero?: boolean }) {
+/** The alerts of one level as a short list, for a tooltip on dark ground: title, then its particulars. */
+function AlertList({ alerts }: { alerts: Alert[] }) {
+  const { tr } = useI18n();
+  return (
+    <ul className="flex flex-col gap-1.5">
+      {alerts.map((a, i) => (
+        <li key={i} className="flex gap-2">
+          <span className={cx("mt-[7px] size-1.5 shrink-0 rounded-full", a.level === "bad" ? "bg-bad-soft" : a.level === "warn" ? "bg-warn-soft" : "bg-info-soft")} aria-hidden="true" />
+          <span className="min-w-0">
+            <span className="block font-medium text-white">{tr(a.title)}</span>
+            {a.detail && <span className="block text-[12px] leading-[17px] text-white/70">{tr(a.detail)}</span>}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const KPI_CHIP = { bad: "bg-bad-soft text-bad", warn: "bg-warn-soft text-warn", info: "bg-info-soft text-info" } as const;
+
+function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { icon: LucideIcon; tone: keyof typeof KPI_TONE; label: string; value: string; sub: ReactNode; href?: string; onClick?: () => void; zero?: boolean }) {
   const k = KPI_TONE[zero ? "neutral" : tone];
   const body = (
     <>
-      <span className={cx("grid size-10 shrink-0 place-items-center rounded-lg", k.tile)} aria-hidden="true">
-        <Icon size={18} strokeWidth={2} />
+      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl", k.tile)} aria-hidden="true">
+        <Icon size={20} strokeWidth={2} />
       </span>
-      <span className="min-w-0">
-        <span className="block text-[12.5px] font-medium text-muted">{label}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[12.5px] font-medium text-muted">{label}</span>
         <span className={cx("figures block text-[22px] leading-7 font-bold", k.n)}>{value}</span>
-        <span className="block truncate text-[12.5px] text-muted">{sub}</span>
+        <span className="mt-1 block truncate text-[12px] leading-5 whitespace-nowrap text-muted" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
       </span>
     </>
   );
-  const cls = cx("flex cursor-pointer items-start gap-3 rounded-xl border p-4 text-left shadow-sheet transition-[border-color,box-shadow,translate] hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px", k.card);
+  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border border-line bg-surface px-4 py-4 text-left shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
   return href ? <a href={href} className={cls}>{body}</a> : <button type="button" onClick={onClick} className={cls}>{body}</button>;
 }
 
@@ -666,7 +717,7 @@ type RailTab = "details" | "chat" | "notes";
 function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: string; icon: LucideIcon; title: string; aside?: ReactNode; htmlFor?: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-28 rounded-xl border border-line bg-surface lg:scroll-mt-24">
-      <h2 className="flex min-h-[52px] flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-line px-4 py-3 text-[16px] font-semibold">
+      <h2 className="flex min-h-[52px] flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-line pad-x-card py-3 text-[16px] font-semibold">
         <span className="flex shrink-0 items-center gap-2.5">
           <span className="grid size-7 place-items-center rounded-lg bg-accent-soft text-accent">
             <BlockIcon size={15} strokeWidth={2} aria-hidden="true" />
@@ -675,7 +726,7 @@ function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: 
         </span>
         {aside != null && <small className="font-sans text-xs font-medium tracking-normal text-muted">{aside}</small>}
       </h2>
-      <div className="flex flex-col gap-3 p-4">{children}</div>
+      <div className="flex flex-col gap-4 pad-card">{children}</div>
     </section>
   );
 }
@@ -685,7 +736,7 @@ const STATUS_ICON: Record<Status, LucideIcon> = { borrador: PencilLine, enviado:
 /** One card of the side panel: optional title with its icon (and a figure on the right), then its rows. */
 function RailCard({ title, icon: Icon, aside, children }: { title?: string; icon?: LucideIcon; aside?: ReactNode; children: ReactNode }) {
   return (
-    <section className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-sm">
+    <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface pad-card shadow-sm">
       {title && (
         <h3 className="flex items-center gap-2 text-[13px] font-semibold text-ink">
           {Icon && <span className="grid size-6 place-items-center rounded-md bg-accent-soft text-accent"><Icon size={13} strokeWidth={2.1} aria-hidden="true" /></span>}

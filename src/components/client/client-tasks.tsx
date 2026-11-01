@@ -25,7 +25,7 @@ export function ClientTasks({ exp }: { exp: Expediente }) {
   const [justDone, setJustDone] = useState(false);
   if (!list.length) return justDone ? <Notice tone="ok">{t.tasks.sentBack}</Notice> : null;
   return (
-    <Card className="border-copper/40 p-5 sm:p-6">
+    <Card className="border-copper/40">
       <CardTitle aside={t.tasks.yoursAside(list.length)}>
         <span className="flex items-center gap-3">
           <IconTile icon={ClipboardList} tone="copper" size="sm" />

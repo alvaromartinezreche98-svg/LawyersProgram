@@ -56,7 +56,7 @@ export function AskButton({ exp, text, target }: { exp: Expediente; text: Text; 
         {t.tasks.ask}
       </Button>
       {open && (
-        <form onSubmit={send} className="flex w-full basis-full flex-col gap-2 rounded-lg border border-copper/40 bg-surface p-3 text-left">
+        <form onSubmit={send} className="flex w-full basis-full flex-col gap-2 rounded-lg border border-copper/40 bg-surface pad-tile text-left">
           <label className="text-[12.5px] font-medium text-muted" htmlFor={`ask-${exp.id}-${text.es.length}`}>{t.file.clientText}</label>
           <textarea id={`ask-${exp.id}-${text.es.length}`} autoFocus rows={3} value={draft} onChange={(ev) => setDraft(ev.target.value)} className={cx(inputCls, "h-auto resize-y py-2 text-[14px] leading-snug")} />
           <span className="flex justify-end gap-2">
@@ -153,7 +153,7 @@ export function TaskPanel({ exp: e }: { exp: Expediente }) {
         </button>
       )}
 
-      <form onSubmit={submit} className="flex flex-col gap-2 rounded-xl border border-line bg-sunk p-3 sm:flex-row sm:items-center">
+      <form onSubmit={submit} className="flex flex-col gap-2 rounded-xl border border-line bg-sunk pad-tile sm:flex-row sm:items-center">
         <label className="sr-only" htmlFor={`task-${e.id}`}>{t.tasks.ask}</label>
         <input id={`task-${e.id}`} value={text} onChange={(ev) => setText(ev.target.value)} placeholder={t.tasks.newPh} autoComplete="off" className={cx(inputCls, "min-w-0 flex-1")} />
         {FEATURES.requestTracking && <label className="sr-only" htmlFor={`task-where-${e.id}`}>{t.tasks.where}</label>}

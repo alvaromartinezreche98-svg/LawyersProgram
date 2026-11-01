@@ -18,7 +18,7 @@ export function CampaignSettings() {
   return (
     <>
       <SectionHead title={c.title} intro={c.intro} />
-      <Card className="flex flex-col gap-4 p-5 sm:p-7">
+      <Card pad="lg" className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           {KEYS.map((k) => (
             <Field key={k} id={`camp-${k}`} label={c[k]}>

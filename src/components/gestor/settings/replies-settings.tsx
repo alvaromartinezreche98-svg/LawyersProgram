@@ -20,7 +20,7 @@ export function RepliesSettings() {
   return (
     <>
       <SectionHead title={r.title} intro={r.intro} />
-      <Card className="flex flex-col gap-5 p-5 sm:p-7">
+      <Card pad="lg" className="flex flex-col gap-4">
         <Notice tone={own ? "ok" : "info"}>{own ? r.custom : r.builtIn}</Notice>
         <ul className="flex flex-col gap-4">
           {list.map((q, i) => (

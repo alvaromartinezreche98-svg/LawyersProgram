@@ -66,7 +66,7 @@ function DocCard({ kind, icon }: { kind: LegalKind; icon: LucideIcon }) {
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-5 sm:p-6">
+    <Card className="flex flex-col gap-4">
       <div className="flex items-start gap-4">
         <IconTile icon={icon} tone={doc ? "accent" : "warn"} />
         <div className="min-w-0 flex-1">

@@ -44,7 +44,7 @@ export function PublicHome() {
           <h2 id="how" className="display-tight text-[clamp(22px,2.4vw,28px)] font-semibold">{h.howTitle}</h2>
           <ol className="grid gap-4 md:grid-cols-3">
             {t.access.steps.map(([title, d], i) => (
-              <li key={title} className="flex flex-col gap-2 rounded-xl border border-line bg-bg p-5">
+              <li key={title} className="flex flex-col gap-2 rounded-xl border border-line bg-bg pad-card">
                 <span className="font-mono text-[12px] tracking-wide text-muted uppercase">{t.access.step(i + 1)}</span>
                 <b className="text-[16px] font-semibold">{title}</b>
                 <span className="text-[14px] text-muted">{d}</span>
@@ -81,7 +81,7 @@ export function PublicHome() {
           </div>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {h.gestorias.map(([title, d], i) => (
-              <li key={title} className="flex flex-col gap-2 rounded-xl border border-line bg-bg p-5">
+              <li key={title} className="flex flex-col gap-2 rounded-xl border border-line bg-bg pad-card">
                 <IconTile icon={GESTOR_ICONS[i]} size="sm" />
                 <b className="text-[15px] font-semibold">{title}</b>
                 <span className="text-[14px] text-muted">{d}</span>

@@ -33,12 +33,12 @@ export function ClientResult() {
       </div>
 
       {!r ? (
-        <Card>
+        <Card pad="none">
           <EmptyState inset icon={FileCheck2} title={t.result.none} />
         </Card>
       ) : (
-        <Card className="overflow-clip">
-          <div className="flex flex-wrap items-end justify-between gap-4 px-5 py-5">
+        <Card pad="none" className="overflow-clip">
+          <div className="flex flex-wrap items-end justify-between gap-4 pad-card">
             <div>
               <span className={r.kind === "devolver" ? "text-[13px] font-medium text-ok" : "text-[13px] font-medium text-warn"}>{t.result.kind[r.kind]}</span>
               <b className="figures mt-1 block text-[32px] leading-none font-semibold">{r.amount} €</b>
@@ -46,7 +46,7 @@ export function ClientResult() {
             <span className="text-[12.5px] text-muted">{t.resultG.sentOn(fmtTime(r.sentAt, locale), r.version)}</span>
           </div>
           {(r.file || r.note) && (
-            <div className="flex flex-col gap-3 border-t border-line px-5 py-4">
+            <div className="flex flex-col gap-4 border-t border-line pad-card">
               {r.file && (
                 <div className="flex flex-wrap items-center gap-3 rounded-md border border-line bg-sunk px-3 py-2 text-[14px]">
                   <span className="min-w-0 flex-1 truncate">
@@ -69,7 +69,7 @@ export function ClientResult() {
               )}
             </div>
           )}
-          <div className="flex flex-col gap-3 border-t border-line bg-sunk px-5 py-4">
+          <div className="flex flex-col gap-4 border-t border-line bg-sunk pad-card">
             {approved ? (
               <div className="flex items-center gap-3">
                 <IconTile icon={ThumbsUp} tone="ok" />

@@ -52,7 +52,7 @@ export function AdminFirms() {
         />
 
         {adding && (
-          <Card className="p-5 sm:p-6">
+          <Card >
             <h2 className="mb-4 text-[16px] font-semibold">{p.firms.add}</h2>
             <FirmForm
               id="new-firm"

@@ -48,7 +48,7 @@ function SignCard({ exp, kind, readOnly }: { exp: Expediente; kind: LegalKind; r
   const field = "field h-(--control-h) text-[15px]";
 
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-line p-4 sm:p-5">
+    <section className="flex flex-col gap-4 rounded-lg border border-line pad-card">
       <div className="flex items-start gap-3">
         <IconTile icon={ICON[kind]} tone={state === "signed" ? "ok" : "accent"} />
         <div className="min-w-0 flex-1">

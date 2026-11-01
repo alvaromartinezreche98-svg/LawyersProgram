@@ -92,7 +92,7 @@ export function DemoPage() {
         </div>
 
         {/* What the demo covers */}
-        <aside className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-7 shadow-sheet lg:sticky lg:top-24">
+        <aside className="flex flex-col gap-6 rounded-xl border border-line bg-surface pad-card-lg shadow-sheet lg:sticky lg:top-24">
           <p className="flex items-center gap-3">
             <IconTile icon={CalendarCheck} />
             <span className="display-serif text-[22px] leading-7 font-semibold">{c.seeTitle}</span>

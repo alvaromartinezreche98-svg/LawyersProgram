@@ -35,17 +35,18 @@ export function ClientMessages() {
         <p className="mt-2 text-muted">{t.msgs.sub}</p>
       </div>
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Card className="overflow-clip">
-          <ChatBox exp={exp} side="cliente" height="h-[clamp(360px,calc(100dvh-450px),640px)]" initialDraft={draft} />
+        {/* Phones: the conversation edge to edge, as tall as the screen allows (the keyboard shrinks it, see layout's viewport) */}
+        <Card pad="none" className="overflow-clip max-md:-mx-4 max-md:rounded-none max-md:border-x-0">
+          <ChatBox exp={exp} side="cliente" height="max-md:h-[max(260px,calc(100dvh-400px))] md:h-[clamp(360px,calc(100dvh-450px),640px)]" initialDraft={draft} />
         </Card>
 
         <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)]">
-          <Card className="soft-wash flex flex-col gap-3 p-5">
+          <Card className="soft-wash flex flex-col gap-4">
             <IconTile icon={MessageCircle} tone="info" />
             <h2 className="display-tight text-[16px] font-semibold">{t.msgs.sideTitle}</h2>
             <p className="text-sm text-muted">{t.msgs.sideBody}</p>
           </Card>
-          <Card className="flex flex-col gap-3 p-5">
+          <Card className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <IconTile icon={ClipboardList} size="sm" />
               <span className="flex-1 text-sm font-semibold">{t.q.progress}</span>
@@ -56,7 +57,7 @@ export function ClientMessages() {
               {t.msgs.goQuestionnaire}
             </ButtonLink>
           </Card>
-          <Card className="flex flex-col gap-3 p-5">
+          <Card className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <IconTile icon={FileText} size="sm" tone={missing ? "warn" : "ok"} />
               <span className="flex-1 text-sm">{missing ? t.home.docsMissing(missing) : t.home.docsDone}</span>

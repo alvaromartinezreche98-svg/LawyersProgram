@@ -23,7 +23,7 @@ export function FaqPage() {
         <Group id="clientes" title={f.clientsTitle} items={f.clients} />
         {/* Questions from gestorías about PreRenta belong on PreRenta's domain, not on a gestoría's */}
         {PLATFORM_SITE && <Group id="gestorias" title={f.firmsTitle} items={f.firms} />}
-        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-line bg-surface p-5">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-line bg-surface pad-card">
           <span className="text-[15px] font-medium">{f.more}</span>
           <ButtonLink href="/contacto" size="sm">{f.contact}</ButtonLink>
         </div>

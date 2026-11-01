@@ -14,7 +14,7 @@ export function alertsOf(e: Expediente) {
   // API mode: the server computes the alerts (the inbox has no answers to compute them from). Reviewing is not in the API yet.
   if (e.remote)
     return {
-      active: e.remote.alerts.map((x): Alert => ({ level: x.severity, text: L(x.message, x.message, x.message), target: { section: SCHEMA.find((s) => s.id === x.section)?.slug ?? x.section, kind: "answers" } })),
+      active: e.remote.alerts.map((x): Alert => ({ level: x.severity, text: L(x.message, x.message, x.message), title: L(x.message, x.message, x.message), target: { section: SCHEMA.find((s) => s.id === x.section)?.slug ?? x.section, kind: "answers" } })),
       reviewed: [] as Alert[],
     };
   const all = alertsFor(e.answers);

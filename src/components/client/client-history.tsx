@@ -24,12 +24,12 @@ export function ClientHistory() {
         <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold">{t.years.history}</h1>
         <p className="mt-2 text-muted">{t.years.historyIntro}</p>
       </div>
-      <Card className="overflow-clip">
+      <Card pad="none" className="overflow-clip">
         {all.length < 2 ? (
           <EmptyState inset icon={History} title={t.years.none} />
         ) : (
           <>
-            <div className="table-head hidden grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] gap-4 px-5 sm:grid">
+            <div className="table-head hidden grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] gap-4 pad-x-card sm:grid">
               <span>{t.years.cols.year}</span>
               <span>{t.years.cols.status}</span>
               <span>{t.years.cols.result}</span>
@@ -37,7 +37,7 @@ export function ClientHistory() {
             </div>
             <ul>
               {all.map((e) => (
-                <li key={e.id} className="grid grid-cols-[100px_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-t border-line px-5 py-3 first:border-t-0 sm:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] sm:items-center">
+                <li key={e.id} className="grid grid-cols-[100px_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-t border-line pad-x-card py-3 first:border-t-0 sm:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] sm:items-center">
                   <span className="figures flex items-center gap-2 font-semibold">
                     {e.ejercicio}
                     {e.id === exp.id && <Pill tone="accent">{t.years.current}</Pill>}

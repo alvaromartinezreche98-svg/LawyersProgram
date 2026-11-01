@@ -45,7 +45,7 @@ export function EmailSettings() {
   return (
     <>
       <SectionHead title={c.title} intro={c.intro} />
-      <Card className="flex flex-col gap-5 p-5 sm:p-7">
+      <Card pad="lg" className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end gap-4">
           <div className="min-w-[min(100%,16rem)] grow basis-0">
             <Field id="em-kind" label={c.template}>

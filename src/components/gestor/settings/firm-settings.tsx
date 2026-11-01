@@ -31,7 +31,7 @@ export function FirmSettings() {
   return (
     <>
       <SectionHead title={f.title} intro={f.intro} />
-      <Card className="flex flex-col gap-6 p-5 sm:p-7">
+      <Card pad="lg" className="flex flex-col gap-6">
         <Logo />
         <div className="grid gap-4 border-t border-line pt-6 sm:grid-cols-2">
           {TEXT_FIELDS.map((x) => (
