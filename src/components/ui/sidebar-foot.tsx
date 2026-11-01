@@ -82,7 +82,8 @@ const SIGN_OUT: Record<Theme, { btn: string; tile: string }> = {
   // on navy: a quiet row like the links above — white text, a line icon with no tile, a hairline
   // that firms up and a faint white wash on hover
   dark: { btn: "border border-white/10 bg-transparent text-white hover:border-white/20 hover:bg-white/5", tile: "text-white/80" },
-  light: { btn: "bg-sunk text-copper-text hover:bg-hover", tile: "bg-copper text-accent-ink" },
+  // on the light sidebar: a plain row in the accent, a line icon, no ground; a faint accent wash on hover
+  light: { btn: "bg-transparent text-copper hover:bg-[color-mix(in_srgb,var(--copper)_6%,transparent)]", tile: "text-copper" },
 };
 
 /** Sign-out: under a hairline; on navy a quiet outlined row with a line icon, on light a grey row with the accent tile. */
@@ -92,7 +93,7 @@ export function SignOutButton({ onClick, label, compact = false, title, theme = 
     <div className={cx("mt-1 border-t pt-2", theme === "dark" ? "border-chrome-line" : "border-accent/10")}>
       <button type="button" onClick={onClick} title={title ?? (compact ? label : undefined)} className={cx("flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-left text-[14px] font-medium transition-colors", c.btn, compact && "lg:justify-center lg:px-0")}>
         <span className={cx("grid size-7 shrink-0 place-items-center rounded-md", c.tile)} aria-hidden="true">
-          <LogOut size={theme === "dark" ? 17 : 14} strokeWidth={theme === "dark" ? 1.75 : 2.2} />
+          <LogOut size={17} strokeWidth={1.75} />
         </span>
         <span className={cx("flex-1", compact && "lg:sr-only")}>{label}</span>
       </button>
