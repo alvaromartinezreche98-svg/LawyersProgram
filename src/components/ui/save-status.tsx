@@ -75,7 +75,7 @@ export function SaveToast({ idle }: { idle: string }) {
       aria-hidden={!shown}
       className={cx(
         // above the sticky foot (≈81px) from 960px, plus the frame's 12px gap from 1280px; above the tab bar on phones
-        "fixed right-4 bottom-[calc(76px+env(safe-area-inset-bottom))] z-40 md:right-6 md:bottom-6 min-[960px]:bottom-[100px] xl:right-12 xl:bottom-[108px]",
+        "fixed right-4 bottom-[calc(76px+env(safe-area-inset-bottom))] z-40 md:right-6 md:bottom-[100px] xl:right-12 xl:bottom-[108px]",
         "transition-[opacity,translate] duration-300 ease-out",
         shown ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0",
         "flex max-w-[calc(100vw-32px)] items-center gap-2 rounded-full border bg-surface/95 py-2 pr-4 pl-2.5 text-[13.5px] font-medium shadow-[0_10px_15px_-3px_rgb(var(--accent-rgb)/0.14),0_4px_6px_-4px_rgb(var(--accent-rgb)/0.12)] backdrop-blur-sm transition-colors duration-300",

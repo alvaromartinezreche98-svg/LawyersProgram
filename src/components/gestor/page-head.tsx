@@ -19,22 +19,25 @@ import { cx } from "@/components/ui/primitives";
 export function PageHead({ title, intro, eyebrow, actions }: { title: string; intro?: ReactNode; eyebrow?: string; actions?: ReactNode }) {
   const { t } = useI18n();
   eyebrow ??= t.list.eyebrow(EJERCICIO);
+  // Phones: a grid, so the title and the page's actions share one line (eyebrow above, intro below).
+  // From sm: the title block on the left and the actions at its foot on the right, as before.
   return (
-    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-      <div className="min-w-0">
-        {eyebrow && <p className="eyebrow-tag mb-2">{eyebrow}</p>}
-        <h1 className="text-[24px] leading-[30px] font-semibold tracking-[-0.01em]">{title}</h1>
-        {intro && <p className="mt-1 max-w-[68ch] text-[14px] leading-[21px] text-muted">{intro}</p>}
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
+      <div className="contents sm:block sm:min-w-0">
+        {eyebrow && <p className="eyebrow-tag col-span-2 mb-1 justify-self-start sm:mb-2">{eyebrow}</p>}
+        <h1 className="row-start-2 min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
+        {intro && <p className="col-span-2 row-start-3 max-w-[68ch] text-[13.5px] leading-5 text-muted sm:mt-1 sm:text-[14px] sm:leading-[21px]">{intro}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="col-start-2 row-start-2 flex items-center gap-2 sm:flex-wrap">{actions}</div>}
     </div>
   );
 }
 
 /** A set of mutually exclusive views (at most five). */
-export function Chips({ label, children }: { label: string; children: ReactNode }) {
+/** `scroll`: on phones the views stay on one line and scroll sideways (edge to edge) instead of wrapping. */
+export function Chips({ label, scroll, children }: { label: string; scroll?: boolean; children: ReactNode }) {
   return (
-    <div role="group" aria-label={label} className="flex flex-wrap gap-2">
+    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:-mx-4 max-sm:basis-[calc(100%+2rem)] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:px-4 max-sm:[&>*]:shrink-0")}>
       {children}
     </div>
   );

@@ -19,11 +19,11 @@ export const SIDE_W = { open: 268, folded: 84 } as const;
 
 export const sideRowCls = (on: boolean, theme: SideTheme, folded = false) =>
   cx(
-    "relative flex min-h-11 w-full items-center gap-3 rounded-lg px-2.5 py-1.5 whitespace-nowrap transition-colors duration-150",
+    "relative flex min-h-10 w-full items-center gap-3 rounded-lg px-2.5 py-1 whitespace-nowrap transition-colors duration-150",
     folded && "justify-center px-0",
     theme === "dark"
-      ? cx("text-[14.5px]", on ? "bg-chrome-active font-semibold text-chrome-ink" : "font-medium text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink")
-      : cx("text-[15px]", on ? "bg-surface font-semibold text-accent shadow-sm" : "font-medium text-accent/80 hover:bg-surface/70 hover:text-accent"),
+      ? cx("text-[14px]", on ? "bg-chrome-active font-semibold text-chrome-ink" : "font-medium text-chrome-muted hover:bg-chrome-hover hover:text-chrome-ink")
+      : cx("text-[14.5px]", on ? "bg-surface font-semibold text-accent shadow-sm" : "font-medium text-accent/80 hover:bg-surface/70 hover:text-accent"),
     // the current page: a short terracotta bar set inside the row (hidden when folded, where the tile says it)
     on && !folded && "before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-r-full before:bg-copper",
   );

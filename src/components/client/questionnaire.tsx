@@ -147,17 +147,18 @@ export function Questionnaire({ slug }: { slug: string }) {
         </div>
         {/* Sheet foot: the previous and next steps by name */}
         {slug !== REVIEW_SLUG && (
-          // From 960px the foot sticks to the bottom of the window, so Back / Next never need a long scroll.
+          // The foot sticks to the bottom of the window (phones too), so Back / Next never need a long scroll.
           // Solid white with a top rule and an upward shadow (no translucency: the DS rules out glass effects).
-          <footer data-sticky-foot className="z-10 flex flex-wrap items-center justify-between gap-3 rounded-b-xl border-t border-line bg-surface px-4 py-4 sm:px-8 min-[960px]:sticky min-[960px]:bottom-0 min-[960px]:shadow-[0_-10px_24px_-14px_var(--shadow)] lg:px-10">
+          // Phones: one row, edge to edge: Back as a square arrow (its step in the label for screen readers), Next fills the rest.
+          <footer data-sticky-foot className="sticky bottom-0 z-10 flex items-center justify-between gap-3 rounded-b-xl border-t border-line bg-surface px-4 py-4 shadow-[0_-10px_24px_-14px_var(--shadow)] max-sm:-mx-4 max-sm:gap-2 max-sm:rounded-none max-sm:px-4 max-sm:py-2.5 max-sm:pb-[max(10px,env(safe-area-inset-bottom))] sm:flex-wrap sm:px-8 lg:px-10">
             {idx > 0 ? (
-              <Button size="lg" onClick={() => go(STEP_SLUGS[idx - 1])}>
+              <Button size="lg" onClick={() => go(STEP_SLUGS[idx - 1])} aria-label={stepName(STEP_SLUGS[idx - 1])} title={stepName(STEP_SLUGS[idx - 1])} className="max-sm:w-12 max-sm:shrink-0 max-sm:px-0">
                 <ArrowLeft size={17} aria-hidden="true" />
-                {stepName(STEP_SLUGS[idx - 1])}
+                <span className="max-sm:sr-only">{stepName(STEP_SLUGS[idx - 1])}</span>
               </Button>
-            ) : <span />}
-            <Button size="lg" variant="primary" onClick={() => go(STEP_SLUGS[idx + 1])}>
-              {t.q.goOn(stepName(STEP_SLUGS[idx + 1]))}
+            ) : <span className="max-sm:hidden" />}
+            <Button size="lg" variant="primary" onClick={() => go(STEP_SLUGS[idx + 1])} className="max-sm:min-w-0 max-sm:flex-1">
+              <span className="truncate">{t.q.goOn(stepName(STEP_SLUGS[idx + 1]))}</span>
               <ArrowRight size={17} aria-hidden="true" />
             </Button>
           </footer>

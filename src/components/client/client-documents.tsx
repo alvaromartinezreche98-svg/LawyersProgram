@@ -23,7 +23,7 @@ export function ClientDocuments() {
   const asked = openTasks(exp).filter((x) => x.target?.kind === "docs");
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 max-sm:gap-4">
       <PageTitle>{t.titles.documents}</PageTitle>
       <div>
         <Eyebrow>{t.docs.eyebrow}</Eyebrow>
@@ -67,10 +67,11 @@ export function ClientDocuments() {
         if (!list.length) return null;
         const n = list.reduce((k, x) => k + x.files.length, 0);
         return (
-          <section key={s.slug} aria-labelledby={`docs-${s.slug}`} className="flex flex-col gap-4">
+          // Each section on its own card, so the categories read apart
+          <section key={s.slug} aria-labelledby={`docs-${s.slug}`} className="flex flex-col gap-4 rounded-xl border border-line bg-surface pad-card shadow-sheet">
             <div className="flex items-center justify-between gap-3 border-b border-line pb-3">
-              <h2 id={`docs-${s.slug}`} className="flex min-w-0 items-center gap-3 text-[16px] font-semibold">
-                <IconTile icon={SECTION_ICON[s.slug]} size="sm" />
+              <h2 id={`docs-${s.slug}`} className="flex min-w-0 items-center gap-3 text-[16px] font-semibold max-sm:gap-2 max-sm:text-[15px]">
+                <IconTile icon={SECTION_ICON[s.slug]} size="sm" className="max-sm:size-7" />
                 <span className="truncate">{tr(s.title)}</span>
                 <span className="shrink-0 text-[13px] font-normal text-muted">{t.docs.card.files(n)}</span>
               </h2>
@@ -79,7 +80,7 @@ export function ClientDocuments() {
                 <ArrowRight size={14} aria-hidden="true" />
               </Link>
             </div>
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-4 max-sm:gap-3">
               {list.map((d0, i) => {
                 const href = `/declaracion/${d0.section}#q-${d0.field}${d0.item ? `-${d0.item}` : ""}`;
                 return (
@@ -89,11 +90,11 @@ export function ClientDocuments() {
                       {d0.context && <span className="text-[12.5px] text-muted">· {tr(d0.context)}</span>}
                       {!d0.files.length && <Pill tone="warn">{t.common.missing}</Pill>}
                     </div>
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3">
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3 max-sm:grid-cols-2 max-sm:gap-2">
                       {d0.files.map((f) => <FileCard key={f.id} file={f} replaceHref={href} />)}
-                      {/* the way to add one: a dashed tile that leads to the question */}
-                      <Link href={href} className={cx("group/up flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-3 text-center transition-colors", d0.files.length ? "border-line text-muted hover:border-accent/50 hover:bg-accent-soft/40 hover:text-accent" : "border-warn/40 bg-warn-soft/40 text-warn hover:border-warn hover:bg-warn-soft")}>
-                        <span className="grid size-8 place-items-center rounded-full bg-surface shadow-sm transition-transform group-hover/up:scale-110">
+                      {/* the way to add one: a dashed tile that leads to the question; on phones it fills the free slot beside an odd last file, or a slim full-width row */}
+                      <Link href={href} className={cx("group/up flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-3 text-center transition-colors", d0.files.length % 2 === 0 && "max-sm:col-span-full max-sm:min-h-12 max-sm:flex-row max-sm:gap-2.5 max-sm:py-2", d0.files.length ? "border-line text-muted hover:border-accent/50 hover:bg-accent-soft/40 hover:text-accent" : "border-warn/40 bg-warn-soft/40 text-warn hover:border-warn hover:bg-warn-soft")}>
+                        <span className="grid size-8 place-items-center rounded-full bg-surface shadow-sm transition-transform group-hover/up:scale-110 max-sm:size-7">
                           {d0.files.length ? <Plus size={15} aria-hidden="true" /> : <Upload size={15} aria-hidden="true" />}
                         </span>
                         <span className="text-[12.5px] font-semibold">{d0.files.length ? t.docs.reg.add : t.docs.card.uploadHere}</span>

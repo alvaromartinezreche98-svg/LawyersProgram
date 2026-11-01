@@ -209,6 +209,8 @@ export function ClientHome() {
                 );
               })}
             </ol>
+            {/* Phones: the stepper shows names only; the current stage's fact is written here once */}
+            {current && <p className={h.currentFact}><b>{tr_.name[current.key]}</b> · {current.fact}</p>}
             {sent && <p className={h.trackNote}>{t.home.sentBody(status(exp.status))}</p>}
           </section>
 

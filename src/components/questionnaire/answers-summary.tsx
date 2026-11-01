@@ -58,11 +58,12 @@ export function AnswersSummary({ fields, scope, layout = "rows" }: { fields: Fie
             );
           return items.map((it, i) =>
             grid ? (
-              <div key={x.id + i} className="col-span-full overflow-hidden rounded-xl border border-line bg-surface shadow-sm">
-                <div className="border-b border-line bg-sunk/50 px-4 py-2.5 text-[13.5px] font-semibold text-ink">
+              // one item of a list (Property 1…): a titled group with a rule at its left, not a box
+              <div key={x.id + i} className="col-span-full flex flex-col gap-2 border-l-2 border-accent/25 pl-4">
+                <div className="pt-1 text-[13.5px] font-semibold text-ink">
                   {x.item && tr(x.item)} {i + 1}
                 </div>
-                <div className="grid gap-3 pad-tile md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-2">
                   <AnswersSummary fields={x.fields ?? []} scope={it} layout="grid" />
                 </div>
               </div>
@@ -115,7 +116,7 @@ export function AnswersSummary({ fields, scope, layout = "rows" }: { fields: Fie
 /** Grid layout: each answer on its own soft field, a small muted label over the value; a missing answer is tinted red. */
 function Cell({ label, missing, children }: { label: string; missing?: boolean; children: ReactNode }) {
   return (
-    <div className={cx("flex min-w-0 flex-col gap-1 rounded-lg border px-3 py-2.5", missing ? "border-bad/25 bg-bad-soft/50" : "border-transparent bg-sunk/70")}>
+    <div className={cx("flex min-w-0 flex-col gap-1 rounded-lg px-3 py-2.5", missing ? "bg-bad-soft/60" : "bg-sunk/70")}>
       <dt className={cx("text-[12.5px] leading-[18px]", missing ? "text-bad" : "text-muted")}>{label}</dt>
       <dd className="min-w-0 text-[14px] leading-5 font-medium break-words text-ink">{children}</dd>
     </div>

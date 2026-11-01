@@ -215,8 +215,8 @@
 // ---------- A gestoría's site: the gestoría leads ----------
 .firmMark {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   place-items: center;
   overflow: hidden;
@@ -239,13 +239,8 @@
 // The entry page's header: the gestoría's mark and name a size up, to hold the top of the page.
 .bareHead {
   .firmMark {
-    width: 46px;
-    height: 46px;
-    border-radius: radius(lg);
-    font-size: 0.9375rem;
     box-shadow: 0 6px 14px -6px rgb(var(--accent-rgb) / 0.55);
   }
-
 }
 
 .firmBrand {

@@ -205,6 +205,8 @@ export function CaseList() {
     : status !== "all" ? statusLabel(status)
     : null;
 
+  const exportShown = () => exportCsv(shown, (x) => [x.name, str(x.exp.answers.email), str(x.exp.answers.telefono), tr(STATUSES.find((st) => st.id === x.exp.status)!.label), x.waiting ? t.list.wait.row[x.waiting] : "", `${x.pct}`, `${x.pending}`, `${x.bad + x.warn}`, teamName(x.exp.assignee) ?? "", csvTime(x.exp.updatedAt)], t.extra.csv.cols, `expedientes-${EJERCICIO}`);
+
   return (
     <>
       <PageTitle>{t.titles.cases}</PageTitle>
@@ -275,7 +277,7 @@ export function CaseList() {
           filtered from the overview above (one place per filter); active ones show as chips below.
         */}
         <div className={css.toolbar}>
-          <Chips label={t.list.wait.label}>
+          <Chips label={t.list.wait.label} scroll>
             {([
               ["gestoria", t.list.wait.views.gestoria, waitN("gestoria")],
               ["cliente", t.list.wait.views.cliente, waitN("cliente")],
@@ -291,15 +293,33 @@ export function CaseList() {
             <Search size={16} aria-hidden="true" />
             <input type="search" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQ("")} placeholder={t.list.search} className="field" />
           </label>
-          {firm.team.length > 0 && (
-            <FilterMenu label={t.list.filters} active={who ? 1 : 0}>
-              <label className={css.menuField}>
-                <span>{t.extra.assignee.label}</span>
-                <Select aria-label={t.extra.assignee.label} value={who ?? "all"} onChange={(v) => go({ gestor: v })} buttonClassName="font-normal" options={[{ value: "all", label: t.extra.assignee.all }, ...firm.team.map((m) => ({ value: m.id, label: m.name })), { value: "ninguno", label: t.list.unassigned }]} />
-              </label>
+          {/* Phones: the filter menu also holds the export (the result bar drops it), so it shows even without a team */}
+          {(firm.team.length > 0 || shown.length > 0) && (
+            <FilterMenu label={t.list.filters} active={who ? 1 : 0} className={firm.team.length ? undefined : "sm:hidden"}>
+              {firm.team.length > 0 && (
+                <label className={css.menuField}>
+                  <span>{t.extra.assignee.label}</span>
+                  <Select aria-label={t.extra.assignee.label} value={who ?? "all"} onChange={(v) => go({ gestor: v })} buttonClassName="font-normal" options={[{ value: "all", label: t.extra.assignee.all }, ...firm.team.map((m) => ({ value: m.id, label: m.name })), { value: "ninguno", label: t.list.unassigned }]} />
+                </label>
+              )}
+              {shown.length > 0 && (
+                <button type="button" onClick={exportShown} className={cx("group", css.exportBtn, css.exportInMenu)}>
+                  <Download size={15} className="text-accent" aria-hidden="true" />
+                  {t.extra.csv.export}
+                </button>
+              )}
             </FilterMenu>
           )}
           <Select aria-label={t.list.sort.label} value={sort} onChange={(k) => go({ orden: k as SortKey })} className={css.sortMenu} options={SORT_KEYS.map((k) => ({ value: k, label: t.list.sort[k], icon: SORT_ICON[k] }))} />
+          {/* Phones: the order as one icon button beside the search; the list opens the same */}
+          <Select
+            aria-label={`${t.list.sort.label}: ${t.list.sort[sort]}`}
+            value={sort}
+            onChange={(k) => go({ orden: k as SortKey })}
+            className={css.sortIcon}
+            trigger={{ className: cx("field", css.iconBtn), content: () => { const I = SORT_ICON[sort]; return <I size={17} className="text-accent" aria-hidden="true" />; } }}
+            options={SORT_KEYS.map((k) => ({ value: k, label: t.list.sort[k], icon: SORT_ICON[k] }))}
+          />
         </div>
 
         {/* Result line: active filters (each removable), count and export. */}
@@ -323,7 +343,7 @@ export function CaseList() {
             </button>
           )}
           {shown.length > 0 && (
-            <button type="button" onClick={() => exportCsv(shown, (x) => [x.name, str(x.exp.answers.email), str(x.exp.answers.telefono), tr(STATUSES.find((st) => st.id === x.exp.status)!.label), x.waiting ? t.list.wait.row[x.waiting] : "", `${x.pct}`, `${x.pending}`, `${x.bad + x.warn}`, teamName(x.exp.assignee) ?? "", csvTime(x.exp.updatedAt)], t.extra.csv.cols, `expedientes-${EJERCICIO}`)} className={cx("group", css.exportBtn)}>
+            <button type="button" onClick={exportShown} className={cx("group", css.exportBtn, css.exportInBar)}>
               <Download size={15} className="text-accent motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-y-0.5" aria-hidden="true" />
               {t.extra.csv.export}
             </button>
@@ -523,8 +543,8 @@ export function DeadlineBanners() {
         const urgent = d <= 7;
         const Icon = urgent ? TriangleAlert : CalendarClock;
         return (
-          <div key={id} role={urgent ? "alert" : "status"} className={cx("flex items-center gap-3 rounded-lg border py-2.5 pr-2 pl-3 text-[14px]", urgent ? "border-bad/30 border-l-4 border-l-bad bg-bad-soft" : "border-info/20 bg-info-soft")}>
-            <span className={cx("grid size-8 shrink-0 place-items-center rounded-md", urgent ? "bg-bad text-surface" : "bg-surface text-info")}>
+          <div key={id} role={urgent ? "alert" : "status"} className={cx("flex items-center gap-3 rounded-lg border py-2.5 pr-2 pl-3 text-[14px] max-sm:gap-2.5 max-sm:py-1.5 max-sm:pl-2 max-sm:text-[13px]", urgent ? "border-bad/30 border-l-4 border-l-bad bg-bad-soft" : "border-info/20 bg-info-soft")}>
+            <span className={cx("grid size-8 shrink-0 place-items-center rounded-md max-sm:size-7", urgent ? "bg-bad text-surface" : "bg-surface text-info")}>
               <Icon size={17} strokeWidth={2.2} aria-hidden="true" />
             </span>
             <p className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5">
@@ -578,7 +598,7 @@ function useOverviewPref(): [boolean, (v: boolean) => void] {
 }
 
 /** "Filtros": secondary filters in a small panel under a button; the badge counts the active ones. Closes on Escape or a click outside. */
-function FilterMenu({ label, active, children }: { label: string; active: number; children: ReactNode }) {
+function FilterMenu({ label, active, className, children }: { label: string; active: number; className?: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -594,10 +614,10 @@ function FilterMenu({ label, active, children }: { label: string; active: number
     };
   }, [open]);
   return (
-    <div ref={box} className={css.filterMenu}>
-      <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className={cx("field", css.filterBtn)} data-on={active > 0 || undefined}>
+    <div ref={box} className={cx(css.filterMenu, className)}>
+      <button type="button" aria-expanded={open} aria-label={label} onClick={() => setOpen(!open)} className={cx("field", css.filterBtn)} data-on={active > 0 || undefined}>
         <SlidersHorizontal size={15} aria-hidden="true" />
-        {label}
+        <span className={css.filterLabel}>{label}</span>
         {active > 0 && <span className={css.filterCount}>{active}</span>}
       </button>
       {open && <div className={css.menuPanel}>{children}</div>}

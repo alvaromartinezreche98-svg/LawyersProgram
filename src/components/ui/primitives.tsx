@@ -179,6 +179,16 @@ export function EmptyState({ icon: Icon, title, children, tone = "neutral", inse
   );
 }
 
+/*
+ * Top bars (public pages, client portal, workspace on phones) share one scale, so moving between
+ * pages never shifts anything: 56px tall (64px from 640px), a 32px logo, 40px square icon buttons
+ * (menu, search, profile) and a 36px language switch.
+ */
+export const HEADER_BAR = "h-14 sm:h-16";
+export const HEADER_LOGO = 32;
+export const HEADER_ICON_BTN = "relative grid size-10 shrink-0 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink transition-colors hover:bg-sunk active:bg-sunk";
+export const HEADER_LANG = "h-9";
+
 export function Brand({ sub }: { sub?: string }) {
   return (
     <span className="flex items-baseline gap-2.5">

@@ -156,13 +156,19 @@ $space: (
 );
 
 // ---------- Insets: the padding inside every bordered box, three sizes only ----------
-// tile: small clickable figures (KPI, metric and kanban cards); card: every card, panel and
-// sectioned box (20px on phones, 24px from 640px); card-lg: a page's lead card (24 → 32px).
-// Inside a box, elements stack on gap 8 (a title and its line), 16 (default) or 24 (groups).
+// The whole platform's spacing is one 4px scale: 4 · 8 · 12 · 16 · 24 · 32. Inside a box,
+// elements stack on gap 8 (a title and its line), 16 (default) or 24 (groups).
+//   tile     small clickable figures (KPI, metric, kanban and file cards)   12 → 16px
+//   card     every card, panel and sectioned box                            16 → 24px
+//   card-lg  a page's lead card (sign-in, settings forms)                  20 → 32px
+// (phone value → from 640px). One level of box only: a card never holds another bordered box;
+// inside it, groups are set apart by spacing and hairline dividers.
 $inset: (
+  "tile-sm": 12px,
   "tile": 16px,
-  "card-sm": 20px,
+  "card-sm": 16px,
   "card": 24px,
+  "card-lg-sm": 20px,
   "card-lg": 32px,
 );
 

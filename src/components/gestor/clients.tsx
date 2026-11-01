@@ -138,8 +138,11 @@ function DemoClients() {
   );
 }
 
+// Phones: the status as a small coloured dot before its name (the same colours as the board's columns).
+const STATUS_DOT: Record<Expediente["status"], string> = { borrador: "bg-line-strong", enviado: "bg-info", revision: "bg-warn", listo: "bg-ok" };
+
 function ClientRow({ exp: e, i, origin, open, onToggle, locale }: { exp: Expediente; i: number; origin: string; open: boolean; onToggle: () => void; locale: string }) {
-  const { t } = useI18n();
+  const { t, status: statusLabel } = useI18n();
   const name = clientName(e) || t.common.unnamedClient;
   const link = origin ? inviteLink(origin, e.id) : "";
   const { firm } = useAppState();
@@ -158,28 +161,36 @@ function ClientRow({ exp: e, i, origin, open, onToggle, locale }: { exp: Expedie
   }, [open]);
   return (
     <li className="border-t border-line first:border-t-0">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3 md:grid-cols-[minmax(0,1fr)_116px_120px_96px_156px]">
+      {/* Phones: one compact line per client (avatar, name, a small status dot with the email under it, a QR icon button); from md the table row. */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-2.5 md:grid-cols-[minmax(0,1fr)_116px_120px_96px_156px] md:gap-x-4 md:py-3">
         <div className="flex min-w-0 items-center gap-3">
           <span className={cx("grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-semibold", AVATAR[i % AVATAR.length])}>{initials(name)}</span>
           <span className="min-w-0">
-            <Link href={`/expedientes/${e.id}`} className="block truncate font-medium hover:underline">
+            <Link href={`/expedientes/${e.id}`} className="block truncate text-[14.5px] leading-5 font-medium hover:underline">
               {name}
             </Link>
-            <span className="block truncate text-[12.5px] text-muted">{typeof e.answers.email === "string" && e.answers.email ? e.answers.email : t.list.noEmail}</span>
+            <span className="flex min-w-0 items-center gap-1.5 text-[12.5px] leading-[18px] text-muted">
+              <span className="inline-flex shrink-0 items-center gap-1 font-medium text-ink/75 md:hidden">
+                <span className={cx("size-2 rounded-full", STATUS_DOT[e.status])} aria-hidden="true" />
+                {statusLabel(e.status)}
+                <span aria-hidden="true" className="font-normal text-muted">·</span>
+              </span>
+              <span className="truncate">{typeof e.answers.email === "string" && e.answers.email ? e.answers.email : t.list.noEmail}</span>
+            </span>
           </span>
         </div>
         {/* cells are flex rows centred on the row, so labels sit at the same height whatever their content */}
-        <span className="flex items-center justify-self-end md:justify-self-start">
+        <span className="hidden items-center md:flex md:justify-self-start">
           <StatusPill status={e.status} />
         </span>
         <span className={FEATURES.identityCheck ? "hidden items-center md:flex" : "hidden"}>
           <Pill tone={e.identityConfirmedAt ? "ok" : "neutral"}>{e.identityConfirmedAt ? t.clients.identity.ok : t.clients.identity.no}</Pill>
         </span>
         <span className="figures hidden text-[12.5px] text-muted md:block">{fmtTime(e.createdAt, locale)}</span>
-        <Button size="sm" onClick={onToggle} aria-expanded={open} aria-controls={`inv-${e.id}`} className="col-span-2 justify-self-start md:col-span-1 md:justify-self-end [&_svg]:shrink-0">
-          <QrIcon size={14} aria-hidden="true" />
-          {open ? t.clients.hide : t.clients.show}
-          <ChevronDown size={14} className={cx("motion-safe:transition-[rotate] motion-safe:duration-200 motion-safe:ease-out", open && "rotate-180")} aria-hidden="true" />
+        <Button size="sm" onClick={onToggle} aria-expanded={open} aria-controls={`inv-${e.id}`} aria-label={open ? t.clients.hide : t.clients.show} title={open ? t.clients.hide : t.clients.show} className={cx("justify-self-end [&_svg]:shrink-0 max-md:size-10 max-md:px-0", open && "max-md:bg-accent max-md:text-accent-ink")}>
+          <QrIcon size={14} aria-hidden="true" className="max-md:size-[18px]" />
+          <span className="max-md:hidden">{open ? t.clients.hide : t.clients.show}</span>
+          <ChevronDown size={14} className={cx("max-md:hidden motion-safe:transition-[rotate] motion-safe:duration-200 motion-safe:ease-out", open && "rotate-180")} aria-hidden="true" />
         </Button>
       </div>
       {/*

@@ -88,10 +88,10 @@ const SIGN_OUT: Record<Theme, { btn: string; tile: string }> = {
 export function SignOutButton({ onClick, label, compact = false, title, theme = "dark" }: { onClick: () => void; label: string; compact?: boolean; title?: string; theme?: Theme }) {
   const c = SIGN_OUT[theme];
   return (
-    <div className={cx("mt-1.5 border-t pt-3", theme === "dark" ? "border-chrome-line" : "border-accent/10")}>
-      <button type="button" onClick={onClick} title={title ?? (compact ? label : undefined)} className={cx("flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-left text-[14.5px] font-semibold transition-colors", c.btn, compact && "lg:justify-center lg:px-0")}>
+    <div className={cx("mt-1 border-t pt-2", theme === "dark" ? "border-chrome-line" : "border-accent/10")}>
+      <button type="button" onClick={onClick} title={title ?? (compact ? label : undefined)} className={cx("flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-left text-[14px] font-semibold transition-colors", c.btn, compact && "lg:justify-center lg:px-0")}>
         <span className={cx("grid size-7 shrink-0 place-items-center rounded-md", c.tile)} aria-hidden="true">
-          <LogOut size={15} strokeWidth={2.2} />
+          <LogOut size={14} strokeWidth={2.2} />
         </span>
         <span className={cx("flex-1", compact && "lg:sr-only")}>{label}</span>
       </button>

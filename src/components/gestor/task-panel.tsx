@@ -26,7 +26,8 @@ export const isAsked = (e: Expediente, text: Text) => (e.tasks ?? []).some((x) =
  * composer under the button, prefilled with client-facing text the gestoría
  * can edit before sending (the internal alert wording is not sent as is).
  */
-export function AskButton({ exp, text, target }: { exp: Expediente; text: Text; target: ClientTask["target"] }) {
+/** `compact`: on phones the button is its icon alone (the label stays for screen readers). */
+export function AskButton({ exp, text, target, compact }: { exp: Expediente; text: Text; target: ClientTask["target"]; compact?: boolean }) {
   const { t, tr } = useI18n();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
@@ -51,9 +52,9 @@ export function AskButton({ exp, text, target }: { exp: Expediente; text: Text; 
   };
   return (
     <>
-      <Button size="sm" aria-expanded={open} onClick={() => (open ? setOpen(false) : start())}>
+      <Button size="sm" aria-expanded={open} onClick={() => (open ? setOpen(false) : start())} title={compact ? t.tasks.ask : undefined} className={cx(compact && "max-sm:w-(--control-h-sm) max-sm:px-0")}>
         <Send size={14} aria-hidden="true" />
-        {t.tasks.ask}
+        <span className={cx(compact && "max-sm:sr-only")}>{t.tasks.ask}</span>
       </Button>
       {open && (
         <form onSubmit={send} className="flex w-full basis-full flex-col gap-2 rounded-lg border border-copper/40 bg-surface pad-tile text-left">
@@ -153,9 +154,9 @@ export function TaskPanel({ exp: e }: { exp: Expediente }) {
         </button>
       )}
 
-      <form onSubmit={submit} className="flex flex-col gap-2 rounded-xl border border-line bg-sunk pad-tile sm:flex-row sm:items-center">
+      <form onSubmit={submit} className="flex flex-col gap-2 border-t border-line pt-4 sm:flex-row sm:items-center">
         <label className="sr-only" htmlFor={`task-${e.id}`}>{t.tasks.ask}</label>
-        <input id={`task-${e.id}`} value={text} onChange={(ev) => setText(ev.target.value)} placeholder={t.tasks.newPh} autoComplete="off" className={cx(inputCls, "min-w-0 flex-1")} />
+        <input id={`task-${e.id}`} value={text} onChange={(ev) => setText(ev.target.value)} placeholder={t.tasks.newPh} autoComplete="off" className={cx(inputCls, "w-full min-w-0 shrink-0 sm:w-auto sm:flex-1")} />
         {FEATURES.requestTracking && <label className="sr-only" htmlFor={`task-where-${e.id}`}>{t.tasks.where}</label>}
         {FEATURES.requestTracking && <Select id={`task-where-${e.id}`} value={where} onChange={setWhere} className="sm:w-[220px]" options={[{ value: "", label: t.tasks.general }, ...SCHEMA.flatMap((s) => [{ value: `answers:${s.slug}`, label: t.tasks.answersIn(tr(s.short)), group: tr(s.short) }, { value: `docs:${s.slug}`, label: t.tasks.docsIn(tr(s.short)), group: tr(s.short) }])]} />}
         <Button type="submit" variant="primary" disabled={!text.trim()}>

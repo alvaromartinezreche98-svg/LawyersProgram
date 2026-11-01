@@ -64,6 +64,16 @@ export function Select({ value, onChange, options, id, name, placeholder, disabl
     if (open) place();
   }, [open]);
 
+  // Once drawn, keep the list inside the window: a list wider than the space to the right of a
+  // narrow trigger (an icon button at the right edge, on a phone) opens leftwards instead.
+  useLayoutEffect(() => {
+    const el = panel.current;
+    if (!open || !pos || !el) return;
+    const w = el.offsetWidth;
+    const fit = Math.max(12, Math.min(pos.left, window.innerWidth - 12 - w));
+    if (fit !== pos.left) setPos({ ...pos, left: fit });
+  }, [open, pos]);
+
   useEffect(() => {
     if (!open) return;
     const chosen = panel.current?.querySelector<HTMLButtonElement>("[aria-selected=true]");

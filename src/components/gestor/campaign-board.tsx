@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FEATURES } from "@/lib/features";
-import { useEffect, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
 import { CalendarClock, ChartNoAxesColumn, CircleAlert, Clock, FolderOpen, GripVertical, MessageCircle, SearchCheck, Send, TriangleAlert, UserPlus, type LucideIcon } from "lucide-react";
 import { actions, useAppState } from "@/lib/data/store";
 import { STATUSES, awaitingApproval, type Status } from "@/lib/data/types";
@@ -36,6 +36,9 @@ export function CampaignBoard() {
   const { exps, firm } = useAppState();
   const { t, tr } = useI18n();
   const [only, setOnly] = useState(false);
+  // Phones: the board scrolls one column at a time; which one is in view, for the tabs above it.
+  const board = useRef<HTMLDivElement>(null);
+  const [colAt, setColAt] = useState(0);
   const [over, setOver] = useState<Status | null>(null);
   // Drag feedback: the card in hand, the card just moved (a short glow) and what to announce.
   const [dragging, setDragging] = useState<string | null>(null);
@@ -74,7 +77,7 @@ export function CampaignBoard() {
     <>
       <PageTitle>{t.titles.board}</PageTitle>
       <TopBar crumbs={[{ label: t.board.title }]} />
-      <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
+      <div className="flex flex-col gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-5">
         <DeadlineBanners />
         {/* A working header: no tutorial line (the drag hint is on each card), the page's tools on the right. */}
         <PageHead
@@ -85,28 +88,62 @@ export function CampaignBoard() {
                 type="button"
                 aria-pressed={only}
                 onClick={() => setOnly(!only)}
+                aria-label={t.board.onlyAttention}
+                title={t.board.onlyAttention}
                 className={cx(
-                  "inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[13.5px] font-medium transition-colors",
+                  // phones: the icon alone, beside the title (pressed = copper)
+                  "inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[13.5px] font-medium transition-colors max-sm:w-(--control-h-sm) max-sm:justify-center max-sm:px-0",
                   only ? "border-copper bg-copper-soft text-copper-text" : "border-line-strong bg-surface text-ink hover:bg-hover",
                 )}
               >
                 <TriangleAlert size={14} aria-hidden="true" />
-                {t.board.onlyAttention}
+                <span className="max-sm:sr-only">{t.board.onlyAttention}</span>
               </button>
-              <ButtonLink href="/clientes" size="sm">
+              {/* phones: the icon alone, beside the title */}
+              <ButtonLink href="/clientes" size="sm" aria-label={t.list.invite} className="max-sm:w-(--control-h-sm) max-sm:px-0">
                 <UserPlus size={15} aria-hidden="true" />
-                {t.list.invite}
+                <span className="max-sm:hidden">{t.list.invite}</span>
               </ButtonLink>
             </>
           }
         />
         <CampaignStats all={all} filing={firm.campaign?.filing} />
 
-        {/* Phones: one column per swipe (snap-scroll), the next one peeking in; from md the board as it was. */}
-        <div className="-mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 max-md:[scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 md:snap-none">
+        {/* Phones: one column at a time, full width; these tabs show which and jump to another (a swipe works too). */}
+        <div role="tablist" aria-label={t.board.title} className="no-scrollbar -mx-4 -mb-1 flex gap-1.5 overflow-x-auto px-4 md:hidden">
+          {STATUSES.map((s, i) => {
+            const n = shown.filter((x) => x.exp.status === s.id).length;
+            const on = colAt === i;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => (board.current?.querySelector(`[data-col="${s.id}"]`) as HTMLElement | null)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" })}
+                className={cx("inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors", on ? cx("border-transparent text-white", COLUMN_TONE[s.id].head) : "border-line bg-surface text-muted")}
+              >
+                {tr(s.label)}
+                <span className={cx("figures grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold", on ? cx("bg-white", COLUMN_TONE[s.id].ink) : "bg-sunk text-muted")}>{n}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div
+          ref={board}
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            const cols = el.querySelectorAll<HTMLElement>("[data-col]");
+            if (cols.length < 2) return;
+            const step = cols[1].offsetLeft - cols[0].offsetLeft;
+            const i = Math.min(cols.length - 1, Math.round(el.scrollLeft / step));
+            if (i !== colAt) setColAt(i);
+          }}
+          className="-mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 max-md:[scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 md:snap-none"
+        >
           {/* Columns with cases get the room; empty ones stay narrow, as a drop target. */}
           <div
-            className="grid w-full gap-3 max-md:w-max max-md:grid-cols-[repeat(4,min(84vw,340px))] md:grid-cols-(--cols)"
+            className="grid w-full gap-3 max-md:w-max max-md:grid-cols-[repeat(4,calc(100vw-2rem))] sm:max-md:grid-cols-[repeat(4,calc(100vw-3rem))] md:grid-cols-(--cols)"
             style={{
               "--cols": STATUSES.map((s) => (shown.some((x) => x.exp.status === s.id) ? "minmax(240px, 1fr)" : "minmax(160px, 0.55fr)")).join(" "),
             } as CSSProperties}
@@ -118,6 +155,7 @@ export function CampaignBoard() {
               return (
                 <section
                   key={s.id}
+                  data-col={s.id}
                   aria-label={tr(s.label)}
                   onDragOver={(e) => {
                     if (!target) return;
@@ -136,7 +174,7 @@ export function CampaignBoard() {
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-md px-3 py-2.5 text-white shadow-sm", tone.head)} title={tr(s.help)}>
+                  <header className={cx("flex items-center gap-2 rounded-md px-3 py-2.5 text-white shadow-sm max-md:hidden", tone.head)} title={tr(s.help)}>
                     <h2 className="flex-1 text-[13.5px] font-semibold">{tr(s.label)}</h2>
                     <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full bg-white px-1.5 text-[11.5px] font-bold", tone.ink)}>{col.length}</span>
                   </header>
@@ -311,21 +349,21 @@ function CampaignStats({ all, filing }: { all: Triage[]; filing?: string }) {
       : { icon: CalendarClock, label: k.deadline, value: left < 0 ? k.passed : k.days(left), urgent: left <= 7 },
   ];
   return (
-    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
+    <ul className="grid grid-cols-2 gap-2 no-scrollbar max-sm:-mx-4 max-sm:flex max-sm:overflow-x-auto max-sm:px-4 max-sm:py-0.5 sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
       {tiles.map((x) => {
         const body = (
           <>
-            <IconTile icon={x.icon} size="sm" tone={x.firm ? "copper" : "accent"} />
-            <span className="flex min-w-0 flex-col">
-              <span className={cx("figures text-[22px] leading-7 font-semibold max-sm:text-[19px] max-sm:leading-6", x.urgent && "text-bad", x.firm && "text-copper-text")}>{x.value}</span>
-              <span className="truncate text-[13px] text-muted max-sm:text-[12px] max-sm:leading-4 max-sm:whitespace-normal max-sm:line-clamp-2">{x.label}</span>
+            <IconTile icon={x.icon} size="sm" tone={x.firm ? "copper" : "accent"} className="max-sm:size-7 max-sm:rounded-full" />
+            <span className="flex min-w-0 flex-col max-sm:flex-row max-sm:items-baseline max-sm:gap-1.5">
+              <span className={cx("figures text-[22px] leading-7 font-semibold max-sm:text-[16px] max-sm:leading-6", x.urgent && "text-bad", x.firm && "text-copper-text")}>{x.value}</span>
+              <span className="truncate text-[13px] text-muted max-sm:text-[12.5px] max-sm:overflow-visible">{x.label}</span>
             </span>
           </>
         );
-        // Phones: compact, icon beside the figure, two tiles a row; the label may take two short lines.
-        const cls = "flex h-full items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet max-sm:gap-2.5 max-sm:px-3 max-sm:py-2.5";
+        // Phones: a slim chip (icon · figure · label on one line) in a row that scrolls sideways.
+        const cls = "flex h-full items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet max-sm:gap-2 max-sm:rounded-full max-sm:py-1 max-sm:pr-3.5 max-sm:pl-1 max-sm:whitespace-nowrap";
         return (
-          <li key={x.label}>
+          <li key={x.label} className="max-sm:shrink-0">
             {x.href ? <Link href={x.href} className={cx(cls, "transition-colors hover:border-line-strong")}>{body}</Link> : <div className={cls}>{body}</div>}
           </li>
         );

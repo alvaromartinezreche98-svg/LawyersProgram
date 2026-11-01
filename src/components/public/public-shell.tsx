@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { LEGAL_DOCS } from "@/lib/legal/content";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { LangSwitch } from "@/components/ui/lang-switch";
-import { Brand, ButtonLink, cx } from "@/components/ui/primitives";
+import { Brand, ButtonLink, cx, HEADER_BAR, HEADER_LANG, HEADER_LOGO } from "@/components/ui/primitives";
 import { LogIn, Mail, MapPin, Phone } from "lucide-react";
 import { useAppState } from "@/lib/data/store";
 import { useFileUrl } from "@/lib/data/files";
@@ -53,7 +53,7 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <header className={cx("sticky top-0 z-20 border-b", bare ? "border-transparent bg-bg" : "border-line bg-surface")}>
-        <div className={cx("mx-auto flex w-full max-w-page items-center gap-3 px-4 sm:gap-6 sm:px-8", bare ? cx("h-20", f.bareHead) : "h-16")}>
+        <div className={cx("mx-auto flex w-full max-w-page items-center gap-3 px-4 sm:gap-6", bare ? cx(f.bareHead, "max-xl:max-w-[calc(36rem+2rem)] xl:px-8") : "sm:px-8", HEADER_BAR)}>
           {firmSite ? (
             // The gestoría alone: its mark and name (PreRenta is credited in the footer).
             <Link href="/" className={cx(f.brand, "mr-auto")}>
@@ -64,10 +64,10 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
                 </span>
               ) : (
                 // No logo uploaded yet: the gestoría's emblem.
-                <FirmEmblem size={bare ? 44 : 36} className="shrink-0" />
+                <FirmEmblem size={HEADER_LOGO} className="shrink-0" />
               )}
               <span className={f.firmBrand}>
-                <FirmWordmark name={firmName} size={bare ? "lg" : "md"} />
+                <FirmWordmark name={firmName} />
               </span>
             </Link>
           ) : (
@@ -82,7 +82,7 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
               </Link>
             ))}
           </nav>
-          <LangSwitch className={cx(bare && "h-10 p-1 [&>button]:px-3.5 [&>button]:text-[13px]")} />
+          <LangSwitch className={HEADER_LANG} />
           {/* The entry page is the sign-in itself: no button for it in its header. */}
           {!bare && <ButtonLink href="/acceso" size="sm" variant="primary" aria-label={t.pub.nav.signIn} className="max-[359px]:px-2.5">
             <LogIn size={15} aria-hidden="true" />
@@ -94,7 +94,7 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
       <main className={cx("flex-1", bare && "flex flex-col")}>{children}</main>
 
       {bare ? (
-        <footer className="mx-auto flex w-full max-w-page flex-wrap items-center gap-x-5 gap-y-1 px-4 py-4 text-[13px] text-muted sm:px-8">
+        <footer className="mx-auto flex w-full max-w-page flex-wrap items-center gap-x-5 gap-y-1 px-4 py-3 text-[12.5px] text-muted max-xl:max-w-[calc(36rem+2rem)] max-xl:px-4 sm:py-4 sm:text-[13px] xl:px-8">
           <span>© {year} {firmSite ? firmName : "PreRenta"}</span>
           {/* Legal links hidden for now on the entry page: set SHOW_LEGAL_LINKS to bring them back. */}
           {SHOW_LEGAL_LINKS && legal.map((l) => (

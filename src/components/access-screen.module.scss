@@ -7,20 +7,20 @@
 // ---------- Page grid ----------
 // One screen: the shell gives this page the height left under its slim header, and one
 // large card sits centred in it, holding the story (left) and the way in (right).
+// Phones and tablets: one centred column (the entry width, 36rem plus a 16px gutter each side)
+// shared with the header and the footer, so logo, headline, cards and footer all line up.
+// From 1280px the one-screen two-column card, centred in the page width.
 .home {
   display: flex;
   width: 100%;
-  max-width: map.get($width, "page");
-  margin: auto;
-  // phones: the standard 16px gutter all round; the frame starts close under the header
-  padding: space(3) space(4) space(4);
+  max-width: calc(36rem + 2 * #{space(4)});
+  margin: 0 auto;
+  padding: space(1) space(4) space(2);
 
   @include from("xl") {
-    padding-block: space(4);
-  }
-
-  @include from("sm") {
-    padding-inline: space(6);
+    max-width: map.get($width, "page");
+    margin: auto;
+    padding: space(4) space(6);
   }
 }
 
@@ -29,34 +29,34 @@
 .frame {
   display: grid;
   width: 100%;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-  box-shadow: var(--shadow-sheet-value);
+  // phones and tablets: no frame around the page (one level of box: the sign-in card is the
+  // only card); the parts stack on the page ground, 24px apart, so the headline has room
+  row-gap: space(5);
+
+  @include from("xl") {
+    row-gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow-sheet-value);
+  }
 
   // Fills most of the screen under the header, above the legal line, without making it scroll.
   // A fixed height, not a minimum: each column handles its own content (the sign-in side
   // scrolls inside if a very short window must); the demo list opens in a dialog, not here.
   @include from("xl") {
     grid-template-columns: minmax(0, 1fr) minmax(420px, 540px);
-    height: clamp(560px, calc(100dvh - 144px - #{space(4)} * 2), 760px);
+    height: clamp(560px, calc(100dvh - 128px - #{space(4)} * 2), 760px);
   }
 }
 
 .intro {
   min-width: 0;
   align-self: center;
-  // phones and tablets: compact, so the sign-in comes into view right after the headline
-  padding: space(5) space(5) space(4);
-
-  @include from("sm") {
-    padding: space(6);
-  }
-
-  @include from("md") {
-    padding: space(6) space(7);
-  }
+  // phones and tablets: on the page ground, aligned with the cards' edges
+  // phones and tablets: no inset of its own, so the headline starts on the cards' left edge
+  padding: space(2) 0 0;
 
   @include from("xl") {
     padding: space(9) clamp(40px, 5vw, 104px);
@@ -71,15 +71,16 @@
   flex-direction: column;
   justify-content: center;
   gap: space(3);
-  // phones: a narrow navy margin, so the cards take nearly the full width
-  padding: space(4) space(3);
-  // two close navies on a diagonal (a touch lighter top left, deeper bottom right), with a faint glow behind the card
-  background:
-    radial-gradient(90% 60% at 50% 42%, rgb(255 255 255 / 0.06), transparent 70%),
-    linear-gradient(150deg, color-mix(in srgb, var(--accent) 82%, #4a6f96) 0%, var(--accent) 48%, var(--accent-hover) 100%);
+  // phones and tablets: the cards sit on the page ground, 8px apart (no navy panel around them)
+  gap: space(2);
 
-  @include from("sm") {
-    padding: space(6);
+  // from 1280px the navy column: two close navies on a diagonal (a touch lighter top left,
+  // deeper bottom right), with a faint glow behind the card
+  @include from("xl") {
+    gap: space(3);
+    background:
+      radial-gradient(90% 60% at 50% 42%, rgb(255 255 255 / 0.06), transparent 70%),
+      linear-gradient(150deg, color-mix(in srgb, var(--accent) 82%, #4a6f96) 0%, var(--accent) 48%, var(--accent-hover) 100%);
   }
 
   @include from("xl") {
@@ -95,23 +96,45 @@
   // the cards keep their own height, and a comfortable width when the column is wide (tablets)
   > * {
     width: 100%;
-    max-width: 520px;
     flex-shrink: 0;
     margin-inline: auto;
+
+    // in the navy column the cards keep a comfortable width
+    @include from("xl") {
+      max-width: 520px;
+    }
   }
 
   // The sign-in: the page's focus. White, a terracotta top rule, a faint light ring and a deep
   // shadow (shadow-xl and more); roomier, with a larger title and a large code field and button.
   // one 16px rhythm between every block (tag, title, text, field, button); the label stays 8px from its field
   .panel {
-    gap: space(4);
+    // phones: a 12px rhythm, so the whole card fits under the headline (the inset comes from the scale)
+    gap: space(3);
     @include pad;
-    border-color: transparent;
+
+    @include from("sm") {
+      gap: space(4);
+    }
+
+    // on the page ground: a firmer hairline and a deeper, navy-tinted shadow, so the sign-in
+    // stands clear of the light page as the one thing to do
+    border-color: color-mix(in srgb, var(--line-strong) 55%, var(--line));
     border-top: 4px solid var(--copper);
     box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.12),
-      0 4px 8px rgb(0 0 0 / 0.12),
-      0 32px 64px -16px rgb(0 0 0 / 0.55);
+      0 1px 2px rgb(0 0 0 / 0.08),
+      0 10px 15px -3px rgb(var(--accent-rgb) / 0.12),
+      0 24px 48px -12px rgb(var(--accent-rgb) / 0.4);
+
+    // on the navy column: no hairline, a faint light ring and a deep shadow
+    @include from("xl") {
+      border-color: transparent;
+      border-top-color: var(--copper);
+      box-shadow:
+        0 0 0 1px rgb(255 255 255 / 0.12),
+        0 4px 8px rgb(0 0 0 / 0.12),
+        0 32px 64px -16px rgb(0 0 0 / 0.55);
+    }
 
     @include from("xl") {
       padding: space(7);
@@ -119,18 +142,34 @@
 
     .panelHead,
     .panelBody {
-      gap: space(4);
+      gap: space(3);
+
+      @include from("sm") {
+        gap: space(4);
+      }
+    }
+
+    // the eyebrow tag and the title closer on phones
+    .panelHead {
+      @media (max-width: 639px) {
+        gap: space(2);
+      }
     }
   }
 
   // the card's title a clear step above its text: larger, bolder and darker; the text quieter
   .panelTitle {
-    font-size: clamp(1.875rem, 1.45rem + 0.8vw, 2.25rem);
+    font-size: clamp(1.625rem, 1.3rem + 1vw, 2.25rem);
   }
 
   .lead {
-    font-size: 0.9375rem;
-    line-height: 1.55;
+    font-size: 0.875rem;
+    line-height: 1.5;
+
+    @include from("sm") {
+      font-size: 0.9375rem;
+      line-height: 1.55;
+    }
   }
 
   .label {
@@ -140,12 +179,20 @@
   // the invitation code: the one thing to do here, two sizes up, the field over a full-width button
   .codeRow {
     flex-direction: column;
-    gap: space(4);
+    gap: space(3);
+
+    @include from("sm") {
+      gap: space(4);
+    }
 
     input,
     button {
       flex: none;
-      height: 3.5rem;
+      height: 3.25rem;
+
+      @include from("sm") {
+        height: 3.5rem;
+      }
     }
 
     .codeField {
@@ -164,7 +211,12 @@
   // deepens and the arrow glides right.
   .codeSubmit {
     width: 100%;
-    height: 3.5rem;
+    height: 3.25rem;
+
+    @include from("sm") {
+      height: 3.5rem;
+    }
+
     gap: space(3);
     padding-inline: space(6);
     border: 0;
@@ -208,14 +260,18 @@
     }
   }
 
-  // The secondary ways in, quieter: translucent glass on the navy, white text.
+  // The secondary ways in, quieter: translucent glass on the navy, white text (from 1280px;
+  // below, plain outlined rows on the page ground).
   .switchRole {
-    border-color: rgb(255 255 255 / 0.14);
-    background: rgb(255 255 255 / 0.06);
-    box-shadow: none;
+    @include from("xl") {
+      border-color: rgb(255 255 255 / 0.14);
+      background: rgb(255 255 255 / 0.06);
+      box-shadow: none;
+    }
   }
 
   .switchRole {
+    @include from("xl") {
     @include hover {
       border-color: rgb(255 255 255 / 0.28);
       background: rgb(255 255 255 / 0.1);
@@ -238,10 +294,13 @@
     .switchArrow {
       color: var(--chrome-muted);
     }
+    }
   }
 
   .demoTrigger .demoTag {
-    color: var(--chrome-mark);
+    @include from("xl") {
+      color: var(--chrome-mark);
+    }
   }
 }
 
@@ -253,7 +312,7 @@
 // throughout, sharp lettering and tight leading, so the sentence reads as one block.
 .title {
   max-width: 19ch;
-  margin-block: space(3) space(4);
+  margin-block: space(2) 0;
   font-family: var(--font-hero), $font-sans;
   // 32px on a 375px phone, ~46px on a tablet, 72px on a large desktop
   font-size: clamp(2rem, 1.2rem + 3.6vw, 4.5rem);
@@ -302,16 +361,9 @@
 
 .ledeNarrow {
   max-width: none;
-  padding: space(5) space(5) space(5);
-  font-size: 0.9375rem;
-
-  @include from("sm") {
-    padding: space(6);
-  }
-
-  @include from("md") {
-    padding: space(6) space(7);
-  }
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
 
   @include from("xl") {
     display: none;
@@ -378,10 +430,10 @@
 .switchRole {
   display: flex;
   width: 100%;
-  min-height: 60px;
+  min-height: 56px;
   align-items: center;
   gap: space(3);
-  padding: space(3) space(4);
+  padding: space(2) space(3);
 
   @include from("sm") {
     padding-inline: space(5);

@@ -50,9 +50,12 @@
 /// Box insets, the same three as the `pad-card`, `pad-card-lg` and `pad-tile` utilities.
 @mixin pad($size: "card") {
   @if $size == "tile" {
-    padding: map.get(tokens.$inset, "tile");
+    padding: map.get(tokens.$inset, "tile-sm");
+    @include from("sm") {
+      padding: map.get(tokens.$inset, "tile");
+    }
   } @else if $size == "lg" {
-    padding: map.get(tokens.$inset, "card");
+    padding: map.get(tokens.$inset, "card-lg-sm");
     @include from("sm") {
       padding: map.get(tokens.$inset, "card-lg");
     }

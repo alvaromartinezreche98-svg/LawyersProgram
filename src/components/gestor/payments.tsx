@@ -46,7 +46,7 @@ export function Payments() {
               <Stat label={t.cobros.totalPaid} value={fmtEuros(paid, locale)} tone="text-ok" />
               <Stat label={t.cobros.totalPending} value={fmtEuros(pending, locale)} tone="text-ink" />
             </div>
-            <Chips label={t.cobros.filter.label}>
+            <Chips label={t.cobros.filter.label} scroll>
               {([["all", t.cobros.filter.all, rows.length], ["pending", t.cobros.filter.pending, rows.length - nPaid], ["paid", t.cobros.filter.paid, nPaid]] as const).map(([id, label, n]) => (
                 <Chip key={id} on={show === id} count={n} onClick={() => setShow(id)}>
                   {label}

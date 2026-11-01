@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, Fragment, useContext, useState, type DragEvent } from "react";
-import { ArrowRight, Camera, Check, ChevronDown, CircleAlert, Clock, FileText, Plus, RotateCw, Upload, X } from "lucide-react";
+import { ArrowRight, Camera, Check, ChevronDown, CircleAlert, Clock, FileText, Plus, RotateCw, Trash2, Upload, X } from "lucide-react";
 import { ITEM_ID, type AnswerValue, type Answers, type Field, type FileRef, type Path } from "@/lib/questionnaire/types";
 import { asFiles, asItems, asText, getIn, progressOf, sectionState, showsKids } from "@/lib/questionnaire/progress";
 import { actions, useAppState } from "@/lib/data/store";
@@ -72,11 +72,11 @@ function FieldList({ fields, scope, path, idBase, itemId = null, listKey = null,
   }
   // Each group list measures its own width, so groups nested in a follow-up stay stacked.
   return <div className="@container flex flex-col">{parts.map((g, i) => (
-    <section key={i} className="grid gap-4 border-t border-line py-8 first:border-t-0 first:pt-0 last:pb-0 @[820px]:grid-cols-[250px_minmax(0,1fr)] @[820px]:gap-6">
+    <section key={i} className="grid gap-4 border-t border-line py-8 first:border-t-0 first:pt-0 last:pb-0 max-sm:gap-2 max-sm:py-5 @[820px]:grid-cols-[250px_minmax(0,1fr)] @[820px]:gap-6">
       {g.group ? (
         <div className="flex flex-col gap-1 @[820px]:sticky @[820px]:top-[calc(var(--app-header,64px)+1.5rem)] @[820px]:self-start">
-          <h3 className="text-[20px] leading-7 font-semibold">{tr(g.group.title)}</h3>
-          {g.group.why && <p className="max-w-[60ch] text-[15px] leading-[22px] text-muted">{tr(g.group.why)}</p>}
+          <h3 className="text-[20px] leading-7 font-semibold max-sm:text-[17px] max-sm:leading-6">{tr(g.group.title)}</h3>
+          {g.group.why && <p className="max-w-[60ch] text-[15px] leading-[22px] text-muted max-sm:text-[13px] max-sm:leading-[18px]">{tr(g.group.why)}</p>}
         </div>
       ) : <span className="hidden @[820px]:block" />}
       <div className="flex min-w-0 flex-col">{rows(g.list)}</div>
@@ -107,7 +107,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       {x.opt && <span className="font-normal text-muted">({t.common.optional.toLowerCase()})</span>}
     </>
   );
-  const labelCls = "flex max-w-[68ch] flex-wrap items-baseline gap-2 text-[15px] font-semibold";
+  const labelCls = "flex max-w-[68ch] flex-wrap items-baseline gap-2 text-[15px] font-semibold max-sm:text-[14.5px] max-sm:leading-5";
 
   let control = null;
   switch (x.type) {
@@ -159,10 +159,14 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
     case "yn":
     case "choice": {
       const opts = x.type === "yn" ? ([["si", t.common.yes], ["no", t.common.no]] as const) : (x.choices ?? []).map(([val, l]) => [val, tr(l)] as const);
+      // Phones: each option stays on one line. The width the longest label needs (13.5px text, the
+      // check and the side padding) sets the column width, so short options sit three or two a row
+      // and long ones take a row each, never breaking onto two lines.
+      const optMin = Math.ceil(Math.max(...opts.map(([, l]) => l.length)) * 6.6 + 46);
       control = (
         // Separate option buttons, 48px tall (easy to tap): each reads as a button before it is chosen
         // (white, field border, soft shadow); the chosen one fills navy with a check.
-        <div role="radiogroup" aria-labelledby={id + "-l"} className={cx("max-w-full gap-3", x.type === "yn" ? "grid w-[300px] grid-cols-2" : "flex flex-wrap")}>
+        <div role="radiogroup" aria-labelledby={id + "-l"} style={{ "--opt-min": `${optMin}px` } as React.CSSProperties} className={cx("max-w-full gap-3 max-sm:grid max-sm:w-full max-sm:gap-2", x.type === "yn" ? "grid w-[300px] grid-cols-2" : "flex flex-wrap max-sm:grid-cols-[repeat(auto-fit,minmax(min(100%,var(--opt-min)),1fr))]")}>
           {opts.map(([val, l]) => {
             const on = v === val;
             return (
@@ -174,13 +178,13 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
                 disabled={readOnly}
                 onClick={() => set(at, on ? undefined : val)}
                 className={cx(
-                  "inline-flex h-12 min-w-[112px] items-center justify-center gap-2 rounded-md border px-5 text-[15.5px] font-medium whitespace-nowrap shadow-field transition-[background-color,border-color,color] outline-none focus-visible:ring-4 focus-visible:ring-focus/25 disabled:cursor-default",
+                  "inline-flex h-12 min-w-[112px] items-center justify-center gap-2 rounded-md border px-5 text-[15.5px] font-medium whitespace-nowrap shadow-field max-sm:h-11 max-sm:min-w-0 max-sm:gap-1.5 max-sm:px-3 max-sm:text-[13.5px] transition-[background-color,border-color,color] outline-none focus-visible:ring-4 focus-visible:ring-focus/25 disabled:cursor-default",
                   x.type === "yn" && "w-full",
                   on ? "border-accent bg-accent text-accent-ink" : "border-field-line bg-surface text-ink hover:border-accent hover:bg-accent-soft/50 disabled:hover:border-field-line disabled:hover:bg-surface",
                 )}
               >
-                {on && <Check size={16} strokeWidth={2.4} className="-ml-1" aria-hidden="true" />}
-                {l}
+                {on && <Check size={16} strokeWidth={2.4} className="-ml-1 shrink-0" aria-hidden="true" />}
+                <span className="min-w-0 truncate">{l}</span>
               </button>
             );
           })}
@@ -197,7 +201,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
   }
 
   return (
-    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="-mx-3 flex scroll-mt-40 flex-col gap-2 rounded-md px-3 py-4 transition-[background-color,box-shadow] duration-700 first:-mt-4 last:-mb-4 data-[flash]:bg-copper-soft/70 data-[flash]:shadow-[inset_3px_0_0_var(--copper)] data-[flash]:duration-150 lg:scroll-mt-32">
+    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="-mx-3 flex scroll-mt-40 flex-col gap-2 rounded-md px-3 py-4 max-sm:py-3 transition-[background-color,box-shadow] duration-700 first:-mt-4 last:-mb-4 data-[flash]:bg-copper-soft/70 data-[flash]:shadow-[inset_3px_0_0_var(--copper)] data-[flash]:duration-150 lg:scroll-mt-32">
       {grouped ? (
         <div id={id + "-l"} className={labelCls}>
           {label}
@@ -278,21 +282,22 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
   const name = asText(scope.dir) || asText(scope.nombre) || asText(scope.valor);
   return (
     <div className="rounded-xl border border-line-strong/40 bg-surface pad-x-card pb-2 shadow-sheet">
-      <div className="flex items-center gap-3 py-2.5">
-        <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+      <div className="flex items-center gap-3 py-2.5 max-sm:gap-2 max-sm:py-2">
+        <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="flex min-w-0 flex-1 items-center gap-3 text-left max-sm:gap-2.5">
           <StepDot n={n} state={st} />
           <span className="min-w-0 flex-1">
             <span className="block truncate font-semibold">{label}</span>
             {name && <span className="block truncate text-[13px] text-muted">{name}</span>}
           </span>
-          <Pill tone={requested ? "copper" : st === "done" ? "ok" : "neutral"} icon={st === "done" && !requested ? Check : undefined}>
+          <Pill tone={requested ? "copper" : st === "done" ? "ok" : "neutral"} icon={st === "done" && !requested ? Check : undefined} className={cx(st === "done" && !requested && "max-sm:hidden")}>
             {requested ? t.q.requested : st === "done" ? t.sectionState.done : t.q.leftN(p.total - p.done)}
           </Pill>
           <ChevronDown size={18} className={cx("shrink-0 text-muted transition-transform", open && "rotate-180")} aria-hidden="true" />
         </button>
         {onRemove && (
-          <button type="button" className="shrink-0 text-sm font-semibold text-bad" onClick={onRemove}>
-            {t.common.remove}
+          <button type="button" className="shrink-0 text-sm font-semibold text-bad max-sm:grid max-sm:size-9 max-sm:place-items-center max-sm:rounded-md max-sm:hover:bg-bad-soft" onClick={onRemove} aria-label={`${t.common.remove}: ${label}`} title={t.common.remove}>
+            <Trash2 size={16} aria-hidden="true" className="sm:hidden" />
+            <span className="max-sm:sr-only">{t.common.remove}</span>
           </button>
         )}
       </div>

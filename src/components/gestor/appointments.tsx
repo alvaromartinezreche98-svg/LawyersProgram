@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { Building2, CalendarDays, CalendarPlus, Phone, X } from "lucide-react";
+import { Building2, Check, CalendarDays, CalendarPlus, Phone, X } from "lucide-react";
 import { actions, caseOrder, clientName, useAppState } from "@/lib/data/store";
 import type { Appointment, Expediente } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -33,7 +33,7 @@ export function Appointments() {
     <>
       <PageTitle>{t.titles.citas}</PageTitle>
       <TopBar crumbs={[{ label: t.citas.title }]} />
-      <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
+      <div className="flex min-w-0 flex-col gap-4 overflow-x-clip px-4 py-5 sm:px-6">
         <PageHead
           title={t.citas.title}
           intro={t.citas.intro}
@@ -57,7 +57,7 @@ export function Appointments() {
             }}
           />
         )}
-        <Chips label={t.citas.title}>
+        <Chips label={t.citas.title} scroll>
           {(["solicitada", "confirmada", "all"] as const).map((f) => (
             <Chip key={f} on={filter === f} count={count(f)} alert={f === "solicitada"} onClick={() => setFilter(f)}>
               {t.citas.filter[f]}
@@ -88,34 +88,49 @@ function Row({ e, a }: { e: Expediente; a: Appointment }) {
   const [time, setTime] = useState(a.time ?? (a.slot === "manana" ? "10:00" : "17:00"));
   const [who, setWho] = useState(a.assignee ?? e.assignee ?? "");
   return (
-    <li className="grid gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)] lg:items-center">
-      <div className="min-w-0">
-        <Link href={`/expedientes/${e.id}`} className="block truncate font-medium hover:underline">
-          {clientName(e) || t.common.unnamedClient}
-        </Link>
-        <span className="text-[12.5px] text-muted">{typeof e.answers.telefono === "string" && e.answers.telefono ? e.answers.telefono : t.citas.requested(fmtTime(a.createdAt, locale))}</span>
+    // Phones and tablets: name and status on one line, the kind and date small under it, then one row of
+    // controls (time, accountant, confirm and cancel as icon buttons). From lg: three columns.
+    <li className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 max-lg:gap-y-2.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)] lg:items-center">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <span className="min-w-0">
+          <Link href={`/expedientes/${e.id}`} className="block truncate font-medium hover:underline">
+            {clientName(e) || t.common.unnamedClient}
+          </Link>
+          <span className="block truncate text-[12.5px] text-muted">{typeof e.answers.telefono === "string" && e.answers.telefono ? e.answers.telefono : t.citas.requested(fmtTime(a.createdAt, locale))}</span>
+        </span>
+        <span className="shrink-0 lg:hidden"><Pill tone={AP_TONE[a.status]}>{t.cita.status[a.status]}</Pill></span>
       </div>
       <div className="min-w-0">
-        <span className="flex items-center gap-2 text-[14px]">
-          {a.kind === "llamada" ? <Phone size={14} aria-hidden="true" /> : <Building2 size={14} aria-hidden="true" />}
-          {t.cita.kind[a.kind]}
-          <Pill tone={AP_TONE[a.status]}>{t.cita.status[a.status]}</Pill>
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] max-lg:text-[13px] max-lg:text-muted">
+          <span className="inline-flex items-center gap-1.5 max-lg:font-medium max-lg:text-ink">
+            {a.kind === "llamada" ? <Phone size={14} aria-hidden="true" /> : <Building2 size={14} aria-hidden="true" />}
+            {t.cita.kind[a.kind]}
+          </span>
+          <span className="max-lg:hidden"><Pill tone={AP_TONE[a.status]}>{t.cita.status[a.status]}</Pill></span>
+          <span aria-hidden="true" className="lg:hidden">·</span>
+          <span className="figures lg:hidden">{t.cita.when(fmtDate(a.date), t.cita.slot[a.slot], a.time)}</span>
         </span>
-        <span className="figures block text-[13px] text-muted">{t.cita.when(fmtDate(a.date), t.cita.slot[a.slot], a.time)}</span>
+        <span className="figures block text-[13px] text-muted max-lg:hidden">{t.cita.when(fmtDate(a.date), t.cita.slot[a.slot], a.time)}</span>
         {a.note && <span className="block text-[13px]">{a.note}</span>}
       </div>
       {a.status === "solicitada" ? (
-        <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+        // Phones: time and accountant share the row; if the screen is too narrow for the two icon
+        // buttons as well, they move to a second line on the right instead of squeezing the fields.
+        <div className="flex min-w-0 flex-wrap items-center gap-2 max-lg:gap-1.5 lg:justify-end">
           <label className="sr-only" htmlFor={`t-${a.id}`}>{t.citas.time}</label>
-          <input id={`t-${a.id}`} type="time" value={time} onChange={(ev) => setTime(ev.target.value)} className={ctl} />
+          <input id={`t-${a.id}`} type="time" value={time} onChange={(ev) => setTime(ev.target.value)} className={cx(ctl, "max-lg:min-w-[7rem] max-lg:flex-1 max-lg:basis-[7rem] max-lg:px-2.5")} />
           <label className="sr-only" htmlFor={`w-${a.id}`}>{t.citas.assignee}</label>
-          <Select id={`w-${a.id}`} value={who} onChange={setWho} buttonClassName="h-(--control-h-sm) text-[13px]" className="w-auto min-w-44" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
-          <Button size="sm" variant="primary" disabled={!time} onClick={() => actions.confirmAppointment(e.id, a.id, time, who || null)}>
-            {t.citas.confirm}
+          <Select id={`w-${a.id}`} value={who} onChange={setWho} buttonClassName="h-(--control-h-sm) text-[13px]" className="w-auto min-w-44 max-lg:min-w-[8.5rem] max-lg:flex-[1.4] max-lg:basis-[8.5rem]" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
+          <span className="flex shrink-0 gap-1.5 max-lg:ml-auto lg:contents">
+          <Button size="sm" variant="primary" disabled={!time} onClick={() => actions.confirmAppointment(e.id, a.id, time, who || null)} aria-label={t.citas.confirm} title={t.citas.confirm} className="max-lg:w-(--control-h-sm) max-lg:px-0">
+            <Check size={15} strokeWidth={2.4} aria-hidden="true" className="lg:hidden" />
+            <span className="max-lg:sr-only">{t.citas.confirm}</span>
           </Button>
-          <Button size="sm" variant="danger" onClick={() => actions.cancelAppointment(e.id, a.id)}>
-            {t.citas.cancel}
+          <Button size="sm" variant="danger" onClick={() => actions.cancelAppointment(e.id, a.id)} aria-label={t.citas.cancel} title={t.citas.cancel} className="max-lg:w-(--control-h-sm) max-lg:px-0">
+            <X size={15} strokeWidth={2.4} aria-hidden="true" className="lg:hidden" />
+            <span className="max-lg:sr-only">{t.citas.cancel}</span>
           </Button>
+          </span>
         </div>
       ) : (
         <span className="text-[13px] text-muted lg:text-right">{a.status === "confirmada" ? firm.team.find((m) => m.id === a.assignee)?.name ?? t.list.unassigned : ""}</span>

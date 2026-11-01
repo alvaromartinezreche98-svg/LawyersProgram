@@ -10,7 +10,7 @@ import { LangMenu, SignOutButton } from "@/components/ui/sidebar-foot";
 import { SIDE_W, SideFoldButton, SideLink, SideTip, sideRowCls, useSideFold } from "@/components/ui/side-nav";
 import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
-import { Badge, Loading, cx } from "@/components/ui/primitives";
+import { Badge, HEADER_BAR, HEADER_ICON_BTN, HEADER_LOGO, Loading, cx } from "@/components/ui/primitives";
 import { useSignInRedirect } from "@/lib/data/use-sign-in-redirect";
 import { useRemoteInbox } from "@/lib/api/use-remote";
 import { QuickSearch, useQuickSearchKey } from "./quick-search";
@@ -19,6 +19,22 @@ import { usePlatformText } from "@/lib/i18n/messages-platform";
 import { FirmEmblem, FirmWordmark } from "@/components/ui/firm-mark";
 
 /** Gestoría panel frame: left sidebar (drawer on mobile) + content panel. */
+/** From 1024px (lg), where the sidebar is a column rather than a drawer. */
+function useDesktop() {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setOn(mq.matches);
+    const raf = requestAnimationFrame(sync);
+    mq.addEventListener("change", sync);
+    return () => {
+      cancelAnimationFrame(raf);
+      mq.removeEventListener("change", sync);
+    };
+  }, []);
+  return on;
+}
+
 export function GestorShell({ children }: { children: ReactNode }) {
   const { ready, session, firm } = useAppState();
   const { t } = useI18n();
@@ -33,7 +49,9 @@ export function GestorShell({ children }: { children: ReactNode }) {
   // Folded to icons when the person chose it; until then, only on a case page (to give the case more width).
   const onCase = /^\/expedientes\/[^/]+$/.test(usePathname());
   const [pref, setPref] = useSideFold("gestor");
-  const compact = pref ?? onCase;
+  // Folding is a desktop choice: the phone drawer always shows icons with their labels.
+  const desktop = useDesktop();
+  const compact = desktop && (pref ?? onCase);
 
   useEffect(() => {
     if (!open) return;
@@ -63,16 +81,16 @@ export function GestorShell({ children }: { children: ReactNode }) {
       style={{ "--side-w": `${compact ? SIDE_W.folded : SIDE_W.open}px` } as CSSProperties}
       className="gestor-shell min-h-dvh lg:grid lg:h-dvh lg:grid-cols-[var(--side-w)_minmax(0,1fr)] lg:overflow-hidden motion-safe:lg:transition-[grid-template-columns] motion-safe:lg:duration-300 motion-safe:lg:ease-out print:block print:h-auto print:overflow-visible"
     >
-      <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 lg:hidden print:hidden">
-        <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className="grid size-10 place-items-center rounded-lg border border-line transition-colors hover:bg-sunk active:bg-sunk">
-          <Menu size={19} strokeWidth={1.9} aria-hidden="true" />
+      <div className={cx("sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-surface/90 px-4 backdrop-blur-md sm:px-6 lg:hidden print:hidden", HEADER_BAR)}>
+        <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className={HEADER_ICON_BTN}>
+          <Menu size={18} strokeWidth={1.9} aria-hidden="true" />
         </button>
         <span className="flex min-w-0 items-center gap-2">
-          <FirmEmblem size={28} />
+          <FirmEmblem size={HEADER_LOGO} />
           <FirmWordmark name={firm.name.trim() || "Gestoría"} />
         </span>
-        <button type="button" aria-label={t.extra.search.open} onClick={openSearch} className="ml-auto grid size-10 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
-          <Search size={18} strokeWidth={2} aria-hidden="true" />
+        <button type="button" aria-label={t.extra.search.open} onClick={openSearch} className={cx(HEADER_ICON_BTN, "ml-auto")}>
+          <Search size={18} strokeWidth={1.9} aria-hidden="true" />
         </button>
       </div>
 
@@ -88,7 +106,7 @@ export function GestorShell({ children }: { children: ReactNode }) {
 
       <div className="min-w-0 lg:h-dvh lg:p-3 print:h-auto print:p-0">
         <QuickSearch open={searching} onClose={() => setSearching(false)} />
-        <div data-app-frame className="min-h-[calc(100dvh-56px)] bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain thin-scroll lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet print:h-auto print:overflow-visible print:border-0 print:shadow-none">{children}</div>
+        <div data-app-frame className="min-h-[calc(100dvh-56px)] max-lg:overflow-x-clip bg-surface lg:relative lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain thin-scroll lg:rounded-[14px] lg:border lg:border-line lg:shadow-sheet print:h-auto print:overflow-visible print:border-0 print:shadow-none">{children}</div>
       </div>
     </div>
   );
@@ -128,7 +146,7 @@ function Sidebar({ onNavigate, onSearch, compact, onFold }: { onNavigate: () => 
   return (
     <nav aria-label={t.side.main} className="flex h-full flex-col bg-chrome text-chrome-ink on-dark lg:overflow-hidden lg:rounded-[14px] lg:shadow-sheet">
       {/* Who is signed in: the gestoría, at the top. */}
-      <div className={cx("mx-4 flex min-h-[68px] shrink-0 items-center gap-3 border-b border-chrome-line px-1", compact && "lg:mx-3 lg:flex-col lg:justify-center lg:gap-2 lg:px-0 lg:py-3")}>
+      <div className={cx("mx-4 flex min-h-14 shrink-0 items-center gap-3 border-b border-chrome-line px-1 sm:min-h-16 lg:min-h-[68px]", compact && "lg:mx-3 lg:flex-col lg:justify-center lg:gap-2 lg:px-0 lg:py-3")}>
         <span className="shrink-0" title={compact ? firmName : undefined}>
           <FirmEmblem size={36} tone="dark" />
         </span>
@@ -141,37 +159,37 @@ function Sidebar({ onNavigate, onSearch, compact, onFold }: { onNavigate: () => 
         </button>
       </div>
 
-      <div className={cx("flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-3 pt-4 pb-3 [scrollbar-width:thin]", compact && "lg:px-3")}>
+      <div className={cx("flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-3 pt-3 pb-2 [scrollbar-width:thin] lg:pt-4 lg:pb-3", compact && "lg:px-3")}>
         <SideTip label={`${t.extra.search.open} · Ctrl K`} folded={compact}>
-          <button type="button" onClick={onSearch} className={cx("mb-4 flex h-10 w-full cursor-pointer items-center gap-3 rounded-lg border border-chrome-line bg-white/[0.04] px-3 text-left text-[13.5px] text-chrome-muted transition-colors hover:bg-chrome-hover hover:text-chrome-ink", compact && "lg:justify-center lg:px-0")}>
+          <button type="button" onClick={onSearch} className={cx("mb-3 flex h-9 w-full cursor-pointer items-center gap-3 rounded-lg border border-chrome-line bg-white/[0.04] px-3 text-left text-[13.5px] text-chrome-muted transition-colors hover:bg-chrome-hover hover:text-chrome-ink", compact && "lg:justify-center lg:px-0")}>
             <Search size={17} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
             <span className={cx("flex-1", compact && "lg:sr-only")}>{t.extra.search.open}</span>
             <kbd className={cx("rounded border border-chrome-line px-1.5 font-mono text-[10.5px]", compact && "lg:hidden")}>Ctrl K</kbd>
           </button>
         </SideTip>
         {/* Primary: the daily work. Secondary (below the rule): the office and the account. */}
-        <p className={cx("t-label mb-2 px-3 text-chrome-muted/80", compact && "lg:sr-only")}>{t.side.workLabel}</p>
-        <ul className="flex flex-col gap-1.5">
+        <p className={cx("t-label mb-1.5 px-3 text-chrome-muted/80", compact && "lg:sr-only")}>{t.side.workLabel}</p>
+        <ul className="flex flex-col gap-1">
           {row("/expedientes", Inbox, t.nav.cases, inCases, <Badge n={unread} />)}
           {live.map(([LiveIcon, text, href]) => row(href, LiveIcon, text, path.startsWith(href)))}
         </ul>
 
         {/* Account: settings, language and sign-out, under a divider. */}
-        <p className={cx("t-label mt-auto mb-2 border-t border-chrome-line px-3 pt-4 text-chrome-muted/80", compact && "lg:sr-only")}>{t.side.officeLabel}</p>
-        <ul className={cx("flex flex-col gap-1.5", compact && "lg:mt-auto lg:border-t lg:border-chrome-line lg:pt-4")}>
+        <p className={cx("t-label mt-auto mb-1.5 border-t border-chrome-line px-3 pt-3 text-chrome-muted/80", compact && "lg:sr-only")}>{t.side.officeLabel}</p>
+        <ul className={cx("flex flex-col gap-1", compact && "lg:mt-auto lg:border-t lg:border-chrome-line lg:pt-4")}>
           {showSetup && row("/alta-gestoria/inicio", ListChecks, p.onboarding.title, inSetup, !compact && <span className="figures text-[12px] font-normal text-chrome-muted">{setup.done}/{setup.total}</span>)}
           {FEATURES.firmSettings && row("/ajustes/despacho", Settings, t.side.settings, inSettings)}
-          <li className="mt-2">
-            <SideTip label={t.common.language} folded={compact}>
-              <LangMenu compact={compact} item={item} />
-            </SideTip>
-          </li>
-          <li>
-            <SideTip label={t.common.signOut} folded={compact}>
-              <SignOutButton onClick={signOut} label={t.common.signOut} compact={compact} title={compact ? undefined : "Alt ⇧ Q"} />
-            </SideTip>
-          </li>
         </ul>
+      </div>
+
+      {/* Foot, outside the scrolling list: language and sign-out always in view (desktop sidebar and phone drawer alike) */}
+      <div className={cx("flex shrink-0 flex-col gap-1 border-t border-chrome-line px-3 pt-2.5 pb-[max(10px,env(safe-area-inset-bottom))]", compact && "lg:px-3")}>
+        <SideTip label={t.common.language} folded={compact}>
+          <LangMenu compact={compact} item={item} />
+        </SideTip>
+        <SideTip label={t.common.signOut} folded={compact}>
+          <SignOutButton onClick={signOut} label={t.common.signOut} compact={compact} title={compact ? undefined : "Alt ⇧ Q"} />
+        </SideTip>
       </div>
     </nav>
   );

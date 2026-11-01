@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, CircleUserRound, LogOut, Menu, X, type LucideIcon } from "lucide-react";
+import { ChevronDown, LogOut, Menu, X, type LucideIcon } from "lucide-react";
 import { IconTile } from "./icons";
 import { useAppState } from "@/lib/data/store";
 import { useFileUrl } from "@/lib/data/files";
@@ -12,7 +12,7 @@ import { useSignOut } from "@/lib/auth/use-auth";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { LangSwitch, useHtmlLang } from "./lang-switch";
 import { LangMenu, SignOutButton as SidebarSignOut } from "./sidebar-foot";
-import { Badge, Brand, Button, cx } from "./primitives";
+import { Badge, Brand, Button, HEADER_BAR, HEADER_ICON_BTN, HEADER_LANG, HEADER_LOGO, cx } from "./primitives";
 import { FirmEmblem, FirmWordmark } from "./firm-mark";
 import { SIDE_W, SideFoldButton, SideLink, SideTip, sideRowCls, useSideFold } from "./side-nav";
 
@@ -34,8 +34,8 @@ export interface NavItem {
  * layout as the gestoría panel: a fixed sidebar on the left (light, with navy
  * ink, the inverse of the workspace's navy one) and the page on the right.
  * Between 768 and 1280px a top bar leads with the gestoría, then four tabs and
- * a "Cuenta" menu. On phones only the identity stays on top and the tabs move
- * to a bottom bar.
+ * a "Cuenta" menu. On phones the top bar has the menu (a drawer with every
+ * section), the gestoría and the person's initials (their profile).
  */
 export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: string; org?: string; children: ReactNode }) {
   const path = usePathname();
@@ -66,8 +66,8 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
     >
       {nav.length > 0 && <ClientSidebar nav={nav} who={who} org={org} isOn={isOn} folded={folded} onFold={() => setFolded(!folded)} />}
       {/* Hidden (height 0) beside the sidebar, so --app-header drops to 0 and sticky columns sit at the top. */}
-      <header ref={head} className={cx("z-20 border-b border-line bg-surface md:sticky md:top-0", nav.length > 0 && "xl:hidden")}>
-        <div className="mx-auto flex min-h-16 max-w-client items-center gap-x-5 px-4 max-md:gap-x-3 sm:px-6">
+      <header ref={head} className={cx("sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur-md supports-[not(backdrop-filter:blur(1px))]:bg-surface", nav.length > 0 && "xl:hidden")}>
+        <div className={cx("mx-auto flex max-w-client items-center gap-x-5 px-4 max-md:gap-x-3 sm:px-6", HEADER_BAR)}>
           {/* Phones: the menu on the left opens every section in a drawer */}
           {nav.length > 0 && <MobileDrawer nav={nav} who={who} org={org} isOn={isOn} />}
           <Link href={nav[0]?.href ?? "/"} className="mr-auto flex min-w-0 items-center gap-3 py-2 md:mr-2">
@@ -100,14 +100,14 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
               <AccountMenu who={who} items={more} isOn={isOn} className="max-md:hidden" />
               {/* Phones: the person's initials, straight to their profile */}
               {profile && (
-                <Link href={profile.href} aria-label={`${t.side.account}: ${who}`} aria-current={isOn(profile) ? "page" : undefined} className="grid size-11 shrink-0 place-items-center rounded-full md:hidden">
-                  <span className={cx("grid size-9 place-items-center rounded-full text-[13px] font-semibold ring-2 transition-colors", isOn(profile) ? "bg-copper text-accent-ink ring-copper/30" : "bg-accent text-accent-ink ring-accent/15")} aria-hidden="true">{initialsOf(who)}</span>
+                <Link href={profile.href} aria-label={`${t.side.account}: ${who}`} aria-current={isOn(profile) ? "page" : undefined} className="grid size-10 shrink-0 place-items-center rounded-full md:hidden">
+                  <span className={cx("grid size-9 place-items-center rounded-full text-[12.5px] font-semibold ring-2 transition-colors", isOn(profile) ? "bg-copper text-accent-ink ring-copper/30" : "bg-accent text-accent-ink ring-accent/15")} aria-hidden="true">{initialsOf(who)}</span>
                 </Link>
               )}
             </>
           ) : (
             <>
-              <LangSwitch />
+              <LangSwitch className={HEADER_LANG} />
               <SignOutButton />
             </>
           )}
@@ -116,10 +116,9 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
       {/* From 1280px the page sits in the same framed panel as the gestoría's: white, rounded, a hairline and the sheet shadow, scrolling inside. */}
       <div className={cx("flex min-w-0 flex-1 flex-col", nav.length > 0 && "xl:h-dvh xl:p-3")}>
         <div data-app-frame className={cx("flex flex-1 flex-col", nav.length > 0 && "thin-scroll xl:relative xl:h-full xl:min-h-0 xl:overflow-y-auto xl:overscroll-contain xl:rounded-[14px] xl:border xl:border-line xl:bg-surface xl:shadow-sheet")}>
-          <main className={cx("mx-auto w-full max-w-client flex-1 px-4 pt-6 pb-28 sm:px-6 md:pb-24", nav.length > 0 && "xl:px-8 xl:pt-8 xl:pb-12")}>{children}</main>
+          <main className={cx("mx-auto w-full max-w-client flex-1 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 md:pb-24", nav.length > 0 && "xl:px-8 xl:pt-8 xl:pb-12")}>{children}</main>
         </div>
       </div>
-      {nav.length > 0 && <BottomNav nav={nav} isOn={isOn} />}
     </div>
   );
 }
@@ -183,9 +182,9 @@ function Cobrand({ org, inSidebar }: { org?: string; inSidebar?: boolean }) {
     <>
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
-        <img src={url} alt="" className="size-10 shrink-0 rounded-lg border border-line object-contain" />
+        <img src={url} alt="" className={cx("shrink-0 rounded-lg border border-line object-contain", inSidebar ? "size-10" : "size-8")} />
       ) : (
-        <FirmEmblem size={40} className="shrink-0" />
+        <FirmEmblem size={inSidebar ? 40 : HEADER_LOGO} className="shrink-0" />
       )}
       {/* Between 768 and 1280px the tabs need the room: the logo slot alone stands for the gestoría. */}
       <FirmWordmark name={org} className={cx(!inSidebar && "md:max-xl:sr-only")} />
@@ -309,8 +308,8 @@ function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; or
   const badge = nav.reduce((n, x) => n + (x.badge ?? 0), 0);
   return (
     <div className="md:hidden">
-      <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className="relative grid size-11 shrink-0 place-items-center rounded-xl border border-line bg-surface text-ink transition-colors active:bg-sunk">
-        <Menu size={20} strokeWidth={1.9} aria-hidden="true" />
+      <button type="button" aria-label={t.side.menu} aria-expanded={open} onClick={() => setOpen(true)} className={HEADER_ICON_BTN}>
+        <Menu size={18} strokeWidth={1.9} aria-hidden="true" />
         {badge > 0 && <span className="absolute -top-1 -right-1"><Badge n={badge} /></span>}
       </button>
       {mounted &&
@@ -326,27 +325,27 @@ function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; or
                 open ? "translate-x-0" : "-translate-x-full",
               )}
             >
-              <div className="flex min-h-16 items-center gap-3 border-b border-line px-4">
+              <div className={cx("flex items-center gap-3 border-b border-line px-4", HEADER_BAR)}>
                 <span className="flex min-w-0 flex-1 items-center gap-3"><Cobrand org={org} /></span>
-                <button type="button" aria-label={t.side.closeMenu} onClick={() => setOpen(false)} className="grid size-11 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-sunk hover:text-ink">
-                  <X size={20} aria-hidden="true" />
+                <button type="button" aria-label={t.side.closeMenu} onClick={() => setOpen(false)} className="grid size-10 shrink-0 place-items-center rounded-lg text-muted transition-colors hover:bg-sunk hover:text-ink">
+                  <X size={18} aria-hidden="true" />
                 </button>
               </div>
               {/* The person: initials, name; their profile is one of the rows below */}
-              <div className="flex items-center gap-3 border-b border-line px-5 py-4">
-                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-[14px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
+              <div className="flex items-center gap-3 border-b border-line px-5 py-2.5">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent text-[13px] font-semibold text-accent-ink" aria-hidden="true">{initialsOf(who)}</span>
                 <span className="min-w-0">
-                  <b className="block truncate text-[15.5px] font-semibold">{who}</b>
-                  <span className="text-[13px] text-muted">{t.side.account}</span>
+                  <b className="block truncate text-[14.5px] leading-5 font-semibold">{who}</b>
+                  <span className="text-[12.5px] text-muted">{t.side.account}</span>
                 </span>
               </div>
-              <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
+              <ul className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-2">
                 {nav.map((n) => {
                   const on = isOn(n);
                   return (
                     <li key={n.href}>
-                      <Link href={n.href} onClick={() => setOpen(false)} aria-current={on ? "page" : undefined} className={cx("relative flex min-h-14 items-center gap-3.5 rounded-xl px-3 text-[16px] font-medium transition-colors", on ? "bg-accent-soft font-semibold text-accent before:absolute before:inset-y-3 before:left-0 before:w-[3px] before:rounded-r-full before:bg-copper" : "text-ink hover:bg-sunk")}>
-                        {n.icon && <IconTile icon={n.icon} size="md" tone={on ? "copperSolid" : "accent"} />}
+                      <Link href={n.href} onClick={() => setOpen(false)} aria-current={on ? "page" : undefined} className={cx("relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-[15px] font-medium transition-colors", on ? "bg-accent-soft font-semibold text-accent before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-r-full before:bg-copper" : "text-ink hover:bg-sunk")}>
+                        {n.icon && <IconTile icon={n.icon} size="sm" tone={on ? "copperSolid" : "accent"} />}
                         <span className="flex-1">{n.label}</span>
                         <Badge n={n.badge ?? 0} />
                       </Link>
@@ -354,12 +353,12 @@ function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; or
                   );
                 })}
               </ul>
-              <div className="flex flex-col gap-2 border-t border-line p-3 pb-[max(12px,env(safe-area-inset-bottom))]">
-                <div className="flex min-h-12 items-center justify-between gap-3 px-3 text-[15px]">
+              <div className="flex flex-col gap-1.5 border-t border-line px-3 pt-2 pb-[max(10px,env(safe-area-inset-bottom))]">
+                <div className="flex min-h-10 items-center justify-between gap-3 px-3 text-[14px]">
                   <span className="text-muted">{t.common.language}</span>
                   <LangSwitch />
                 </div>
-                <button type="button" onClick={signOut} className="flex min-h-12 w-full items-center gap-3 rounded-xl bg-copper/10 px-3 text-left text-[15px] font-semibold text-copper-text transition-colors hover:bg-copper/20">
+                <button type="button" onClick={signOut} className="flex min-h-11 w-full items-center gap-3 rounded-xl bg-copper/10 px-3 text-left text-[14.5px] font-semibold text-copper-text transition-colors hover:bg-copper/20">
                   <span className="grid size-8 place-items-center rounded-lg bg-copper text-accent-ink" aria-hidden="true"><LogOut size={16} strokeWidth={2.2} /></span>
                   {t.common.signOut}
                 </button>
@@ -369,73 +368,6 @@ function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; or
           document.body,
         )}
     </div>
-  );
-}
-
-/** Phone tab bar: four destinations with labels always visible; the rest under "Cuenta". */
-function BottomNav({ nav, isOn }: { nav: NavItem[]; isOn: (n: NavItem) => boolean }) {
-  const { t } = useI18n();
-  const signOut = useSignOut();
-  const [open, setOpen] = useState(false);
-  // Three destinations plus "Cuenta" (design system › Navigation): the rest live in the sheet.
-  const main = nav.filter((n) => !n.phoneMore).slice(0, 3);
-  const rest = nav.filter((n) => !main.includes(n));
-  const restOn = rest.some(isOn);
-  const restBadge = rest.reduce((n, x) => n + (x.badge ?? 0), 0);
-  const tab = (on: boolean) =>
-    cx("relative flex min-w-0 flex-1 flex-col items-center gap-0.5 px-0.5 pt-2 pb-1.5 text-[11px] font-medium transition-colors", on ? "text-accent" : "text-muted");
-  const bar = (on: boolean) => on && <i className="absolute inset-x-3 top-0 h-[3px] rounded-b-sm bg-copper" aria-hidden="true" />;
-  return (
-    <nav aria-label={t.nav.sections} className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
-      {open && (
-        <ul className="absolute inset-x-3 bottom-full mb-2 flex max-h-[70dvh] flex-col gap-1 overflow-y-auto rounded-xl border border-line bg-surface p-1.5 shadow-card">
-          {rest.map((n) => (
-            <li key={n.href}>
-              <Link href={n.href} onClick={() => setOpen(false)} aria-current={isOn(n) ? "page" : undefined} className={cx("flex items-center gap-3 rounded-md px-3 py-3 text-[15px] font-medium", isOn(n) ? "bg-accent-soft text-accent" : "hover:bg-accent-soft hover:text-accent")}>
-                {n.icon && <IconTile icon={n.icon} size="xs" />}
-                <span className="flex-1">{n.label}</span>
-                <Badge n={n.badge ?? 0} />
-              </Link>
-            </li>
-          ))}
-          <li className="mt-1 flex items-center justify-between gap-3 border-t border-line px-3 pt-3 pb-2 text-[15px]">
-            <span className="text-muted">{t.common.language}</span>
-            <LangSwitch />
-          </li>
-          <li>
-            <button type="button" onClick={signOut} className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-[15px] font-medium hover:bg-accent-soft hover:text-accent">
-              <LogOut size={18} strokeWidth={1.9} aria-hidden="true" />
-              {t.common.signOut}
-            </button>
-          </li>
-        </ul>
-      )}
-      <div className="flex">
-        {main.map((n) => {
-          const on = isOn(n);
-          return (
-            <Link key={n.href} href={n.href} onClick={() => setOpen(false)} aria-current={on ? "page" : undefined} className={tab(on)}>
-              {bar(on)}
-              <span className="relative">
-                {n.icon && <n.icon size={22} strokeWidth={2.1} aria-hidden="true" />}
-                {!!n.badge && <span className="absolute -top-1.5 left-3.5"><Badge n={n.badge} /></span>}
-              </span>
-              <span className="max-w-full truncate">{n.short ?? n.label}</span>
-            </Link>
-          );
-        })}
-        {(
-          <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className={tab(restOn || open)}>
-            {bar(restOn)}
-            <span className="relative">
-              <CircleUserRound size={21} strokeWidth={1.9} aria-hidden="true" />
-              {restBadge > 0 && <span className="absolute -top-1.5 left-3.5"><Badge n={restBadge} /></span>}
-            </span>
-            <span>{t.side.account}</span>
-          </button>
-        )}
-      </div>
-    </nav>
   );
 }
 

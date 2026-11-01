@@ -7,6 +7,10 @@
   display: flex;
   flex-direction: column;
   gap: space(6);
+
+  @media (max-width: 639px) {
+    gap: space(4);
+  }
 }
 
 // ---------- Header ----------
@@ -38,6 +42,10 @@
   align-items: start;
   gap: space(7);
 
+  @media (max-width: 639px) {
+    gap: space(5);
+  }
+
   @media (min-width: 900px) {
     grid-template-columns: minmax(0, 1fr) 300px;
     gap: space(8);
@@ -49,6 +57,10 @@
   min-width: 0;
   flex-direction: column;
   gap: space(7);
+
+  @media (max-width: 639px) {
+    gap: space(5);
+  }
 }
 
 // ---------- 1 · The lead: the most prominent element ----------
@@ -57,6 +69,11 @@
   flex-direction: column;
   gap: space(4);
   @include pad("lg");
+
+  // phones: a 12px rhythm (the inset comes from the scale)
+  @media (max-width: 639px) {
+    gap: space(3);
+  }
   border: 1px solid var(--line);
   border-top: 3px solid var(--copper); // terracotta = what to do next
   border-radius: radius(lg);
@@ -93,7 +110,7 @@
 
 .leadTitle {
   max-width: 46ch;
-  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
   font-weight: 600;
   line-height: 1.3;
   color: var(--ink);
@@ -102,6 +119,11 @@
 .leadMeta {
   max-width: 60ch;
   font-size: 0.9375rem;
+
+  @media (max-width: 639px) {
+    font-size: 0.8125rem;
+  }
+
   color: var(--muted);
 }
 
@@ -131,10 +153,27 @@
   gap: space(2);
   margin-top: space(1);
 
-  // phones: the main action spans the width, easy to reach with a thumb
-  > :first-child {
-    @media (max-width: 479px) {
-      width: 100%;
+  // phones: the actions share one row, the main one wider, both a little lower than on desktop
+  @media (max-width: 639px) {
+    flex-wrap: nowrap;
+    margin-top: 0;
+
+    > * {
+      min-width: 0;
+      height: 44px;
+      padding-inline: space(3);
+      font-size: 0.875rem;
+    }
+
+    > :first-child {
+      flex: 1.4 1 0;
+    }
+
+    > :nth-child(2) {
+      flex: 1 1 0;
+      white-space: normal;
+      line-height: 1.2;
+      text-align: center;
     }
   }
 }
@@ -262,6 +301,64 @@
 .trackNote {
   font-size: 0.875rem;
   color: var(--muted);
+}
+
+// Phones (a narrow column): the five stages as one compact stepper row (marker over a short
+// name), the current stage's fact written once under it.
+@container track (max-width: 35.99rem) {
+  .track {
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+  }
+
+  .stage + .stage {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .stage[aria-current="step"] {
+    box-shadow: inset 0 3px 0 var(--copper);
+    background: color-mix(in srgb, var(--copper-soft) 45%, var(--surface));
+  }
+
+  .stageLink {
+    grid-template-columns: none;
+    justify-items: center;
+    align-content: start;
+    row-gap: 6px;
+    padding: space(3) 2px;
+    text-align: center;
+  }
+
+  .marker {
+    grid-row: auto;
+  }
+
+  .stageName {
+    font-size: 0.65625rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    hyphens: auto; // a long word breaks at a syllable, with a hyphen (uses <html lang>)
+  }
+
+  .stageFact {
+    display: none;
+  }
+}
+
+.currentFact {
+  display: none;
+  font-size: 0.8125rem;
+  color: var(--muted);
+
+  b {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  @container track (max-width: 35.99rem) {
+    display: block;
+  }
 }
 
 // ---------- 3 · Waiting for you, 4 · Sections ----------
@@ -594,3 +691,38 @@
     text-decoration: underline;
   }
 }
+
+// ---------- Phones: denser lists and boxes ----------
+@media (max-width: 639px) {
+  .sectionTitle {
+    font-size: 1.0625rem;
+  }
+
+  .secRow {
+    min-height: 46px;
+    padding: space(2) space(3);
+  }
+
+  .row {
+    min-height: 56px;
+    padding: space(2) space(3);
+  }
+
+  .progress {
+    gap: space(2);
+    margin-bottom: space(2);
+  }
+
+  .progressPct {
+    font-size: 1.75rem;
+  }
+
+  .progressMeta {
+    font-size: 0.8125rem;
+  }
+
+  .firm {
+    gap: space(3);
+  }
+}
+

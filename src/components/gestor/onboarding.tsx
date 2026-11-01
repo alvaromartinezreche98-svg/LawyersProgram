@@ -47,11 +47,12 @@ export function Onboarding() {
     <>
       <PageTitle>{o.title}</PageTitle>
       <TopBar crumbs={[{ label: o.title }]} />
-      <div className="flex flex-col gap-5 px-4 py-5 sm:px-6">
+      <div className="flex flex-col gap-5 px-4 py-5 max-sm:gap-4 max-sm:py-4 sm:px-6">
         <PageHead eyebrow={o.eyebrow} title={o.title} intro={o.intro} />
-        <div className="flex flex-col gap-2">
-          <span className="text-[14px] text-muted">{o.progress(done, total)}</span>
-          <SegMeter states={states.map((x): SectionState => (x ? "done" : "empty"))} />
+        {/* Progress on one line: the count, then the five segments */}
+        <div className="flex items-center gap-3">
+          <span className="shrink-0 text-[13.5px] text-muted">{o.progress(done, total)}</span>
+          <div className="min-w-0 flex-1"><SegMeter states={states.map((x): SectionState => (x ? "done" : "empty"))} /></div>
         </div>
         {ready && (
           <Notice tone="ok" actions={<ButtonLink href="/expedientes" size="sm" variant="primary">{o.goCases}</ButtonLink>}>{o.allDone}</Notice>
@@ -64,20 +65,21 @@ export function Onboarding() {
             const next = st === false && states.findIndex((x) => x === false) === i;
             return (
               <li key={s.id} className="border-t border-line first:border-t-0">
-                <Link href={s.href} className={cx("grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-4 transition-colors hover:bg-hover sm:px-5", next && "bg-copper-soft/60 shadow-[inset_3px_0_0_var(--copper)]")}>
-                  <span className="relative">
-                    <IconTile icon={s.icon} size="sm" tone={next ? "copper" : "accent"} />
+                {/* The step's icon, then its title with its state beside it, the line of explanation under them */}
+                <Link href={s.href} className={cx("grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1 px-4 py-4 transition-colors hover:bg-hover max-sm:gap-x-3 max-sm:px-3 max-sm:py-3 sm:items-center sm:px-5", next && "bg-copper-soft/60 shadow-[inset_3px_0_0_var(--copper)]")}>
+                  <span className="relative max-sm:mt-0.5">
+                    <IconTile icon={s.icon} size="sm" tone={next ? "copper" : "accent"} className="max-sm:size-7" />
                     {st && <span className="absolute -right-1.5 -bottom-1.5 grid size-[18px] place-items-center rounded-full border-2 border-surface bg-ok text-surface"><Check size={10} strokeWidth={3.5} aria-hidden="true" /></span>}
                   </span>
                   <span className="min-w-0">
-                    <b className="block text-[15px] font-semibold">{i + 1}. {title}</b>
-                    <span className="mt-0.5 block text-[13.5px] text-muted">{body}</span>
+                    <span className="flex items-start justify-between gap-2">
+                      <b className="block text-[15px] leading-5 font-semibold max-sm:text-[14px]">{i + 1}. {title}</b>
+                      {/* Only the highlighted row is "next"; the other open steps are plainly "to do". */}
+                      <span className="shrink-0">{st === null ? <Pill>{p.soon}</Pill> : st ? <Pill tone="ok">{o.done}</Pill> : next ? <Pill tone="copper">{o.next}</Pill> : <Pill>{o.todo}</Pill>}</span>
+                    </span>
+                    <span className="mt-0.5 block text-[13.5px] text-muted max-sm:text-[12.5px] max-sm:leading-[18px]">{body}</span>
                   </span>
-                  <span className="flex items-center gap-3">
-                    {/* Only the highlighted row is "next"; the other open steps are plainly "to do". */}
-                    {st === null ? <Pill>{p.soon}</Pill> : st ? <Pill tone="ok">{o.done}</Pill> : next ? <Pill tone="copper">{o.next}</Pill> : <Pill>{o.todo}</Pill>}
-                    <ArrowRight size={16} className="text-muted max-sm:hidden" aria-hidden="true" />
-                  </span>
+                  <ArrowRight size={16} className="self-center text-muted max-sm:hidden" aria-hidden="true" />
                 </Link>
               </li>
             );

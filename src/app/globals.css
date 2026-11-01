@@ -104,7 +104,7 @@
 
 /*
  * Box insets (tokens: $inset): every card, panel and sectioned box uses one of these, so the
- * padding is the same everywhere. `pad-card` 20 → 24px, `pad-card-lg` 24 → 32px, `pad-tile` 16px.
+ * padding is the same everywhere. `pad-card` 16 → 24px, `pad-card-lg` 20 → 32px, `pad-tile` 12 → 16px.
  * `pad-x-card` is the card's side inset alone, for a header bar or a row that runs edge to edge.
  */
 @utility pad-card {
@@ -114,13 +114,16 @@
   }
 }
 @utility pad-card-lg {
-  padding: var(--inset-card);
+  padding: var(--inset-card-lg-sm);
   @media (width >= 40rem) {
     padding: var(--inset-card-lg);
   }
 }
 @utility pad-tile {
-  padding: var(--inset-tile);
+  padding: var(--inset-tile-sm);
+  @media (width >= 40rem) {
+    padding: var(--inset-tile);
+  }
 }
 @utility pad-x-card {
   padding-inline: var(--inset-card-sm);

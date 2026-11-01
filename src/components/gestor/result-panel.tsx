@@ -22,7 +22,7 @@ export function ResultPanel({ exp }: { exp: Expediente }) {
   if (!r || editing) return <ResultForm exp={exp} initial={r} onDone={() => setEditing(false)} onCancel={r ? () => setEditing(false) : undefined} />;
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-line pad-tile">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <span className={cx("text-[12.5px] font-medium", r.kind === "devolver" ? "text-ok" : "text-warn")}>{t.result.kind[r.kind]}</span>
@@ -83,7 +83,7 @@ function ResultForm({ exp, initial, onDone, onCancel }: { exp: Expediente; initi
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-line pad-tile">
+    <div className="flex flex-col gap-4">
       {!initial && <p className="text-[13.5px] text-muted">{t.resultG.empty}</p>}
       <div className="grid gap-3 sm:grid-cols-[auto_minmax(0,220px)] sm:items-end">
         <div role="radiogroup" aria-label={t.resultG.kind} className="flex gap-2">

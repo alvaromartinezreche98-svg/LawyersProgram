@@ -38,7 +38,8 @@ import { Tooltip } from "@/components/ui/tooltip";
 import type { Alert } from "@/lib/questionnaire/alerts";
 
 // An alert's card: a faint wash of its colour and a solid edge; its badge in the full colour.
-const ALERT_CARD = { bad: "border-l-bad bg-bad-soft/35", warn: "border-l-warn bg-warn-soft/35", info: "border-l-info bg-info-soft/35" } as const;
+// An alert inside its block is a flat row (one level of box): a colour rule at its left edge, hairlines between rows.
+const ALERT_CARD = { bad: "border-l-bad", warn: "border-l-warn", info: "border-l-info" } as const;
 const ALERT_BADGE = { bad: "bg-bad text-white", warn: "bg-warn text-white", info: "bg-info text-white" } as const;
 const ALERT_ICON = { bad: CircleAlert, warn: TriangleAlert, info: Info } as const;
 const typing = (el: EventTarget | null) => el instanceof HTMLElement && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
@@ -176,8 +177,10 @@ export function CaseFile({ id }: { id: string }) {
       <div className="grid items-start min-[1180px]:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
         {/* Properties: right column on wide screens, a compact block on top below that. */}
         {/* Side panel in three tabs, so chat and notes are one click away instead of at the bottom of a long column. */}
-        <aside id="chat" aria-label={p.rail.label} className="order-2 scroll-mt-28 border-t border-line min-[1180px]:sticky min-[1180px]:top-12 min-[1180px]:flex min-[1180px]:max-h-[calc(100dvh-74px)] min-[1180px]:flex-col min-[1180px]:border-t-0 min-[1180px]:border-l">
-          <div role="tablist" aria-label={p.rail.label} className="flex gap-1 border-b border-line bg-surface px-4 py-2 sm:px-6">
+        {/* Below 1180px the panel follows the case: a band of its own (darker ground, a thick top rule, its title), set apart from the case above */}
+        <aside id="chat" aria-label={p.rail.label} className="order-2 scroll-mt-28 border-line max-[1179px]:mt-4 max-[1179px]:border-t-[3px] max-[1179px]:border-t-accent/20 max-[1179px]:bg-sunk max-[1179px]:pb-6 min-[1180px]:sticky min-[1180px]:top-12 min-[1180px]:flex min-[1180px]:max-h-[calc(100dvh-74px)] min-[1180px]:flex-col min-[1180px]:border-t-0 min-[1180px]:border-l">
+          <h2 className="t-label px-4 pt-5 pb-2 text-muted sm:px-6 min-[1180px]:hidden">{p.rail.label}</h2>
+          <div role="tablist" aria-label={p.rail.label} className="flex gap-1 border-b border-line bg-surface px-4 py-2 max-[1179px]:mx-4 max-[1179px]:rounded-xl max-[1179px]:border max-[1179px]:p-1 max-[1179px]:shadow-sm sm:px-6 max-[1179px]:sm:mx-6">
             {([
               ["details", p.rail.details, 0],
               ["chat", t.file.anchors.chat, unreadFor(e, "gestor")],
@@ -200,11 +203,11 @@ export function CaseFile({ id }: { id: string }) {
             ))}
           </div>
 
-          <div id="rail-panel" role="tabpanel" aria-labelledby={`rail-${tab}`} className={cx("thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-5", tab === "details" && "bg-sunk/50")}>
+          <div id="rail-panel" role="tabpanel" aria-labelledby={`rail-${tab}`} className={cx("thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5 max-[1179px]:sm:px-6", tab === "details" && "min-[1180px]:bg-sunk/50")}>
             {tab === "details" && (
               <>
                 {/* Inspector: the case's facts in separate cards, the actions last. */}
-                <div className="grid gap-3 sm:max-[1179px]:grid-cols-2">
+                <div className="grid gap-2 sm:gap-3 sm:max-[1179px]:grid-cols-2">
                   {/* Status and who handles it */}
                   <RailCard>
                     <Prop label={t.file.status}>
@@ -385,14 +388,14 @@ export function CaseFile({ id }: { id: string }) {
           </div>
         </aside>
 
-        <div className="order-1 flex w-full min-w-0 flex-col gap-6 px-4 py-5 sm:px-6 xl:py-6">
+        <div className="order-1 flex w-full min-w-0 flex-col gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-5 xl:py-6">
           <header className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold break-words">{name}</h1>
               <StatusPill status={e.status} />
               {waiting && <WaitingLabel who={waiting} />}
             </div>
-            <p className="text-[14px] text-muted">
+            <p className="text-[14px] text-muted max-sm:text-[13px]">
               {[e.sentAt && t.home.sentOn(fmtTime(e.sentAt, locale)), t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length), tt.pending > 0 && t.home.answersPending(tt.pending), t.file.docsAside(nDocs, nPend)].filter(Boolean).join(" · ")}
             </p>
           </header>
@@ -430,11 +433,11 @@ export function CaseFile({ id }: { id: string }) {
           {main === "overview" && (
             <>
               {/* The case at a glance: four figures, each a way into its tab */}
-              <div className="@container"><div className="grid grid-cols-2 gap-3 @[680px]:grid-cols-4">
+              <div className="@container"><div className="grid grid-cols-2 gap-2 sm:gap-3 @[680px]:grid-cols-4">
                 <Kpi icon={ListChecks} tone={tt.pct === 100 ? "ok" : "accent"} label={t.file.kpi.questionnaire} value={`${tt.pct} %`} sub={<Tooltip plain inline text={t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length) + (tt.pending ? ` · ${t.home.answersPending(tt.pending)}` : "")}><span className="cursor-help">{t.file.kpi.sections(SCHEMA.length - openSecs, SCHEMA.length)}</span></Tooltip>} onClick={() => setMain("answers")} />
                 <Kpi icon={FileText} tone="info" zero={!nDocs} label={t.file.kpi.docs} value={String(nDocs)} sub={t.file.kpi.docsOf(nDocs, nPend)} onClick={() => setMain("docs")} />
                 <Kpi icon={TriangleAlert} tone={alBad ? "bad" : alWarn ? "warn" : al.length ? "info" : "ok"} zero={!al.length} label={t.file.kpi.alerts} value={String(al.length)} sub={al.length ? (
-                  <span className="flex gap-1.5">
+                  <span className="flex flex-wrap gap-1.5 max-sm:gap-1">
                     {(["bad", "warn", "info"] as const).map((lv) => [lv, al.filter((x) => x.level === lv).length] as const).filter(([, n]) => n > 0).map(([lv, n]) => (
                       <Tooltip
                         key={lv}
@@ -444,7 +447,7 @@ export function CaseFile({ id }: { id: string }) {
                         text={al.filter((x) => x.level === lv).map((x) => tr(x.title)).join(" · ")}
                         body={<AlertList alerts={al.filter((x) => x.level === lv)} />}
                       >
-                        <span className={cx("inline-flex h-5 cursor-help items-center gap-1 rounded-full px-2 text-[11.5px] leading-none font-semibold", KPI_CHIP[lv])}>
+                        <span className={cx("inline-flex h-5 cursor-help items-center gap-1 rounded-full px-2 text-[11.5px] leading-none font-semibold max-sm:px-1.5", KPI_CHIP[lv])}>
                           <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
                           {n}
                           <span className="sr-only">{t.file.alertLevel[lv]}: {al.filter((x) => x.level === lv).map((x) => tr(x.title)).join("; ")}</span>
@@ -462,12 +465,13 @@ export function CaseFile({ id }: { id: string }) {
               <span className="font-medium">{t.file.auto}.</span> {t.file.suggest}
             </p>
             {al.length ? (
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col">
                 {al.map((x, i) => {
                   const Icon = ALERT_ICON[x.level];
                   const sec = SCHEMA.find((s) => s.slug === x.target.section);
                   return (
-                    <li key={i} className={cx("flex flex-col gap-4 rounded-lg border border-line border-l-[3px] pad-tile", ALERT_CARD[x.level])}>
+                    <li key={i} className="border-t border-line py-4 first:border-t-0 first:pt-0 last:pb-0">
+                      <div className={cx("flex flex-col gap-3 border-l-[3px] pl-4 max-sm:pl-3", ALERT_CARD[x.level])}>
                       {/* Severity in a fixed place, top left; where it comes from, top right */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <Tooltip title={t.file.alertHelp[x.level].title} text={t.file.alertHelp[x.level][x.target.kind === "docs" ? "docs" : "answers"]}>
@@ -479,20 +483,22 @@ export function CaseFile({ id }: { id: string }) {
                         {sec && <span className="text-[12.5px] text-muted">{tr(sec.short)}</span>}
                       </div>
                       <div className="flex min-w-0 flex-col gap-1">
-                        <p className="text-[15px] leading-[22px] font-semibold text-ink">{tr(x.title)}</p>
-                        {x.detail && <p className="text-[13.5px] leading-5 text-muted">{tr(x.detail)}</p>}
+                        <p className="text-[15px] leading-[22px] font-semibold text-ink max-sm:text-[14px] max-sm:leading-5">{tr(x.title)}</p>
+                        {x.detail && <p className="text-[13.5px] leading-5 text-muted max-sm:line-clamp-2 max-sm:text-[12.5px] max-sm:leading-[18px]">{tr(x.detail)}</p>}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <ButtonLink href={x.target.kind === "docs" ? "#documentos" : `#sec-${x.target.section}`} size="sm">
+                      {/* Phones: one row, the main action labelled and the other two as icons */}
+                      <div className="flex flex-wrap items-center gap-2 max-sm:gap-1.5">
+                        <ButtonLink href={x.target.kind === "docs" ? "#documentos" : `#sec-${x.target.section}`} size="sm" className="max-sm:min-w-0 max-sm:flex-1">
                           {x.target.kind === "docs" ? t.file.goDocs : t.file.goAnswer}
                         </ButtonLink>
-                        <AskButton exp={e} text={x.text} target={x.target} />
+                        <AskButton exp={e} text={x.text} target={x.target} compact />
                         {FEATURES.requestTracking && (
-                          <Button size="sm" variant="ghost" onClick={() => actions.reviewAlert(e.id, x.text.es, x.text, true)}>
+                          <Button size="sm" variant="ghost" onClick={() => actions.reviewAlert(e.id, x.text.es, x.text, true)} aria-label={t.file.review} title={t.file.review} className="max-sm:w-(--control-h-sm) max-sm:px-0">
                             <Check size={14} aria-hidden="true" />
-                            {t.file.review}
+                            <span className="max-sm:sr-only">{t.file.review}</span>
                           </Button>
                         )}
+                      </div>
                       </div>
                     </li>
                   );
@@ -544,14 +550,14 @@ export function CaseFile({ id }: { id: string }) {
               </span>
             }
           >
-            <div className="flex flex-col gap-3">
+            <div className="-mt-2 flex flex-col">
               {SCHEMA.map((s, i) => {
                 const pr = progressOf(s.fields, a);
                 const st = sectionState(pr);
                 // Only sections with questions still open start unfolded: complete and empty ones stay folded.
                 return (
-                  <details key={s.slug} id={`sec-${s.slug}`} open={st === "partial"} className={cx("group scroll-mt-[124px] rounded-2xl border bg-surface shadow-sm transition-shadow open:shadow-sheet", st === "partial" ? "border-copper/30" : "border-line")}>
-                    <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 rounded-2xl pad-x-card py-3 font-semibold transition-colors hover:bg-hover/60 [&::-webkit-details-marker]:hidden">
+                  <details key={s.slug} id={`sec-${s.slug}`} open={st === "partial"} className="group scroll-mt-[124px] border-t border-line first:border-t-0">
+                    <summary className="-mx-2 flex min-h-14 cursor-pointer list-none items-center gap-3 rounded-lg px-2 py-3 font-semibold transition-colors hover:bg-hover/60 [&::-webkit-details-marker]:hidden">
                       <StepDot n={i + 1} state={st} />
                       <span className="min-w-0 flex-1 text-[15px]">{tr(s.title)}</span>
                       {st === "done" ? (
@@ -563,7 +569,7 @@ export function CaseFile({ id }: { id: string }) {
                       )}
                       <ChevronDown size={16} className="text-muted motion-safe:transition-[rotate] motion-safe:duration-200 group-open:rotate-180" aria-hidden="true" />
                     </summary>
-                    <dl className="grid gap-3 border-t border-line pad-card md:grid-cols-2">
+                    <dl className="grid gap-3 pt-1 pb-5 md:grid-cols-2">
                       <AnswersSummary fields={s.fields} scope={a} layout="grid" />
                     </dl>
                   </details>
@@ -696,17 +702,17 @@ function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { ico
   const k = KPI_TONE[zero ? "neutral" : tone];
   const body = (
     <>
-      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl", k.tile)} aria-hidden="true">
-        <Icon size={20} strokeWidth={2} />
+      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-9 max-sm:rounded-lg", k.tile)} aria-hidden="true">
+        <Icon size={20} strokeWidth={2} className="max-sm:size-[17px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12.5px] font-medium text-muted">{label}</span>
-        <span className={cx("figures block text-[22px] leading-7 font-bold", k.n)}>{value}</span>
-        <span className="mt-1 block truncate text-[12px] leading-5 whitespace-nowrap text-muted" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
+        <span className="block truncate text-[12.5px] font-medium text-muted max-sm:text-[12px]">{label}</span>
+        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[19px] max-sm:leading-6", k.n)}>{value}</span>
+        <span className="mt-1 block truncate max-sm:mt-0.5 max-sm:overflow-visible text-[12px] leading-5 whitespace-nowrap text-muted" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
       </span>
     </>
   );
-  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border border-line bg-surface px-4 py-4 text-left shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
+  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:gap-2.5 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
   return href ? <a href={href} className={cls}>{body}</a> : <button type="button" onClick={onClick} className={cls}>{body}</button>;
 }
 
@@ -717,14 +723,14 @@ type RailTab = "details" | "chat" | "notes";
 function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: string; icon: LucideIcon; title: string; aside?: ReactNode; htmlFor?: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-28 rounded-xl border border-line bg-surface lg:scroll-mt-24">
-      <h2 className="flex min-h-[52px] flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-line pad-x-card py-3 text-[16px] font-semibold">
-        <span className="flex shrink-0 items-center gap-2.5">
+      <h2 className="flex min-h-[52px] items-center justify-between gap-x-3 gap-y-1 border-b border-line pad-x-card py-3 text-[16px] font-semibold max-sm:text-[15px] sm:flex-wrap">
+        <span className="flex min-w-0 items-center gap-2.5 sm:shrink-0">
           <span className="grid size-7 place-items-center rounded-lg bg-accent-soft text-accent">
             <BlockIcon size={15} strokeWidth={2} aria-hidden="true" />
           </span>
           {htmlFor ? <label htmlFor={htmlFor}>{title}</label> : title}
         </span>
-        {aside != null && <small className="font-sans text-xs font-medium tracking-normal text-muted">{aside}</small>}
+        {aside != null && <small className="shrink-0 font-sans text-xs font-medium tracking-normal text-muted">{aside}</small>}
       </h2>
       <div className="flex flex-col gap-4 pad-card">{children}</div>
     </section>
@@ -734,16 +740,49 @@ function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: 
 const STATUS_ICON: Record<Status, LucideIcon> = { borrador: PencilLine, enviado: Send, revision: Eye, listo: CircleCheck };
 
 /** One card of the side panel: optional title with its icon (and a figure on the right), then its rows. */
+/** Whether the side panel stands beside the case (from 1180px); `null` until mounted. */
+function useWideRail() {
+  const [wide, setWide] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1180px)");
+    const on = () => setWide(mq.matches);
+    const raf = requestAnimationFrame(on);
+    mq.addEventListener("change", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      mq.removeEventListener("change", on);
+    };
+  }, []);
+  return wide;
+}
+
+/**
+ * One card of the side panel: optional title with its icon (and a figure on the right), then its rows.
+ * Below 1180px, where the panel sits under the case, a titled card folds: its head is a button and
+ * the rows open on demand, so the page stays short on phones.
+ */
 function RailCard({ title, icon: Icon, aside, children }: { title?: string; icon?: LucideIcon; aside?: ReactNode; children: ReactNode }) {
+  const wide = useWideRail();
+  const head = (
+    <>
+      {Icon && <span className="grid size-6 place-items-center rounded-md bg-accent-soft text-accent"><Icon size={13} strokeWidth={2.1} aria-hidden="true" /></span>}
+      <span className="flex-1">{title}</span>
+      {aside}
+    </>
+  );
+  if (title && wide === false)
+    return (
+      <details className="group min-w-0 rounded-2xl border border-line bg-surface shadow-sm">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 rounded-2xl px-4 py-2 text-[13.5px] font-semibold text-ink [&::-webkit-details-marker]:hidden">
+          {head}
+          <ChevronDown size={16} className="shrink-0 text-muted motion-safe:transition-transform motion-safe:duration-200 group-open:rotate-180" aria-hidden="true" />
+        </summary>
+        <div className="flex flex-col gap-3 border-t border-line px-4 pt-3 pb-4">{children}</div>
+      </details>
+    );
   return (
     <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface pad-card shadow-sm">
-      {title && (
-        <h3 className="flex items-center gap-2 text-[13px] font-semibold text-ink">
-          {Icon && <span className="grid size-6 place-items-center rounded-md bg-accent-soft text-accent"><Icon size={13} strokeWidth={2.1} aria-hidden="true" /></span>}
-          <span className="flex-1">{title}</span>
-          {aside}
-        </h3>
-      )}
+      {title && <h3 className="flex items-center gap-2 text-[13px] font-semibold text-ink">{head}</h3>}
       {children}
     </section>
   );
