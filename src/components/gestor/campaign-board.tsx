@@ -25,14 +25,14 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
  * Each column's colour, after what its status means: grey draft, blue sent, amber under
  * review, green ready. The column gets a faint wash of it, the header the full colour.
  */
-// Each column on its own very faint shell of its stage's tone (a few percent over the page grey),
-// its head a touch deeper with a thin rule of the full tone on top; the cards stay white.
+// Each column a bento of its own: one fine 1px border all round (the accent at 20%), a very faint
+// shell of its stage's tone, its head a touch deeper; the cards stay white.
 // Draft slate, sent blue, under review amber (the gestoría is on it), ready green.
 const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string; rule: string; badge: string; headBg: string }> = {
-  borrador: { col: "bg-[color-mix(in_srgb,var(--line-strong)_9%,var(--bg))]", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-surface text-muted ring-line", headBg: "bg-[color-mix(in_srgb,var(--line-strong)_14%,var(--surface))]" },
-  enviado: { col: "bg-[color-mix(in_srgb,var(--info)_5%,var(--bg))]", border: "border-info/15", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-surface text-info ring-info/25", headBg: "bg-[color-mix(in_srgb,var(--info)_10%,var(--surface))]" },
-  revision: { col: "bg-[color-mix(in_srgb,var(--copper)_5%,var(--bg))]", border: "border-copper/15", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-surface text-copper-text ring-copper/25", headBg: "bg-[color-mix(in_srgb,var(--copper)_10%,var(--surface))]" },
-  listo: { col: "bg-[color-mix(in_srgb,var(--ok)_5%,var(--bg))]", border: "border-ok/15", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-surface text-ok ring-ok/25", headBg: "bg-[color-mix(in_srgb,var(--ok)_10%,var(--surface))]" },
+  borrador: { col: "bg-[color-mix(in_srgb,var(--line-strong)_9%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-surface text-muted ring-line", headBg: "bg-[color-mix(in_srgb,var(--line-strong)_14%,var(--surface))]" },
+  enviado: { col: "bg-[color-mix(in_srgb,var(--info)_5%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-surface text-info ring-info/25", headBg: "bg-[color-mix(in_srgb,var(--info)_10%,var(--surface))]" },
+  revision: { col: "bg-[color-mix(in_srgb,var(--copper)_5%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-surface text-copper-text ring-copper/25", headBg: "bg-[color-mix(in_srgb,var(--copper)_10%,var(--surface))]" },
+  listo: { col: "bg-[color-mix(in_srgb,var(--ok)_5%,var(--bg))]", border: "border-copper/20", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-surface text-ok ring-ok/25", headBg: "bg-[color-mix(in_srgb,var(--ok)_10%,var(--surface))]" },
 };
 
 export function CampaignBoard() {
@@ -170,14 +170,14 @@ export function CampaignBoard() {
                   onDrop={drop(s.id)}
                   className={cx(
                     // every column the same height (from the window); the header stays, the cards scroll inside
-                    "flex h-[clamp(360px,calc(100dvh-280px),680px)] snap-start flex-col gap-2 rounded-lg border p-2 transition-[background-color,border-color,box-shadow] duration-150",
+                    "flex h-[clamp(360px,calc(100dvh-280px),680px)] snap-start flex-col gap-2 rounded-xl border p-2 transition-[background-color,border-color,box-shadow] duration-150",
                     over === s.id ? "border-copper bg-copper-soft shadow-[inset_0_0_0_1px_var(--copper)]"
                     : target ? cx("border-dashed border-line-strong", tone.col)
                     : cx(tone.border, tone.col),
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-md border border-line/70 border-t-[3px] px-3 py-2.5 max-md:hidden", tone.rule, tone.headBg)} title={tr(s.help)}>
+                  <header className={cx("flex items-center gap-2 rounded-lg px-3 py-2.5 max-md:hidden", tone.headBg)} title={tr(s.help)}>
                     <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em] text-ink">{tr(s.label)}</h2>
                     <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold ring-1", tone.badge)}>{col.length}</span>
                   </header>
