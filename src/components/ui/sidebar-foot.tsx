@@ -83,7 +83,7 @@ const SIGN_OUT: Record<Theme, { btn: string; tile: string }> = {
   // that firms up and a faint white wash on hover
   dark: { btn: "border border-white/10 bg-transparent text-white hover:border-white/20 hover:bg-white/5", tile: "text-white/80" },
   // on the light sidebar: a plain row in the accent, a line icon, no ground; a faint accent wash on hover
-  light: { btn: "bg-transparent text-copper hover:bg-[color-mix(in_srgb,var(--copper)_6%,transparent)]", tile: "text-copper" },
+  light: { btn: "border border-copper bg-surface text-copper hover:bg-[color-mix(in_srgb,var(--copper)_6%,var(--surface))]", tile: "text-copper" },
 };
 
 /** Sign-out: under a hairline; on navy a quiet outlined row with a line icon, on light a grey row with the accent tile. */

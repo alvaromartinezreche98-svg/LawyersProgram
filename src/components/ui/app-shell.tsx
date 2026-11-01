@@ -358,7 +358,7 @@ function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; or
                   <span className="text-muted">{t.common.language}</span>
                   <LangSwitch />
                 </div>
-                <button type="button" onClick={signOut} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-[14.5px] font-medium text-copper transition-colors hover:bg-[color-mix(in_srgb,var(--copper)_6%,transparent)]">
+                <button type="button" onClick={signOut} className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-copper bg-surface px-3 text-left text-[14.5px] font-medium text-copper transition-colors hover:bg-[color-mix(in_srgb,var(--copper)_6%,var(--surface))]">
                   <span className="grid size-8 place-items-center" aria-hidden="true"><LogOut size={18} strokeWidth={1.75} /></span>
                   {t.common.signOut}
                 </button>
