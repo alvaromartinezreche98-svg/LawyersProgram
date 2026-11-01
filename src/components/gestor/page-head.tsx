@@ -57,7 +57,7 @@ export function Chip({ on, count, alert, onClick, children }: { on: boolean; cou
     >
       {children}
       {count !== undefined && (
-        <span className={cx("figures min-w-5 rounded-sm px-1 text-center text-[12px] font-semibold", on ? "bg-accent-ink/15" : alert && count ? "bg-copper-hover text-accent-ink" : "bg-sunk text-muted")}>{count}</span>
+        <span className={cx("figures min-w-5 rounded-sm px-1 text-center text-[12px] font-semibold", on ? "bg-accent-ink/15" : alert && count ? "bg-copper text-accent-ink" : "bg-sunk text-muted")}>{count}</span>
       )}
     </button>
   );

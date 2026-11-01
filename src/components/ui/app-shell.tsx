@@ -101,7 +101,7 @@ export function AppShell({ nav, who, org, children }: { nav: NavItem[]; who: str
               {/* Phones: the person's initials, straight to their profile */}
               {profile && (
                 <Link href={profile.href} aria-label={`${t.side.account}: ${who}`} aria-current={isOn(profile) ? "page" : undefined} className="grid size-10 shrink-0 place-items-center rounded-full md:hidden">
-                  <span className={cx("grid size-9 place-items-center rounded-full text-[12.5px] font-semibold ring-2 transition-colors", isOn(profile) ? "bg-copper-hover text-accent-ink ring-copper/30" : "bg-accent text-accent-ink ring-accent/15")} aria-hidden="true">{initialsOf(who)}</span>
+                  <span className={cx("grid size-9 place-items-center rounded-full text-[12.5px] font-semibold ring-2 transition-colors", isOn(profile) ? "bg-copper text-accent-ink ring-copper/30" : "bg-accent text-accent-ink ring-accent/15")} aria-hidden="true">{initialsOf(who)}</span>
                 </Link>
               )}
             </>

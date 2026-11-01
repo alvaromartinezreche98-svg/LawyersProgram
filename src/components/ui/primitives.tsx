@@ -151,7 +151,7 @@ export function Notice({ tone = "info", icon = true, title, actions, children, c
 /** Unread count: copper, the gestoría's colour (navigation only). */
 export function Badge({ n }: { n: number }) {
   if (!n) return null;
-  return <span className="figures inline-grid h-[18px] min-w-[18px] place-items-center rounded-full bg-copper-hover px-1.5 text-[11px] font-semibold text-surface">{n}</span>;
+  return <span className="figures inline-grid h-[18px] min-w-[18px] place-items-center rounded-full bg-copper px-1.5 text-[11px] font-semibold text-surface">{n}</span>;
 }
 
 export function Loading({ label }: { label?: string }) {
