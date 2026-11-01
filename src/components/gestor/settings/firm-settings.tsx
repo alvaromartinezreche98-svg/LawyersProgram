@@ -31,9 +31,9 @@ export function FirmSettings() {
   return (
     <>
       <SectionHead title={f.title} intro={f.intro} />
-      <Card pad="lg" className="flex flex-col gap-6">
+      <Card pad="lg" className="flex flex-col gap-4 sm:gap-6">
         <Logo />
-        <div className="grid gap-4 border-t border-line pt-6 sm:grid-cols-2">
+        <div className="grid gap-3 border-t border-line pt-4 sm:grid-cols-2 sm:gap-4 sm:pt-6">
           {TEXT_FIELDS.map((x) => (
             <Field key={x.key} id={`firm-${x.key}`} label={f[x.key]} className={x.wide ? "sm:col-span-2" : undefined}>
               {wrap(x.key, <input id={`firm-${x.key}`} type={x.type} autoComplete={x.ac} value={firm[x.key]} onChange={(e) => actions.updateFirm({ [x.key]: e.target.value })} className={x.key === "cif" ? inputCls + " font-mono" : inputCls} />)}
@@ -69,8 +69,9 @@ function Logo() {
     actions.updateFirm({ logo: null });
   }
 
+  // Phones: centred, the preview over its name, hint and button; from sm side by side
   return (
-    <div className="flex flex-wrap items-center gap-5">
+    <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:flex-wrap sm:gap-5 sm:text-left">
       <div className="grid size-20 shrink-0 place-items-center overflow-clip rounded-lg border border-line bg-sunk">
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element -- blob URL from IndexedDB
@@ -79,10 +80,10 @@ function Logo() {
           <span className="display-tight text-[20px] font-semibold text-accent">{(firm.name || "G").trim()[0]?.toUpperCase()}</span>
         )}
       </div>
-      <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex min-w-0 flex-col items-center gap-2 sm:items-start">
         <b className="text-[14px] font-semibold">{f.logo}</b>
         <p className="text-[12.5px] text-muted">{f.logoHint}</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
           <label htmlFor="firm-logo" className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13px] font-medium transition-colors">
             <ImagePlus size={15} aria-hidden="true" />
             {busy ? t.upload.uploading : firm.logo ? f.logoReplace : f.logoUpload}

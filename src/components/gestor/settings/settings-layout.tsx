@@ -32,9 +32,9 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <PageTitle>{`${t.settings.nav[current.id]} · ${t.titles.settings}`}</PageTitle>
-      <TopBar crumbs={[{ label: t.settings.title, href: "/ajustes/despacho" }, { label: t.settings.nav[current.id] }]} right={<SaveStatus idle={t.settings.saved} className="hidden sm:inline-flex" />} />
-      <div className="grid items-start gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6 lg:py-6">
-        <nav aria-label={t.settings.navLabel} className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto lg:sticky lg:top-[72px] lg:mx-0 lg:flex-col lg:rounded-xl lg:border lg:border-line lg:bg-sunk/60 lg:p-2">
+      <TopBar crumbs={[{ label: t.settings.title, href: "/ajustes/despacho" }, { label: t.settings.nav[current.id] }]} right={<span className="max-sm:hidden"><SaveStatus idle={t.settings.saved} /></span>} />
+      <div className="grid items-start gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6 lg:py-6">
+        <nav aria-label={t.settings.navLabel} className="no-scrollbar -mx-4 flex snap-x scroll-px-4 gap-1 overflow-x-auto px-4 after:w-px after:shrink-0 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:sticky lg:top-[72px] lg:mx-0 lg:flex-col lg:rounded-xl lg:border lg:border-line lg:bg-sunk/60 lg:p-2">
           {SECTIONS.map((s) => {
             const on = s.id === current.id;
             return (
@@ -43,8 +43,8 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
                 href={s.href}
                 aria-current={on ? "page" : undefined}
                 className={cx(
-                  "flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-[14px] font-medium whitespace-nowrap transition-colors duration-150",
-                  on ? "bg-accent text-accent-ink shadow-sm" : "text-muted hover:bg-accent-soft hover:text-accent",
+                  "flex shrink-0 snap-start items-center gap-2 rounded-lg px-3 py-2 text-[14px] font-medium whitespace-nowrap transition-colors duration-150 max-lg:border max-lg:text-[13.5px] lg:gap-2.5",
+                  on ? "border-accent bg-accent text-accent-ink shadow-sm" : "border-line text-muted hover:bg-accent-soft hover:text-accent max-lg:bg-surface",
                 )}
               >
                 <s.icon size={16} strokeWidth={1.9} aria-hidden="true" />
