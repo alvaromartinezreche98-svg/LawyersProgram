@@ -34,7 +34,7 @@ export function SignupPage() {
           <ol className="flex flex-col gap-3">
             {s.next.map((x, i) => (
               <li key={x} className="flex items-start gap-3 text-[14.5px]">
-                <span className={cx("grid size-6 shrink-0 place-items-center rounded-full text-[12px] font-semibold", i === 0 ? "bg-copper text-surface" : "bg-sunk text-muted")}>{i + 1}</span>
+                <span className={cx("grid size-6 shrink-0 place-items-center rounded-full text-[12px] font-semibold", i === 0 ? "bg-copper-hover text-surface" : "bg-sunk text-muted")}>{i + 1}</span>
                 {x}
               </li>
             ))}

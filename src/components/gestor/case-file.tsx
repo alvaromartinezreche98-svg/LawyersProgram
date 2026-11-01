@@ -423,7 +423,7 @@ export function CaseFile({ id }: { id: string }) {
                 >
                   <Icon size={16} strokeWidth={1.9} aria-hidden="true" />
                   {label}
-                  {n > 0 && <span className={cx("figures grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold", hot ? "bg-copper text-white" : on ? "bg-surface text-accent" : "bg-sunk text-muted")}>{n}</span>}
+                  {n > 0 && <span className={cx("figures grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold", hot ? "bg-copper-hover text-white" : on ? "bg-surface text-accent" : "bg-sunk text-muted")}>{n}</span>}
                 </button>
               );
             })}

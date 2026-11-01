@@ -7,10 +7,11 @@
 // client approved (2026-10-30) in place of the skill's warm ivory and warm borders.
 $navy: #20364f;
 $navy-hover: #172a3e;
-// Terracotta accent (2026-10-31), replacing the brown copper. The token keeps the name
-// "copper" so every component that uses it changes with it.
-$copper: #b96549; // 4.2:1 on white: marks, fills, icons (3:1 rule), never small text
-$copper-deep: #a94f3c; // pressed/hover of a terracotta fill; 5.4:1 on white
+// Bronze-amber accent (2026-11-01), replacing the terracotta. The token keeps the name
+// "copper" so every component that uses it changes with it. Navy leads; bronze marks
+// "you are here", "next" and "needs the gestoría".
+$copper: #d97706; // 3.2:1 on white: marks, fills, bars, icons (3:1 rule), never text on it or in it
+$copper-deep: #b45309; // hover/pressed, and any fill that carries text (white on it 5:1)
 $white: #ffffff;
 $ink: #202a35;
 $text: #536273;
@@ -59,8 +60,8 @@ $color-light: (
   "icon-soft": #e8edf4,
   "copper": $copper,
   "copper-hover": $copper-deep,
-  "copper-text": #8f4231, // terracotta as text: 6.6:1 on white, 5.6:1 on copper-soft
-  "copper-soft": #f1e2dc,
+  "copper-text": #92400e, // bronze as text: 7.1:1 on white, 6.3:1 on copper-soft
+  "copper-soft": #fdf1dc,
   "focus": $focus,
   "focus-on-dark": $focus-on-dark,
   "ok": $success,
@@ -77,7 +78,7 @@ $color-light: (
   "band-ink": $white,
   "band-muted": rgba(255, 255, 255, 0.72),
   "band-line": rgba(255, 255, 255, 0.16),
-  "band-copper": #d99a80, // terracotta on navy (5.2:1): the wordmark and stamps
+  "band-copper": #f2a93b, // bronze on navy (5.6:1): the wordmark and stamps
   "chrome": $navy,
   "chrome-ink": $white,
   "chrome-muted": rgba(255, 255, 255, 0.72),
@@ -85,7 +86,7 @@ $color-light: (
   "chrome-hover": rgba(255, 255, 255, 0.07),
   "chrome-active": rgba(255, 255, 255, 0.13),
   "chrome-tile": rgba(255, 255, 255, 0.1),
-  "chrome-mark": #d99a80, // active marker on the navy sidebar (5.2:1)
+  "chrome-mark": #f2a93b, // active marker on the navy sidebar (5.6:1)
   "field-shadow": 0 1px 1px rgba($ink, 0.05),
   "shadow": rgba($ink, 0.16),
   "shadow-sheet-c": rgba($ink, 0.06),
@@ -120,10 +121,10 @@ $color-dark: (
   "icon": #9cbde6,
   "icon-soft": #1c2a3b,
   "field-shadow": 0 1px 2px rgba(0, 0, 0, 0.4),
-  "copper": #d99a80,
-  "copper-hover": #e3ad96,
-  "copper-text": #e8b5a1,
-  "copper-soft": #2e1d17,
+  "copper": #f59e0b,
+  "copper-hover": #fbbf24,
+  "copper-text": #fcd34d,
+  "copper-soft": #2b1f0b,
   "focus": #86b4ff,
   "ok": #78cfa0,
   "ok-soft": #15291f,
