@@ -24,7 +24,7 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
       <div className="contents sm:block sm:min-w-0">
-        {eyebrow && <p className="eyebrow-tag col-span-2 mb-1 justify-self-start sm:mb-2">{eyebrow}</p>}
+        {eyebrow && <p className="eyebrow-tag col-span-2 mb-0.5 justify-self-start sm:mb-2">{eyebrow}</p>}
         <h1 className="row-start-2 min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
         {intro && <p className="col-span-2 row-start-3 max-w-[68ch] text-[13.5px] leading-5 text-muted sm:mt-1 sm:text-[14px] sm:leading-[21px]">{intro}</p>}
       </div>

@@ -248,8 +248,8 @@ export function CaseList() {
                 </button>
               ))}
             </div>
-            <button type="button" aria-expanded onClick={() => setOverviewOpen(false)} className={css.overviewToggle}>
-              {t.list.overviewHide}
+            <button type="button" aria-expanded aria-label={t.list.overviewHide} title={t.list.overviewHide} onClick={() => setOverviewOpen(false)} className={css.overviewToggle}>
+              <span className={css.overviewToggleLabel}>{t.list.overviewHide}</span>
               <ChevronDown size={13} className="rotate-180" aria-hidden="true" />
             </button>
           </div>

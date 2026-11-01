@@ -43,6 +43,11 @@
   align-items: center;
   justify-content: space-between;
   gap: space(2) space(3);
+
+  // phones: the tabs and the fold toggle share one line (the toggle as a chevron button)
+  @media (max-width: 639px) {
+    flex-wrap: nowrap;
+  }
 }
 
 // Two tabs as a segmented control: which row of cards shows.
@@ -822,6 +827,28 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
 
   @include hover {
     text-decoration: underline;
+  }
+
+  // phones: a square chevron button at the end of the tabs' line, the same height as the tabs
+  @media (max-width: 639px) {
+    flex-shrink: 0;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: radius(md);
+    background: var(--surface);
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.overviewToggleLabel {
+  @media (max-width: 639px) {
+    display: none;
   }
 }
 
