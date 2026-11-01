@@ -1144,19 +1144,37 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
     gap: space(4);
   }
 
+  // the icon on a small square with a fine border, as on the campaign board's figures
   .cardIcon {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     align-self: center;
-    border: 0;
+    border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
     border-radius: 10px;
-    background: var(--sunk);
+    background: var(--icon-soft);
     box-shadow: none;
-    color: var(--muted);
+    color: var(--icon);
 
-    .card[data-hot] & {
-      background: var(--accent-soft);
-      color: var(--accent);
+    svg {
+      width: 19px;
+      height: 19px;
+    }
+  }
+
+  // a card with something in it: a fine navy border; an empty one steps back
+  .card:not([data-zero]) {
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  .card[data-zero] {
+    border-color: var(--line);
+    box-shadow: none;
+    opacity: 0.72;
+
+    .cardIcon {
+      border-color: var(--line);
+      background: var(--sunk);
+      color: var(--muted);
     }
   }
 
@@ -1169,14 +1187,16 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
   }
 
   .cardLabel {
+    overflow: visible;
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.25;
+    white-space: normal; // a long label (Spanish, Valencian) takes a second line rather than being cut
     color: var(--muted);
   }
 
   // narrower columns (the sidebar open on a laptop): the icon steps aside so the label stays whole
-  @media (max-width: 1599px) {
+  @media (max-width: 1279px) {
     .card {
       grid-template-columns: minmax(0, 1fr) auto;
       grid-template-areas:
