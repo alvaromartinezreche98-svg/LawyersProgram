@@ -171,14 +171,14 @@ export function CampaignBoard() {
                   onDrop={drop(s.id)}
                   className={cx(
                     // every column the same height (from the window); the header stays, the cards scroll inside
-                    "flex h-[clamp(360px,calc(100dvh-280px),680px)] snap-start flex-col gap-2 rounded-xl border-2 p-2 transition-[background-color,border-color,box-shadow] duration-150",
+                    "flex h-[clamp(360px,calc(100dvh-280px),680px)] snap-start flex-col gap-2 rounded-xl border p-2 transition-[background-color,border-color,box-shadow] duration-150",
                     over === s.id ? "border-copper bg-copper-soft shadow-[inset_0_0_0_1px_var(--copper)]"
                     : target ? cx("border-dashed border-line-strong", tone.col)
                     : cx(tone.border, tone.col),
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-lg border-2 bg-surface px-3 py-2.5 shadow-[0_1px_2px_rgb(15_23_42/0.04)] max-md:hidden", tone.rule)} title={tr(s.help)}>
+                  <header className={cx("flex items-center gap-2 rounded-lg border bg-surface px-3 py-2.5 shadow-[0_1px_2px_rgb(15_23_42/0.04)] max-md:hidden", tone.rule)} title={tr(s.help)}>
                     <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em] text-ink">{tr(s.label)}</h2>
                     <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold ring-1", tone.badge)}>{col.length}</span>
                   </header>
