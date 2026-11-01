@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { PageTitle } from "@/components/ui/app-shell";
 import { Card, EmptyState, Eyebrow, Pill, StatusPill } from "@/components/ui/primitives";
 import { useClientExp } from "./client-shell";
+import { FEATURES } from "@/lib/features";
 
 /** C9 · Mis declaraciones: the client's cases for every tax year. */
 export function ClientHistory() {
@@ -29,15 +30,15 @@ export function ClientHistory() {
           <EmptyState inset icon={History} title={t.years.none} />
         ) : (
           <>
-            <div className="table-head hidden grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] gap-4 pad-x-card sm:grid">
+            <div className={"table-head hidden " + (FEATURES.payments ? "grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px]" : "grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)]") + " gap-4 pad-x-card sm:grid"}>
               <span>{t.years.cols.year}</span>
               <span>{t.years.cols.status}</span>
               <span>{t.years.cols.result}</span>
-              <span className="text-right">{t.years.cols.paid}</span>
+              {FEATURES.payments && <span className="text-right">{t.years.cols.paid}</span>}
             </div>
             <ul>
               {all.map((e) => (
-                <li key={e.id} className="grid grid-cols-[100px_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-t border-line pad-x-card py-3 first:border-t-0 sm:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px] sm:items-center">
+                <li key={e.id} className={"grid grid-cols-[100px_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-t border-line pad-x-card py-3 first:border-t-0 sm:items-center " + (FEATURES.payments ? "sm:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_120px]" : "sm:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)]")}>
                   <span className="figures flex items-center gap-2 font-semibold">
                     {e.ejercicio}
                     {e.id === exp.id && <Pill tone="accent">{t.years.current}</Pill>}
@@ -46,7 +47,7 @@ export function ClientHistory() {
                     <StatusPill status={e.status} />
                   </span>
                   <span className="figures col-start-2 text-[14px] sm:col-start-auto">{e.result ? `${t.result.kind[e.result.kind]} · ${e.result.amount} €` : "—"}</span>
-                  <span className="figures col-start-2 text-[14px] sm:col-start-auto sm:text-right">{e.payment ? fmtEuros(e.payment.amount, locale) : "—"}</span>
+                  {FEATURES.payments && <span className="figures col-start-2 text-[14px] sm:col-start-auto sm:text-right">{e.payment ? fmtEuros(e.payment.amount, locale) : "—"}</span>}
                 </li>
               ))}
             </ul>

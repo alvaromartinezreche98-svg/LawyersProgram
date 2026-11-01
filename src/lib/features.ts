@@ -33,8 +33,8 @@ export const FEATURES = {
   identityCheck: DEMO_ONLY,
   /** C3 signing step for the firm's legal documents; G7 legal templates. */
   signing: DEMO_ONLY,
-  /** C7 payment, G6 payments, G7 fees. */
-  payments: ON,
+  /** C7 payment, G6 payments, G7 fees. Hidden for now (client request, 1 Nov 2026). */
+  payments: false as boolean,
   /** G7 firm settings (firm, legal, team, fees, campaign). */
   firmSettings: DEMO_ONLY,
   /** P contact page. (The PreRenta marketing home belongs on the main domain; "/" here is the firm's landing.) */

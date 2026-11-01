@@ -9,13 +9,14 @@ import { PageTitle } from "@/components/ui/app-shell";
 import { cx } from "@/components/ui/primitives";
 import { SaveFailed, SaveStatus } from "@/components/ui/save-status";
 import { TopBar } from "../gestor-shell";
+import { FEATURES } from "@/lib/features";
 
 type Section = "firm" | "legal" | "team" | "fees" | "campaign" | "replies" | "emails" | "reminders" | "subscription";
 const SECTIONS: { id: Section; href: string; icon: LucideIcon }[] = [
   { id: "firm", href: "/ajustes/despacho", icon: Building2 },
   { id: "legal", href: "/ajustes/documentos", icon: FileSignature },
   { id: "team", href: "/ajustes/equipo", icon: Users },
-  { id: "fees", href: "/ajustes/honorarios", icon: Euro },
+  ...(FEATURES.payments ? [{ id: "fees" as const, href: "/ajustes/honorarios", icon: Euro }] : []),
   { id: "campaign", href: "/ajustes/campana", icon: CalendarClock },
   { id: "replies", href: "/ajustes/respuestas", icon: MessageSquareReply },
   { id: "emails", href: "/ajustes/correos", icon: Mail },
