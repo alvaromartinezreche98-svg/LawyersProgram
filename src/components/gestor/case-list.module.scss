@@ -1124,9 +1124,11 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
 
 
 
+    // the active filter: one firm accent border (no second ring), the faint wash kept
     &[aria-pressed="true"] {
-      background: var(--accent-soft);
-      box-shadow: 0 0 0 1.5px var(--accent), 0 12px 32px -14px rgb(var(--accent-rgb) / 0.3);
+      border-color: var(--copper);
+      background: color-mix(in srgb, var(--copper) 6%, #fff);
+      box-shadow: 0 0 0 1px var(--copper), 0 8px 20px -12px rgb(15 23 42 / 0.25);
     }
   }
 
@@ -1211,3 +1213,19 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
     }
   }
 }
+
+// From 640px: the filter mark (and the close cross of the active filter) sits centred on the
+// card's height, like the icon and the figure, at a fixed 26px square.
+@include from("sm") {
+  .cardGo {
+    align-self: center;
+    flex-shrink: 0;
+
+    .card[aria-pressed="true"] & {
+      border-radius: 6px;
+      background: var(--copper);
+      color: #fff;
+    }
+  }
+}
+
