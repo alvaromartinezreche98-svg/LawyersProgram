@@ -25,14 +25,15 @@ const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((
  * Each column's colour, after what its status means: grey draft, blue sent, amber under
  * review, green ready. The column gets a faint wash of it, the header the full colour.
  */
-// Each column a bento of its own: one fine neutral 1px border all round, the page grey inside,
-// a grey head; the stage shows in its count (slate, blue, the accent, green). Cards stay white.
-// Draft slate, sent blue, under review amber (the gestoría is on it), ready green.
+// Each column a bento with its own muted shell (3–4% of its stage tone over the page grey) and a
+// matching fine border; its head is white with a 1px border in the same tone, the count in it.
+// Draft neutral slate, sent slate-blue, under review the accent (the one place it is used as a
+// faint wash, by request), ready slate-green. All washes stay under 5%: pastel, matt, formal.
 const COLUMN_TONE: Record<Status, { col: string; border: string; head: string; ink: string; rule: string; badge: string; headBg: string }> = {
-  borrador: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-line-strong", badge: "bg-surface text-muted ring-line", headBg: "bg-sunk" },
-  enviado: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-info", badge: "bg-surface text-info ring-info/25", headBg: "bg-sunk" },
-  revision: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-copper", badge: "bg-surface text-copper-text ring-copper", headBg: "bg-sunk" },
-  listo: { col: "bg-bg", border: "border-line", head: "bg-accent", ink: "text-accent", rule: "border-t-ok", badge: "bg-surface text-ok ring-ok/25", headBg: "bg-sunk" },
+  borrador: { col: "bg-[color-mix(in_srgb,var(--line-strong)_3%,var(--bg))]", border: "border-line", head: "", ink: "", rule: "border-line-strong/40", badge: "bg-sunk text-muted ring-line", headBg: "" },
+  enviado: { col: "bg-[color-mix(in_srgb,var(--info)_3%,var(--bg))]", border: "border-info/20", head: "", ink: "", rule: "border-info/35", badge: "bg-info-soft text-info ring-info/25", headBg: "" },
+  revision: { col: "bg-[color-mix(in_srgb,var(--copper)_4%,var(--bg))]", border: "border-copper/20", head: "", ink: "", rule: "border-copper/40", badge: "bg-surface text-copper ring-copper/40", headBg: "" },
+  listo: { col: "bg-[color-mix(in_srgb,var(--ok)_3%,var(--bg))]", border: "border-ok/20", head: "", ink: "", rule: "border-ok/35", badge: "bg-ok-soft text-ok ring-ok/25", headBg: "" },
 };
 
 export function CampaignBoard() {
@@ -177,7 +178,7 @@ export function CampaignBoard() {
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-lg px-3 py-2.5 max-md:hidden", tone.headBg)} title={tr(s.help)}>
+                  <header className={cx("flex items-center gap-2 rounded-lg border bg-surface px-3 py-2.5 shadow-[0_1px_2px_rgb(15_23_42/0.04)] max-md:hidden", tone.rule)} title={tr(s.help)}>
                     <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em] text-ink">{tr(s.label)}</h2>
                     <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold ring-1", tone.badge)}>{col.length}</span>
                   </header>
