@@ -9,6 +9,8 @@ import { usePathname } from "next/navigation";
  * offers a way back without opening the menu.
  */
 const KEY = "prerenta:nav";
+/** Root views (where signing in lands): never a back button there, whatever came before. */
+const ROOTS = ["/expedientes", "/admin/gestorias"];
 type Trail = { cur: string; prev: string | null };
 
 const read = (): Trail | null => {
@@ -32,7 +34,7 @@ export function useTrackPanelNav() {
 }
 
 /**
- * The panel page shown before this one, or null on the first page of the visit.
+ * The panel page shown before this one, or null on the first page of the visit and on a root view.
  * Works whichever effect runs first: if the shell has not recorded this page
  * yet, the page it still holds as current is the one we came from.
  */
@@ -41,7 +43,7 @@ export function useCameFrom(): string | null {
   const [from, setFrom] = useState<string | null>(null);
   useEffect(() => {
     const t = read();
-    const prev = !t ? null : t.cur !== path ? t.cur : t.prev;
+    const prev = ROOTS.includes(path) || !t ? null : t.cur !== path ? t.cur : t.prev;
     const raf = requestAnimationFrame(() => setFrom(prev && prev !== path ? prev : null));
     return () => cancelAnimationFrame(raf);
   }, [path]);
