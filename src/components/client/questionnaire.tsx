@@ -101,7 +101,8 @@ export function Questionnaire({ slug }: { slug: string }) {
             <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold max-sm:text-[22px]">{title}</h1>
           </div>
         </header>
-        <div className="px-4 pt-6 pb-8 max-sm:pt-4 max-sm:pb-6 sm:px-8 lg:px-10">
+        {/* phones: 40px of air after the last question, so the end of the step reads clearly above the sticky buttons */}
+        <div className="px-4 pt-6 pb-8 max-sm:pt-4 max-sm:pb-10 sm:px-8 lg:px-10">
         <SaveFailed className="mb-5" />
         {/* "Your gestoría has it" once, where the client resends; Home shows it too. Not repeated on every section. */}
         {exp.status !== "borrador" && !section && !isSign && (
