@@ -84,14 +84,15 @@ async function refresh(id: string) {
   if (!e?.remote) return;
   const [detail, msgs] = await Promise.all([api.caseDetail(id), api.messages(id, e.remote.cursor)]);
   remoteStore.patchCase(id, (cur) => {
-    const next = caseFromApi(detail, cur);
+    // Header polls do not reload answers: keep their lock version until save/reconcile.
+    const next = detail.version < (cur.remote?.version ?? 0) ? cur : caseFromApi(detail, cur);
     const known = new Set(cur.chat.map((m) => m.id));
     return {
       ...next,
       // Answers being edited here win over the server copy until they are saved.
       answers: cur.answers,
       chat: [...cur.chat.filter((m) => !m.id.startsWith("tmp-")), ...msgs.items.filter((m) => !known.has(m.id)).map(messageFromApi)],
-      remote: { ...next.remote!, cursor: msgs.next_cursor ?? cur.remote?.cursor ?? null, loaded: true },
+      remote: { ...next.remote!, version: cur.remote!.version, cursor: msgs.next_cursor ?? cur.remote?.cursor ?? null, loaded: true },
     };
   });
 }
@@ -129,30 +130,37 @@ function queue(id: string, sections: string[]) {
   remoteStore.setSave("saving");
   clearTimeout(saveTimer);
   // Debounced like the prototype (700 ms); one save at a time.
-  saveTimer = setTimeout(() => void flush(), 700);
+  saveTimer = setTimeout(() => void flush().catch(() => {}), 700);
 }
 
 /** Saves every queued section, one request at a time. */
-export async function flush(): Promise<void> {
+export function flush(): Promise<void> {
   clearTimeout(saveTimer);
-  if (saving) await saving;
+  if (saving) return saving;
   saving = (async () => {
     try {
       for (const [id, set] of dirty) {
-        for (const key of [...set]) {
-          await saveOne(id, key);
+        while (set.size) {
+          const key = set.values().next().value!;
+          // Remove before awaiting: edits made during this request queue another save.
           set.delete(key);
+          try {
+            await saveOne(id, key);
+          } catch (err) {
+            set.add(key);
+            throw err;
+          }
         }
         dirty.delete(id);
+        await refresh(id);
       }
       remoteStore.setSave(clashed ? "merged" : "saved", new Date().toISOString());
       clashed = false;
-    } catch {
+    } catch (err) {
       remoteStore.setSave("failed");
-    } finally {
-      saving = null;
+      throw err;
     }
-  })();
+  })().finally(() => { saving = null; });
   return saving;
 }
 
@@ -210,26 +218,43 @@ async function reconcile(id: string, key: string) {
 export async function upload(caseId: string, field: string, itemId: string | null, file: File): Promise<FileRef> {
   await flush();
   const d = await api.upload(caseId, field, itemId, file);
-  remoteStore.patchCase(caseId, (cur) => ({ updatedAt: d.created_at, remote: { ...cur.remote!, hasUnsent: !!cur.sentAt } }));
+  remoteStore.patchCase(caseId, (cur) => ({ remote: { ...cur.remote!, hasUnsent: !!cur.sentAt } }));
+  // The document already exists: a failed header refresh must not offer a duplicate upload.
+  await refresh(caseId).catch(() => remoteStore.setSave("failed"));
   return { id: d.id, name: d.original_name, size: d.size_bytes, type: d.media_type, remote: caseId };
 }
 
-export const removeDocument = (caseId: string, docId: string) => api.deleteDocument(caseId, docId);
+export async function removeDocument(caseId: string, docId: string) {
+  await api.deleteDocument(caseId, docId);
+  remoteStore.patchCase(caseId, (cur) => ({ remote: { ...cur.remote!, hasUnsent: !!cur.sentAt } }));
+  await refresh(caseId).catch(() => remoteStore.setSave("failed"));
+}
+
+// Keep the expected version after a lost response, so retry uses backend idempotency.
+const submitVersions = new Map<string, number>();
 
 const hooks: RemoteHooks = {
   answers(id: string, before: Answers, after: Answers) {
-    queue(id, changedSections(before, after));
+    const sections = changedSections(before, after);
+    if (sections.length) remoteStore.patchCase(id, (cur) => ({ remote: { ...cur.remote!, hasUnsent: !!cur.sentAt } }));
+    queue(id, sections);
   },
   async submit(id: string) {
     await flush();
     const e = get(id);
-    if (!e?.remote) return;
+    if (!e?.remote) throw new Error("Case not loaded");
+    const version = submitVersions.get(id) ?? e.remote.version;
+    submitVersions.set(id, version);
     try {
-      const d = await api.submit(id, e.remote.version);
+      const d = await api.submit(id, version);
+      submitVersions.delete(id);
       remoteStore.patchCase(id, (cur) => caseFromApi(d, cur));
-      await refresh(id);
+      await refresh(id).catch(() => remoteStore.setSave("failed"));
     } catch (err) {
-      if (isApiError(err) && err.kind === "conflict") await refresh(id);
+      if (isApiError(err) && err.kind === "conflict") {
+        submitVersions.delete(id);
+        await loadCase(id, false);
+      }
       throw err;
     }
   },
@@ -274,7 +299,7 @@ const hooks: RemoteHooks = {
       }, 800));
     };
   })(),
-  retry: () => void flush(),
+  retry: () => void flush().catch(() => {}),
 };
 
 setRemoteHooks(hooks);

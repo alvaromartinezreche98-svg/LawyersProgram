@@ -184,6 +184,7 @@ export function caseFromApi(c: ApiCase | ApiCaseDetail | ApiStaffCase, base?: Ex
       clientId: c.client_id,
       hasUnsent: c.has_unsent_changes,
       progress: c.progress,
+      sections: detail?.sections ?? base?.remote?.sections,
       unread: c.unread_messages,
       issues: detail?.issues ?? staff?.issues ?? base?.remote?.issues ?? 0,
       alerts: detail?.alerts ?? base?.remote?.alerts ?? [],

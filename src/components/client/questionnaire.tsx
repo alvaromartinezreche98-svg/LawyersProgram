@@ -15,6 +15,7 @@ import { QuestionnaireForm } from "@/components/questionnaire/field-list";
 import { StepsNav } from "@/components/questionnaire/steps-nav";
 import { ReviewBlock } from "@/components/questionnaire/review-block";
 import { PageTitle } from "@/components/ui/app-shell";
+import { ApiErrorNotice } from "@/components/ui/api-error";
 import { Button, Notice } from "@/components/ui/primitives";
 import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
 import { IconTile, SECTION_ICON } from "@/components/ui/icons";
@@ -45,6 +46,8 @@ export function Questionnaire({ slug }: { slug: string }) {
   const { t, tr, status } = useI18n();
   const router = useRouter();
   const [toast, setToast] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<unknown>(null);
   const idx = STEP_SLUGS.indexOf(slug);
   const section = sectionBySlug(slug);
   const isSign = slug === SIGN_SLUG;
@@ -77,9 +80,19 @@ export function Questionnaire({ slug }: { slug: string }) {
   // Saved against the case's answers as they are at that moment (see actions.setAnswer).
   const onChange = (path: Path, value: AnswerValue | undefined) => actions.setAnswer(exp.id, path, value);
   const onUpdate = (path: Path, fn: (cur: AnswerValue | undefined) => AnswerValue | undefined) => actions.updateAnswer(exp.id, path, fn);
-  const send = () => {
-    actions.sendToGestoria(exp.id);
-    scrollToTop();
+  // API mode: resolves once the server has the submission, rejects with its error (shown above the button).
+  const send = async () => {
+    if (sending) return;
+    setSending(true);
+    setSendError(null);
+    try {
+      await actions.sendToGestoria(exp.id);
+      scrollToTop();
+    } catch (e) {
+      setSendError(e);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -141,7 +154,9 @@ export function Questionnaire({ slug }: { slug: string }) {
             <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <p className="max-w-[52ch] flex-1 text-muted">{t.q.reviewIntro}</p>
             </div>
-            <ReviewBlock answers={exp.answers} sent={exp.status !== "borrador"} onGo={go} onSend={send} signDone={signDone} />
+            <ReviewBlock answers={exp.answers} sent={exp.status !== "borrador"} onGo={go} onSend={send} signDone={signDone} pending={sending} hasUnsent={exp.remote?.hasUnsent} />
+            {/* Right under the send button, where the click happened. */}
+            {sendError != null && <ApiErrorNotice error={sendError} onRetry={send} className="mt-5" />}
           </>
         )}
         </div>

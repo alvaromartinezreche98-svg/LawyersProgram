@@ -307,13 +307,11 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
   );
 }
 
-/** Deletes a stored file: on the API for API files, in this browser otherwise. Example files have nothing stored. */
-function dropFile(f: FileRef) {
+/** Deletes a stored file: on the API for API files (rejects if that fails), in this browser otherwise. Example files have nothing stored. */
+async function dropFile(f: FileRef) {
   if (f.example) return;
-  if (f.remote) {
-    const caseId = f.remote;
-    void import("@/lib/api/remote").then((m) => m.removeDocument(caseId, f.id)).catch(() => {});
-  } else deleteFile(f.id).catch(() => {});
+  if (f.remote) await import("@/lib/api/remote").then((m) => m.removeDocument(f.remote!, f.id));
+  else await deleteFile(f.id).catch(() => {});
 }
 
 /** One file waiting for, or failing, its upload. */
@@ -390,15 +388,30 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
     const [ref] = await store([file]);
     if (!ref) return;
     const old = files[i];
-    if (old) dropFile(old);
+    if (old && !(await tryDrop(old))) {
+      // Old file could not be deleted: keep it and the new one, and say so.
+      onUpdate((cur) => [...cur, ref]);
+      return;
+    }
     onUpdate((cur) => (old ? cur.map((f) => (f.id === old.id ? ref : f)) : [...cur, ref]));
   }
 
-  function remove(i: number) {
+  /** Deletes a file; on failure tells why and returns false so the file stays listed. */
+  async function tryDrop(f: FileRef) {
+    try {
+      await dropFile(f);
+      return true;
+    } catch (err) {
+      const kind = isApiError(err) ? err.kind : null;
+      notify(kind && kind in t.sync.error ? t.sync.error[kind as keyof typeof t.sync.error] : t.sync.error.network);
+      return false;
+    }
+  }
+
+  async function remove(i: number) {
     const f = files[i];
-    if (f) dropFile(f);
-    const gone = files[i];
-    onUpdate((cur) => cur.filter((f) => f.id !== gone?.id));
+    if (!f || !(await tryDrop(f))) return;
+    onUpdate((cur) => cur.filter((x) => x.id !== f.id));
   }
 
   const onDrop = (e: DragEvent) => {

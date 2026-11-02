@@ -43,6 +43,7 @@ export interface RemoteCase {
   /** The client changed answers or documents after the last send. */
   hasUnsent: boolean;
   progress: { answered: number; total: number; percent: number };
+  sections?: { key: string; answered: number; total: number; state: "done" | "partial" | "empty" }[];
   unread: number;
   issues: number;
   alerts: { severity: "bad" | "warn" | "info"; section: string; message: string }[];

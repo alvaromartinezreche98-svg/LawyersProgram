@@ -7,8 +7,8 @@ import { useI18n } from "@/lib/i18n/use-i18n";
 import { ArrowRight } from "lucide-react";
 import { Button, Pill, cx } from "@/components/ui/primitives";
 
-/** Last step: what is still open, what not to upload, and the send button. */
-export function ReviewBlock({ answers, sent, onGo, onSend, signDone }: { answers: Answers; sent: boolean; onGo: (slug: string) => void; onSend?: () => void; signDone?: boolean }) {
+/** Last step: what is still open, what not to upload, and the send button. API mode: `hasUnsent` false after a send hides the button (nothing to resend); `pending` disables it while sending. */
+export function ReviewBlock({ answers, sent, onGo, onSend, signDone, pending, hasUnsent }: { answers: Answers; sent: boolean; onGo: (slug: string) => void; onSend?: () => void; signDone?: boolean; pending?: boolean; hasUnsent?: boolean }) {
   const { t, tr } = useI18n();
   const tt = overall(answers);
   return (
@@ -60,10 +60,10 @@ export function ReviewBlock({ answers, sent, onGo, onSend, signDone }: { answers
         </ul>
         <p className="mt-2 text-[13px] text-muted">{t.q.noNeedFoot}</p>
       </div>
-      {onSend && (
+      {onSend && !(sent && hasUnsent === false) && (
         <div className="flex flex-col items-start gap-3">
           {tt.pending > 0 && <p className="text-[13px] text-muted">{t.q.pendingSend(tt.pending)}</p>}
-          <Button variant="primary" size="lg" onClick={onSend}>
+          <Button variant="primary" size="lg" onClick={onSend} loading={pending}>
             {sent ? t.q.resend : t.q.send}
           </Button>
         </div>
