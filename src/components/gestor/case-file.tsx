@@ -723,14 +723,15 @@ type RailTab = "details" | "chat" | "notes";
 function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: string; icon: LucideIcon; title: string; aside?: ReactNode; htmlFor?: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-28 rounded-xl border border-line bg-surface lg:scroll-mt-24">
-      <h2 className="flex min-h-[52px] items-center justify-between gap-x-3 gap-y-1 border-b border-line pad-x-card py-3 text-[16px] font-semibold max-sm:text-[15px] sm:flex-wrap">
-        <span className="flex min-w-0 items-center gap-2.5 sm:shrink-0">
+      {/* the aside drops under the title when they do not fit side by side (never over it) */}
+      <h2 className="flex min-h-[52px] flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line pad-x-card py-3 text-[16px] font-semibold max-sm:text-[15px]">
+        <span className="flex min-w-0 shrink-0 items-center gap-2.5">
           <span className="grid size-7 place-items-center rounded-lg bg-accent-soft text-accent">
             <BlockIcon size={15} strokeWidth={2} aria-hidden="true" />
           </span>
           {htmlFor ? <label htmlFor={htmlFor}>{title}</label> : title}
         </span>
-        {aside != null && <small className="shrink-0 font-sans text-xs font-medium tracking-normal text-muted">{aside}</small>}
+        {aside != null && <small className="min-w-0 font-sans text-xs font-medium tracking-normal text-muted">{aside}</small>}
       </h2>
       <div className="flex flex-col gap-4 pad-card">{children}</div>
     </section>
