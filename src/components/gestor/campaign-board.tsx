@@ -114,7 +114,7 @@ export function CampaignBoard() {
         <CampaignStats all={all} filing={firm.campaign?.filing} />
 
         {/* Phones: one column at a time, tablets two; these tabs show which and jump to another (a swipe works too). */}
-        <div role="tablist" aria-label={t.board.title} className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:hidden">
+        <div role="tablist" aria-label={t.board.title} className="no-scrollbar flex snap-x snap-mandatory gap-1.5 overflow-x-auto md:grid md:grid-cols-4 md:gap-2 lg:hidden">
           {STATUSES.map((s, i) => {
             const n = shown.filter((x) => x.exp.status === s.id).length;
             const on = colAt === i;
@@ -127,10 +127,10 @@ export function CampaignBoard() {
                 onClick={() => (board.current?.querySelector(`[data-col="${s.id}"]`) as HTMLElement | null)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" })}
                 title={tr(s.label)}
                 // label and count on one line, the same height whichever tab is on (the count never wraps or squeezes)
-                className={cx("flex h-10 min-w-0 items-center justify-between gap-2 rounded-lg border pr-2 pl-3 text-[13px] font-semibold transition-colors", on ? "border-accent bg-accent text-white" : "border-line bg-surface text-ink hover:bg-sunk")}
+                className={cx("flex h-9 shrink-0 snap-start items-center justify-between gap-2 rounded-lg border pr-1.5 pl-3 text-[13px] font-semibold whitespace-nowrap transition-colors md:h-10 md:min-w-0 md:pr-2", on ? "border-accent bg-accent text-white" : "border-line bg-surface text-ink hover:bg-sunk")}
               >
-                <span className="min-w-0 truncate">{tr(s.label)}</span>
-                <span className={cx("figures grid h-6 min-w-6 shrink-0 place-items-center rounded-md px-1.5 text-[12px] font-bold", on ? "bg-white text-accent" : COLUMN_TONE[s.id].badge)}>{n}</span>
+                <span className="md:min-w-0 md:truncate">{tr(s.label)}</span>
+                <span className={cx("figures grid h-6 min-w-6 shrink-0 place-items-center rounded-md px-1.5 text-[12px] font-bold max-md:h-5 max-md:min-w-5 max-md:px-1 max-md:text-[11px]", on ? "bg-white text-accent" : COLUMN_TONE[s.id].badge)}>{n}</span>
               </button>
             );
           })}
@@ -368,21 +368,21 @@ function CampaignStats({ all, filing }: { all: Triage[]; filing?: string }) {
       : { icon: CalendarClock, label: k.deadline, value: left < 0 ? k.passed : k.days(left), urgent: left <= 7 },
   ];
   return (
-    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
+    <ul className="no-scrollbar flex snap-x snap-mandatory gap-1.5 overflow-x-auto sm:grid sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
       {tiles.map((x) => {
         const body = (
           <>
-            <IconTile icon={x.icon} size="sm" tone={x.firm ? "copper" : "accent"} className="max-sm:size-8 max-sm:shrink-0" />
-            <span className="flex min-w-0 flex-col">
-              <span className={cx("figures text-[22px] leading-7 font-semibold max-sm:text-[17px] max-sm:leading-6", x.urgent && "text-bad", x.firm && "text-copper-text")}>{x.value}</span>
-              <span className="truncate text-[13px] text-muted max-sm:line-clamp-2 max-sm:text-[12px] max-sm:leading-4 max-sm:whitespace-normal">{x.label}</span>
+            <IconTile icon={x.icon} size="sm" tone={x.firm ? "copper" : "accent"} className="max-sm:size-[26px] max-sm:shrink-0 max-sm:rounded-md" />
+            <span className="flex min-w-0 flex-col max-sm:flex-row max-sm:items-baseline max-sm:gap-1.5">
+              <span className={cx("figures text-[22px] leading-7 font-semibold max-sm:text-[16px] max-sm:leading-5", x.urgent && "text-bad", x.firm && "text-copper-text")}>{x.value}</span>
+              <span className="truncate text-[13px] text-muted max-sm:overflow-visible max-sm:text-[12px]">{x.label}</span>
             </span>
           </>
         );
-        // Phones: two tiles a row (figure over label), so nothing runs off the screen edge.
-        const cls = "flex h-full min-w-0 items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet max-sm:gap-2.5 max-sm:px-3 max-sm:py-2.5";
+        // Phones: a 40px chip (icon · figure · label on one line) in one row that snaps sideways, clipped at the gutter.
+        const cls = "flex h-full min-w-0 items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet max-sm:h-10 max-sm:gap-2 max-sm:py-0 max-sm:pr-3 max-sm:pl-1.5 max-sm:whitespace-nowrap";
         return (
-          <li key={x.label} className="min-w-0">
+          <li key={x.label} className="min-w-0 max-sm:shrink-0 max-sm:snap-start">
             {x.href ? <Link href={x.href} className={cx(cls, "transition-colors hover:border-line-strong")}>{body}</Link> : <div className={cls}>{body}</div>}
           </li>
         );
