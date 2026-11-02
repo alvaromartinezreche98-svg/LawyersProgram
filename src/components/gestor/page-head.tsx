@@ -38,7 +38,8 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
           </button>
         )}
         <div className="flex min-w-0 flex-col items-start gap-1 sm:block">
-          {eyebrow && <p className="eyebrow-tag sm:mb-2">{eyebrow}</p>}
+          {/* phones: no campaign tag, so the title comes up */}
+          {eyebrow && <p className="eyebrow-tag max-sm:hidden sm:mb-2">{eyebrow}</p>}
           <h1 className="min-w-0 text-[22px] leading-6 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
           {intro && <p className="max-w-[68ch] text-[14px] leading-[21px] text-muted max-sm:hidden sm:mt-1">{intro}</p>}
         </div>

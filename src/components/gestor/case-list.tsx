@@ -550,8 +550,8 @@ export function DeadlineBanners() {
         const urgent = d <= 7;
         const Icon = urgent ? TriangleAlert : CalendarClock;
         return (
-          <div key={id} role={urgent ? "alert" : "status"} className={cx("flex items-center gap-3 rounded-lg border py-2.5 pr-2 pl-3 text-[14px] max-sm:gap-2 max-sm:py-1 max-sm:pr-1 max-sm:pl-1.5 max-sm:text-[12.5px]", urgent ? "border-bad/30 border-l-4 border-l-bad bg-bad-soft" : "border-info/20 bg-info-soft")}>
-            <span className={cx("grid size-8 shrink-0 place-items-center rounded-md max-sm:size-6", urgent ? "bg-bad text-surface" : "bg-surface text-info")}>
+          <div key={id} role={urgent ? "alert" : "status"} className={cx("flex items-center gap-3 rounded-lg border py-2.5 pr-2 pl-3 text-[14px] max-sm:min-h-0 max-sm:gap-1.5 max-sm:rounded-md max-sm:py-0.5 max-sm:pr-0.5 max-sm:pl-2 max-sm:text-[12px] max-sm:leading-4", urgent ? "border-bad/30 border-l-4 border-l-bad bg-bad-soft" : "border-info/20 bg-info-soft")}>
+            <span className={cx("grid size-8 shrink-0 place-items-center rounded-md max-sm:size-auto max-sm:bg-transparent", urgent ? "bg-bad text-surface max-sm:text-bad" : "bg-surface text-info")}>
               <Icon size={17} strokeWidth={2.2} aria-hidden="true" className="max-sm:size-3.5" />
             </span>
             {/* phones: one line (the date is left out) */}
@@ -560,8 +560,8 @@ export function DeadlineBanners() {
               <span className={cx("figures font-semibold", urgent ? "text-bad" : "text-info")}>{t.list.deadline.days(d)}</span>
               <span className="figures text-muted max-sm:hidden">· {fmtDate(iso)}</span>
             </p>
-            <button type="button" onClick={() => dismiss(id)} aria-label={t.common.close} title={t.common.close} className={cx("grid size-8 shrink-0 cursor-pointer place-items-center rounded-md transition-colors max-sm:size-7", urgent ? "text-bad hover:bg-bad/10" : "text-muted hover:bg-info/10 hover:text-ink")}>
-              <X size={17} strokeWidth={2.2} aria-hidden="true" />
+            <button type="button" onClick={() => dismiss(id)} aria-label={t.common.close} title={t.common.close} className={cx("grid size-8 shrink-0 cursor-pointer place-items-center rounded-md transition-colors max-sm:size-6", urgent ? "text-bad hover:bg-bad/10" : "text-muted hover:bg-info/10 hover:text-ink")}>
+              <X size={17} strokeWidth={2.2} aria-hidden="true" className="max-sm:size-3.5" />
             </button>
           </div>
         );
