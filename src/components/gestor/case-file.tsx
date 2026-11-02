@@ -413,10 +413,10 @@ export function CaseFile({ id }: { id: string }) {
             <p className="text-[14px] text-muted max-sm:hidden">
               {[e.sentAt && t.home.sentOn(fmtTime(e.sentAt, locale)), t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length), tt.pending > 0 && t.home.answersPending(tt.pending), t.file.docsAside(nDocs, nPend)].filter(Boolean).join(" · ")}
             </p>
-            {/* Phones: one summary card under the name, always both sides filled: on the left when it was
-                sent (or, not sent yet, when it was created), on the right the status with its icon and colour.
-                Same inset whatever the content; 12px of air above (from the name's letters) and below (to the tabs). */}
-            <div className="mb-1 flex min-h-10 items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 text-[12.5px] shadow-sm sm:hidden">
+            {/* Phones: one quiet metadata line under the name (no box, so the tabs and figures below carry the
+                weight): on the left when it was sent (or, not sent yet, when it was created), on the right the
+                status with its icon and colour. */}
+            <div className="mb-2 flex items-center justify-between gap-3 text-[12.5px] sm:hidden">
               <span className="figures min-w-0 truncate text-muted">{e.sentAt ? t.home.sentOn(fmtTime(e.sentAt, locale)) : `${t.file.created}: ${fmtTime(e.createdAt, locale)}`}</span>
               <span className="shrink-0"><StatusPill status={e.status} /></span>
             </div>
