@@ -203,7 +203,9 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
           </ul>
         )}
         {warn && <p role="alert" className="text-[13px] text-bad">{warn}</p>}
-        <div className="flex items-end gap-1.5 rounded-2xl border border-line bg-surface p-1.5 shadow-[0_6px_18px_-10px_rgb(var(--accent-rgb)/0.35)] transition-[border-color,box-shadow] hover:border-line-strong focus-within:border-focus focus-within:ring-4 focus-within:ring-focus/15">
+        {/* The composer on the white chat: a faint grey well with a hairline, so it reads as the place to type;
+            focused, it turns white with the navy edge and a soft halo */}
+        <div className="flex items-end gap-1.5 rounded-2xl border border-slate-200 bg-slate-50 p-1.5 transition-[border-color,box-shadow,background-color] hover:border-line-strong focus-within:border-focus focus-within:bg-surface focus-within:ring-4 focus-within:ring-focus/15 focus-within:shadow-[0_6px_18px_-10px_rgb(var(--accent-rgb)/0.35)]">
           {!API_MODE && (
             <>
               <input ref={fileIn} type="file" accept={ACCEPTED} multiple className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(e) => { pick([...(e.target.files ?? [])]); e.target.value = ""; }} />
