@@ -17,6 +17,8 @@ export const isPublicPath = (p: string) => ["/", "/acceso", "/entrar", "/contact
 
 /** The access (sign-in) page. "/?next=…" and invitation links on "/" still forward here. */
 export const SIGN_IN_PATH = "/acceso";
+/** Where a new account is created: the invitation landing, which shows sign-up when it holds a code. */
+export const SIGN_UP_PATH = "/entrar";
 
 /** Gestoría panel areas; every other protected page belongs to the client portal. */
 export const GESTOR_PREFIXES = ["/expedientes", "/ajustes", "/clientes", "/cobros", "/citas", "/panel", "/alta-gestoria/inicio"];

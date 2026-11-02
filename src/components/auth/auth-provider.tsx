@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import { API_MODE, CLERK_ENABLED, SIGN_IN_PATH } from "@/lib/auth/config";
+import { API_MODE, CLERK_ENABLED, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth/config";
 import { ApiBridge } from "./api-bridge";
 import { SessionSync } from "./session-sync";
 
@@ -8,7 +8,9 @@ import { SessionSync } from "./session-sync";
 export function AuthProvider({ children }: { children: ReactNode }) {
   if (!CLERK_ENABLED) return children;
   return (
-    <ClerkProvider signInUrl={SIGN_IN_PATH} afterSignOutUrl="/">
+    // signUpUrl makes Clerk render the "Sign up" link under sign-in (and "Sign in" under sign-up); without it a new visitor had no way out of
+    // the password prompt. /entrar mounts the same access component and shows sign-up when an invitation code is held.
+    <ClerkProvider signInUrl={SIGN_IN_PATH} signUpUrl={SIGN_UP_PATH} afterSignOutUrl="/">
       <SessionSync />
       {API_MODE && <ApiBridge />}
       {children}

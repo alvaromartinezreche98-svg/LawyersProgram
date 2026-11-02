@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { SignIn, useUser } from "@clerk/nextjs";
+import { SignIn, SignUp, useUser } from "@clerk/nextjs";
 import { actions } from "@/lib/data/store";
 import { nextPath } from "@/lib/data/use-sign-in-redirect";
 import { acceptInvitationCode, lookupFromError, resolveAccount, type AccountLookup } from "@/lib/auth/account";
@@ -77,9 +77,15 @@ export function ClerkAccess({ render }: { render: (gate?: ReactNode, banner?: Re
 
   if (auth.status === "signedOut") {
     const back = typeof window === "undefined" ? "/" : window.location.pathname + window.location.search;
+    // A visitor holding an invitation code is, by definition, new: show sign-UP first, with Clerk's "already have an account" link
+    // underneath. Everyone else (staff, returning clients) starts at sign-in. Both get the other form's link through the provider's
+    // signInUrl/signUpUrl. Without this, a buyer scanning the QR met a password prompt for an account that did not exist.
+    const invited = typeof window !== "undefined" && !!sessionStorage.getItem(INVITE_KEY);
     return render(
       <div className="flex min-w-0 flex-col items-center gap-3 lg:items-stretch">
-        <SignIn routing="hash" forceRedirectUrl={back} signUpForceRedirectUrl={back} />
+        {invited
+          ? <SignUp routing="hash" forceRedirectUrl={back} signInForceRedirectUrl={back} />
+          : <SignIn routing="hash" forceRedirectUrl={back} signUpForceRedirectUrl={back} />}
       </div>,
     );
   }
