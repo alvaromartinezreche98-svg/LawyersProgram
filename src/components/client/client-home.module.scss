@@ -315,9 +315,12 @@
 // the current stage's fact written once under it.
 @container track (max-width: 35.99rem) {
   .track {
-    grid-auto-columns: max-content;
+    grid-auto-columns: minmax(max-content, 1fr);
     grid-auto-flow: column;
     overflow-x: auto;
+    // Containing block for the stages' sr-only text, so the scroll clip catches it; otherwise it
+    // follows the scrolled stages past the screen edge and the whole page scrolls sideways.
+    position: relative;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
 
