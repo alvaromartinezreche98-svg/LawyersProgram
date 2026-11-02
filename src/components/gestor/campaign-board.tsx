@@ -81,7 +81,7 @@ export function CampaignBoard() {
     <>
       <PageTitle>{t.titles.board}</PageTitle>
       <TopBar crumbs={[{ label: t.board.title }]} />
-      <div className="flex flex-col gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-5">
+      <div className="flex flex-col gap-2 px-4 py-2 sm:gap-4 sm:px-6 sm:py-5">
         <DeadlineBanners />
         {/* A working header: no tutorial line (the drag hint is on each card), the page's tools on the right. */}
         <PageHead

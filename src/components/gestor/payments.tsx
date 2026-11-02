@@ -31,7 +31,7 @@ export function Payments() {
     <>
       <PageTitle>{t.titles.cobros}</PageTitle>
       <TopBar crumbs={[{ label: t.cobros.title }]} />
-      <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
+      <div className="flex flex-col gap-4 px-4 py-5 max-sm:pt-4 sm:px-6">
         <PageHead title={t.cobros.title} intro={t.cobros.intro} />
 
         {!configured ? (

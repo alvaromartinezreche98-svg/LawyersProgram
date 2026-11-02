@@ -25,10 +25,11 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
   const from = useCameFrom();
   eyebrow ??= t.list.eyebrow(EJERCICIO);
   // Phones: two columns; the eyebrow tight over the title on the left, the page's actions on the
-  // right, centred on that pair (the intro, if any, runs full width below).
+  // right, centred on that pair (the intro, if any, runs full width below). The block has the same
+  // space above and below (4px inset plus the page's 8px gap; the title's line box hugs the text).
   // From sm: the title block on the left and the actions at its foot on the right, as before.
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 max-sm:py-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
       <div className="flex min-w-0 items-center gap-2.5 sm:block">
         {/* phones: back to the panel page this one was opened from (only when there is one) */}
         {from && (
@@ -38,7 +39,7 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
         )}
         <div className="flex min-w-0 flex-col items-start gap-1 sm:block">
           {eyebrow && <p className="eyebrow-tag sm:mb-2">{eyebrow}</p>}
-          <h1 className="min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
+          <h1 className="min-w-0 text-[22px] leading-6 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
           {intro && <p className="max-w-[68ch] text-[14px] leading-[21px] text-muted max-sm:hidden sm:mt-1">{intro}</p>}
         </div>
       </div>

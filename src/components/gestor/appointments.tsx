@@ -33,7 +33,7 @@ export function Appointments() {
     <>
       <PageTitle>{t.titles.citas}</PageTitle>
       <TopBar crumbs={[{ label: t.citas.title }]} />
-      <div className="flex min-w-0 flex-col gap-4 overflow-x-clip px-4 py-5 sm:px-6">
+      <div className="flex min-w-0 flex-col gap-4 overflow-x-clip px-4 py-5 max-sm:pt-4 sm:px-6">
         <PageHead
           title={t.citas.title}
           intro={t.citas.intro}

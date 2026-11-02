@@ -64,7 +64,7 @@ function DemoClients() {
     <>
       <PageTitle>{t.titles.clients}</PageTitle>
       <TopBar crumbs={[{ label: t.clients.title }]} />
-      <div className="grid items-start gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-x-10">
+      <div className="grid items-start gap-5 px-4 py-5 max-sm:pt-4 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-x-10">
         <div className="flex min-w-0 flex-col gap-4">
           <PageHead title={t.clients.title} intro={t.clients.intro} />
           {created && <Notice tone="ok">{t.clients.created(created)}</Notice>}
@@ -311,7 +311,7 @@ function ApiClients() {
     <>
       <PageTitle>{t.titles.clients}</PageTitle>
       <TopBar crumbs={[{ label: c.title }]} />
-      <div className="grid items-start gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-x-10">
+      <div className="grid items-start gap-5 px-4 py-5 max-sm:pt-4 sm:px-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-x-10">
         <div className="flex min-w-0 flex-col gap-4">
           <PageHead title={c.title} intro={c.api.intro} />
           {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
