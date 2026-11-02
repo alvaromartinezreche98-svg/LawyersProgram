@@ -718,7 +718,7 @@ export const va: Dict = {
     codeSubmit: "Continuar",
     demoTag: "Demo",
     samples: "Expedients d'exemple",
-    samplesHint: "Per a provar la demostració sense invitació.",
+    samplesHint: "Proveu la demo sense invitació.",
     firmLead: (f: string) => `Per a l'equip de ${f}: els expedients dels seus clients, els seus documents i el xat.`,
     firmEnter: "Entrar al panell de la gestoria",
     processLabel: "Com funciona",

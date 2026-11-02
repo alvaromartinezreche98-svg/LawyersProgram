@@ -75,8 +75,8 @@
   flex-direction: column;
   justify-content: center;
   gap: space(3);
-  // phones and tablets: the cards sit on the page ground, 8px apart (no navy panel around them)
-  gap: space(2);
+  // phones and tablets: the cards sit on the page ground, 12px apart (no navy panel around them)
+  gap: space(3);
 
   // from 1280px the navy column: two close navies on a diagonal (a touch lighter top left,
   // deeper bottom right), with a faint glow behind the card
@@ -550,6 +550,14 @@
     color: var(--ink);
   }
 
+  // one line each (a longer one is cut with an ellipsis, never wrapped)
+  b,
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   span {
     font-size: 0.8125rem;
     color: var(--muted);
@@ -886,6 +894,9 @@
 // The other role (staff / client): the stronger one — frosted glass on the navy, the icon set
 // straight in (no tile), a bolder title. The demo: an outline only, no ground, the DEMO tag free.
 .switchRole:not(.demoTrigger) {
+  // a firmer edge than the page's hairlines, so the card stands clear on the grey ground
+  border-color: var(--line-strong);
+
   .switchIcon {
     background: none;
 
