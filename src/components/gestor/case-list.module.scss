@@ -884,6 +884,59 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
   background: var(--surface);
   font-size: 0.875rem;
   color: var(--muted);
+
+  // phones: the counts and filters sit behind this box, so it stands out: an amber edge on a faint
+  // amber wash (asked for here, like the board's review column), a filter mark and a real button
+  @media (max-width: 639px) {
+    flex-wrap: nowrap;
+    gap: space(2);
+    padding: space(2) space(2) space(2) space(3);
+    border-color: var(--copper);
+    background: color-mix(in srgb, var(--copper) 5%, var(--surface));
+    font-size: 0.8125rem;
+    color: var(--ink);
+  }
+}
+
+.foldedLead {
+  display: flex;
+  align-items: center;
+  gap: space(2);
+  min-width: 0;
+}
+
+.foldedIcon {
+  display: none;
+
+  @media (max-width: 639px) {
+    display: grid;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border: 1px solid var(--copper);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--copper-text);
+  }
+}
+
+.foldedOpen {
+  @media (max-width: 639px) {
+    flex: none;
+    min-height: 32px;
+    padding: 0 space(2) 0 10px;
+    border-radius: radius(md);
+    background: var(--copper);
+    font-weight: 600;
+    color: #fff;
+
+    // a filled button, not a link: no underline (this rule comes after .textAction's)
+    &:hover {
+      text-decoration: none;
+      background: var(--accent);
+    }
+  }
 }
 
 // ---------- Filters menu ----------

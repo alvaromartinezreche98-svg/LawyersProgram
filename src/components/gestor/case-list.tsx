@@ -219,7 +219,8 @@ export function CaseList() {
           eyebrow={t.list.eyebrow(EJERCICIO)}
           title={t.list.title}
           actions={
-            <ButtonLink href="/clientes" size="sm">
+            // phones: the page's main action, filled navy so it reads as one
+            <ButtonLink href="/clientes" size="sm" className="max-sm:border-accent max-sm:bg-accent max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
               <UserPlus size={15} aria-hidden="true" />
               {t.list.invite}
             </ButtonLink>
@@ -229,8 +230,14 @@ export function CaseList() {
         {/* Overview: real counts only, each one a filter. Folds to one line (remembered per browser). */}
         {!overviewOpen ? (
           <div className={css.overviewFolded}>
-            <span>{t.list.overviewLine(all.length, waitN("gestoria"))}</span>
-            <button type="button" aria-expanded={false} onClick={() => setOverviewOpen(true)} className={css.textAction}>
+            {/* phones: a filter mark, so it reads as the way into the counts and filters */}
+            <span className={css.foldedLead}>
+              <span className={css.foldedIcon} aria-hidden="true">
+                <ListFilter size={15} strokeWidth={2.2} />
+              </span>
+              <span>{t.list.overviewLine(all.length, waitN("gestoria"))}</span>
+            </span>
+            <button type="button" aria-expanded={false} onClick={() => setOverviewOpen(true)} className={cx(css.textAction, css.foldedOpen)}>
               {t.list.overviewShow}
               <ChevronDown size={14} aria-hidden="true" />
             </button>

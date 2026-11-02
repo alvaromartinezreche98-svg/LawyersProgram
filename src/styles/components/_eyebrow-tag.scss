@@ -15,9 +15,12 @@
     text-transform: uppercase;
     color: var(--copper-text);
 
-    // phones: a slim tag, so the page reaches its content sooner
+    // phones: a slim tag, so the page reaches its content sooner; white with an amber edge,
+    // so it stands clear of the grey page ground
     @media (max-width: 639px) {
       padding: 1px 6px;
+      border: 1px solid var(--copper);
+      background: var(--surface);
       font-size: 0.625rem;
     }
   }
