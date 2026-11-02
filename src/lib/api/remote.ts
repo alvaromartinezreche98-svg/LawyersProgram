@@ -265,7 +265,10 @@ const hooks: RemoteHooks = {
       const d = await api.setStatus(id, TO_API_STATUS[status], e.remote.version);
       remoteStore.patchCase(id, (cur) => caseFromApi(d, cur));
     } catch (err) {
-      await refresh(id);
+      // A 409 means our stored version is stale (a client saved or sent while this case was open). `refresh()` keeps the stored
+      // version, so recovering through it would leave every later status change failing until a reload; a full reload takes
+      // the server's version. Other errors change nothing locally, so there is nothing to recover.
+      if (isApiError(err) && err.kind === "conflict") await loadCase(id, true);
       throw err;
     }
   },
