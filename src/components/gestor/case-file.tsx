@@ -407,7 +407,7 @@ export function CaseFile({ id }: { id: string }) {
             )}
           </header>
           {/* Tabs: one part of the case at a time instead of one long page; chat and notes are in the side panel. */}
-          <div role="tablist" aria-label={t.file.tabs.label} className="no-scrollbar sticky top-[104px] z-[9] -mx-4 -mt-2 flex gap-1.5 overflow-x-auto border-b border-line bg-surface/95 px-4 py-2.5 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:top-12">
+          <div role="tablist" aria-label={t.file.tabs.label} className="no-scrollbar sticky top-[104px] z-[9] -mx-4 -mt-2 flex gap-1.5 overflow-x-auto border-b border-line bg-surface/95 px-4 py-2.5 backdrop-blur-sm max-sm:border-t max-sm:py-2 sm:-mx-6 sm:px-6 lg:top-12">
             {mainTabs.map(([key, Icon, label, n, hot]) => {
               const on = main === key;
               return (
@@ -440,7 +440,7 @@ export function CaseFile({ id }: { id: string }) {
           {main === "overview" && (
             <>
               {/* The case at a glance: four figures, each a way into its tab */}
-              <div className="@container"><div className="grid grid-cols-2 gap-3 @[680px]:grid-cols-4">
+              <div className="@container"><div className="grid grid-cols-2 gap-3 max-sm:gap-2.5 @[680px]:grid-cols-4">
                 <Kpi icon={ListChecks} tone={tt.pct === 100 ? "ok" : "accent"} label={t.file.kpi.questionnaire} value={`${tt.pct} %`} sub={<Tooltip plain inline text={t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length) + (tt.pending ? ` · ${t.home.answersPending(tt.pending)}` : "")}><span className="cursor-help">{t.file.kpi.sections(SCHEMA.length - openSecs, SCHEMA.length)}</span></Tooltip>} onClick={() => setMain("answers")} />
                 <Kpi icon={FileText} tone="info" zero={!nDocs} label={t.file.kpi.docs} value={String(nDocs)} sub={t.file.kpi.docsOf(nDocs, nPend)} onClick={() => setMain("docs")} />
                 <Kpi icon={TriangleAlert} tone={alBad ? "bad" : alWarn ? "warn" : al.length ? "info" : "ok"} zero={!al.length} label={t.file.kpi.alerts} value={String(al.length)} sub={al.length ? (
@@ -709,17 +709,17 @@ function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { ico
   const k = KPI_TONE[zero ? "neutral" : tone];
   const body = (
     <>
-      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-8 max-sm:rounded-lg", k.tile)} aria-hidden="true">
-        <Icon size={20} strokeWidth={2} className="max-sm:size-4" />
+      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-7 max-sm:rounded-md", k.tile)} aria-hidden="true">
+        <Icon size={20} strokeWidth={2} className="max-sm:size-[15px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12.5px] font-medium text-muted max-sm:text-[12px]">{label}</span>
-        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[18px] max-sm:leading-[22px]", k.n)}>{value}</span>
-        <span className="mt-1 block truncate max-sm:mt-0.5 max-sm:overflow-visible text-[12px] leading-5 whitespace-nowrap text-muted" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
+        <span className="block truncate text-[12.5px] font-medium text-muted max-sm:text-[11.5px] max-sm:leading-4">{label}</span>
+        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[17px] max-sm:leading-5", k.n)}>{value}</span>
+        <span className="mt-1 block truncate max-sm:mt-0 max-sm:overflow-visible text-[12px] leading-5 whitespace-nowrap text-muted max-sm:text-[11.5px] max-sm:leading-4" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
       </span>
     </>
   );
-  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:gap-2 max-sm:p-2.5 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
+  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:gap-2 max-sm:px-2.5 max-sm:py-2 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
   return href ? <a href={href} className={cls}>{body}</a> : <button type="button" onClick={onClick} className={cls}>{body}</button>;
 }
 
