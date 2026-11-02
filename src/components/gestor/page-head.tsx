@@ -19,16 +19,19 @@ import { cx } from "@/components/ui/primitives";
 export function PageHead({ title, intro, eyebrow, actions }: { title: string; intro?: ReactNode; eyebrow?: string; actions?: ReactNode }) {
   const { t } = useI18n();
   eyebrow ??= t.list.eyebrow(EJERCICIO);
-  // Phones: a grid, so the title and the page's actions share one line (eyebrow above, intro below).
+  // Phones: two columns; the eyebrow tight over the title on the left, the page's actions on the
+  // right, centred on that pair (the intro, if any, runs full width below).
   // From sm: the title block on the left and the actions at its foot on the right, as before.
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
-      <div className="contents sm:block sm:min-w-0">
-        {eyebrow && <p className="eyebrow-tag col-span-2 mb-0.5 justify-self-start sm:mb-2">{eyebrow}</p>}
-        <h1 className="row-start-2 min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
-        {intro && <p className="col-span-2 row-start-3 max-w-[68ch] text-[13.5px] leading-5 text-muted sm:mt-1 sm:text-[14px] sm:leading-[21px]">{intro}</p>}
+      <div className="flex min-w-0 flex-col items-start gap-1 sm:block">
+        {eyebrow && <p className="eyebrow-tag sm:mb-2">{eyebrow}</p>}
+        <h1 className="min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
+        {intro && <p className="max-w-[68ch] text-[14px] leading-[21px] text-muted max-sm:hidden sm:mt-1">{intro}</p>}
       </div>
-      {actions && <div className="col-start-2 row-start-2 flex items-center gap-2 sm:flex-wrap">{actions}</div>}
+      {actions && <div className="flex items-center gap-2 sm:flex-wrap">{actions}</div>}
+      {/* phones: the intro under both columns, full width */}
+      {intro && <p className="col-span-2 text-[13.5px] leading-5 text-muted sm:hidden">{intro}</p>}
     </div>
   );
 }
