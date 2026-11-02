@@ -164,11 +164,16 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       // check and the side padding) sets the column width, so short options sit three or two a row
       // and long ones take a row each, never breaking onto two lines.
       const optMin = Math.ceil(Math.max(...opts.map(([, l]) => l.length)) * 6.6 + 46);
+      // Columns on a phone (about 290px for the options): three a row when they fit, else two, else one.
+      // With two a row, an odd last option takes the whole row, so no row holds a lone half-width button.
+      const ROW = 290;
+      const cols = x.type === "yn" ? 2 : optMin * 3 + 16 <= ROW ? 3 : optMin * 2 + 8 <= ROW ? 2 : 1;
+      const lastWide = cols > 1 && opts.length % cols === 1;
       control = (
         // Separate option buttons, 48px tall (easy to tap): each reads as a button before it is chosen
         // (white, field border, soft shadow); the chosen one fills navy with a check.
-        <div role="radiogroup" aria-labelledby={id + "-l"} style={{ "--opt-min": `${optMin}px` } as React.CSSProperties} className={cx("max-w-full gap-3 max-sm:grid max-sm:w-full max-sm:gap-2", x.type === "yn" ? "grid w-[300px] grid-cols-2" : "flex flex-wrap max-sm:grid-cols-[repeat(auto-fit,minmax(min(100%,var(--opt-min)),1fr))]")}>
-          {opts.map(([val, l]) => {
+        <div role="radiogroup" aria-labelledby={id + "-l"} style={{ "--opt-cols": cols } as React.CSSProperties} className={cx("max-w-full gap-3 max-sm:grid max-sm:w-full max-sm:gap-2", x.type === "yn" ? "grid w-[300px] grid-cols-2" : "flex flex-wrap max-sm:grid-cols-[repeat(var(--opt-cols),minmax(0,1fr))]")}>
+          {opts.map(([val, l], oi) => {
             const on = v === val;
             return (
               <button
@@ -181,6 +186,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
                 className={cx(
                   "inline-flex h-12 min-w-[112px] items-center justify-center gap-2 rounded-md border px-5 text-[15.5px] font-medium whitespace-nowrap shadow-field max-sm:h-11 max-sm:min-w-0 max-sm:gap-1.5 max-sm:px-3 max-sm:text-[13.5px] transition-[background-color,border-color,color] outline-none focus-visible:ring-4 focus-visible:ring-focus/25 disabled:cursor-default",
                   x.type === "yn" && "w-full",
+                  lastWide && oi === opts.length - 1 && "max-sm:col-span-full",
                   on ? "border-accent bg-accent text-accent-ink" : "border-field-line bg-surface text-ink hover:border-accent hover:bg-accent-soft/50 disabled:hover:border-field-line disabled:hover:bg-surface",
                 )}
               >
