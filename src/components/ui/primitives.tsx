@@ -15,7 +15,7 @@ type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "inver
 type Size = "sm" | "md" | "lg";
 const BTN: Record<Variant, string> = {
   primary: "btn-fx-primary border-accent bg-accent text-accent-ink hover:border-accent-hover hover:bg-accent-hover",
-  secondary: "btn-fx-soft border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover",
+  secondary: "btn-fx-soft border-accent/25 bg-accent-soft text-accent hover:border-accent/45 hover:bg-accent-soft-hover",
   // White on a navy band (footer, contact column).
   inverse: "btn-fx-inverse border-white bg-white text-accent hover:border-accent-soft hover:bg-accent-soft",
   // Secondary action next to a primary one: white with a real edge.

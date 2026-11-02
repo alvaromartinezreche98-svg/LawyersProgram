@@ -104,7 +104,7 @@ function ResultForm({ exp, initial, onDone, onCancel }: { exp: Expediente; initi
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[13.5px] font-medium">{t.resultG.file}</span>
         {file && <FileChip file={file} />}
-        <label htmlFor={id} className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13px] font-medium transition-colors">
+        <label htmlFor={id} className="inline-flex h-(--control-h-sm) cursor-pointer items-center gap-2 rounded-md border border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover px-3 text-[13px] font-medium transition-colors">
           <Upload size={14} aria-hidden="true" />
           {busy ? t.upload.uploading : file ? t.resultG.replace : t.resultG.upload}
         </label>

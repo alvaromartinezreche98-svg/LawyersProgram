@@ -268,7 +268,7 @@ function Repeater({ field: x, items, path, id }: { field: Field; items: Answers[
         );
       })}
       {!readOnly && (
-        <button type="button" onClick={() => set(path, [...items, { [ITEM_ID]: uid("i-") }])} className="inline-flex h-(--control-h) items-center gap-2 self-start rounded-md bg-accent-soft px-4 font-semibold text-accent transition-colors hover:bg-accent-soft-hover">
+        <button type="button" onClick={() => set(path, [...items, { [ITEM_ID]: uid("i-") }])} className="inline-flex h-(--control-h) items-center gap-2 self-start rounded-md border border-accent/25 bg-accent-soft hover:border-accent/45 px-4 font-semibold text-accent transition-colors hover:bg-accent-soft-hover">
           {t.common.add(item)}
         </button>
       )}
@@ -445,11 +445,11 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
               <span>{t.upload.reqSize}</span>
             </span>
           </div>
-          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
+          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover")}>
             <Camera size={17} aria-hidden="true" />
             {t.upload.camera}
           </label>
-          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
+          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover")}>
             <Upload size={17} aria-hidden="true" />
             {t.upload.choose}
           </label>
@@ -479,7 +479,7 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
               </span>
               {p.failed && (
                 <span className="flex gap-1">
-                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
+                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
                   <button type="button" aria-label={t.common.removeFile(p.file.name)} onClick={() => setPending((l) => l.filter((x) => x.key !== p.key))} className="grid size-8 place-items-center rounded-md text-muted hover:bg-surface hover:text-ink"><X size={16} aria-hidden="true" /></button>
                 </span>
               )}
@@ -506,7 +506,7 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
                 {later.note && <p className="text-muted">{t.upload.laterNote(later.note)}</p>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
+                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
                 <button type="button" onClick={() => { setNote(later.note); setNoting(true); }} className={cx(btn, "border-transparent text-accent hover:bg-accent-soft")}>{t.upload.changeNote}</button>
               </div>
             </div>

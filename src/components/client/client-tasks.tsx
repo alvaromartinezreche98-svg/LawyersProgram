@@ -118,12 +118,12 @@ export function SectionTasks({ exp, section }: { exp: Expediente; section: strin
           <li key={x.id} className="flex flex-col items-start gap-2">
             <span className="text-[15px] leading-[22px]">{tr(x.text)}</span>
             {x.target?.field ? (
-              <a href={`#q-${x.target.field}${x.target.item ? `-${x.target.item}` : ""}`} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
+              <a href={`#q-${x.target.field}${x.target.item ? `-${x.target.item}` : ""}`} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
                 {t.home.goField}
                 <ArrowDown size={14} aria-hidden="true" />
               </a>
             ) : (
-              <Link href="/inicio" className="inline-flex h-(--control-h-sm) items-center rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
+              <Link href="/inicio" className="inline-flex h-(--control-h-sm) items-center rounded-md border border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium">
                 {t.tasks.markDone}
               </Link>
             )}

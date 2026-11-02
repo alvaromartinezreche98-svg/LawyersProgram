@@ -39,7 +39,7 @@ export function FeatureCarousel({ items, icons, labels }: { items: [string, stri
     el.scrollBy({ left: dir * (card.getBoundingClientRect().width + 16), behavior: "smooth" });
   };
 
-  const arrow = "btn-fx btn-fx-soft grid size-11 place-items-center rounded-full border border-transparent bg-accent-soft text-accent hover:bg-accent-soft-hover disabled:cursor-default disabled:opacity-40";
+  const arrow = "btn-fx btn-fx-soft grid size-11 place-items-center rounded-full border border-accent/25 bg-accent-soft text-accent hover:border-accent/45 hover:bg-accent-soft-hover disabled:cursor-default disabled:opacity-40";
 
   return (
     <div className="flex flex-col gap-6">
