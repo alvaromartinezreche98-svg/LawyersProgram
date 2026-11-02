@@ -1,5 +1,6 @@
 // DateField: a dd/mm/yyyy text field with a calendar popover (see date-field.tsx).
 // Navy marks the chosen day, terracotta marks today ("you are here"), mist for the rest.
+@use "sass:map";
 @use "../../styles/abstracts" as *;
 
 .root {
@@ -224,4 +225,33 @@
 .footToday {
   font-weight: 600;
   color: var(--accent);
+}
+
+@media (width < map.get($breakpoints, "sm")) {
+  :global(.client-scale) .root {
+    max-width: none;
+  }
+
+  :global(.client-scale) .trigger {
+    right: 0;
+    width: 44px;
+    height: 44px;
+  }
+
+  :global(.client-scale) .panel {
+    position: fixed;
+    inset: 20dvh space(2) auto;
+    width: auto;
+    max-height: 75dvh;
+    overflow-y: auto;
+    padding: space(2);
+  }
+
+  :global(.client-scale) .head {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+
+  :global(.client-scale) .day {
+    max-height: none;
+  }
 }
