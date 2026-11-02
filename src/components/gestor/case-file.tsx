@@ -710,19 +710,22 @@ const KPI_CHIP = { bad: "bg-bad-soft text-bad", warn: "bg-warn-soft text-warn", 
 
 function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { icon: LucideIcon; tone: keyof typeof KPI_TONE; label: string; value: string; sub: ReactNode; href?: string; onClick?: () => void; zero?: boolean }) {
   const k = KPI_TONE[zero ? "neutral" : tone];
+  // Phones: one compact row (about 44px): the label over its line, the figure on the right (no icon there,
+  // so the labels fit whole; the figure keeps the tone colour).
+  // From sm: the icon beside label, figure and line, stacked.
   const body = (
     <>
-      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-6 max-sm:rounded-md", k.tile)} aria-hidden="true">
+      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:hidden", k.tile)} aria-hidden="true">
         <Icon size={20} strokeWidth={2} className="max-sm:size-[13px]" />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12.5px] font-medium text-muted max-sm:text-[11px] max-sm:leading-[14px]">{label}</span>
-        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[15px] max-sm:leading-[18px]", k.n)}>{value}</span>
-        <span className="mt-1 block truncate max-sm:mt-0 max-sm:overflow-visible text-[12px] leading-5 whitespace-nowrap text-muted max-sm:text-[11px] max-sm:leading-[14px]" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
+      <span className="min-w-0 flex-1 max-sm:contents">
+        <span className="block truncate text-[12.5px] font-medium text-muted max-sm:col-start-1 max-sm:row-start-1 max-sm:self-end max-sm:text-[11px] max-sm:leading-[14px] max-sm:font-semibold max-sm:tracking-[-0.01em] max-sm:text-ink">{label}</span>
+        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:col-start-2 max-sm:row-span-2 max-sm:row-start-1 max-sm:self-center max-sm:text-[17px] max-sm:leading-none", k.n)}>{value}</span>
+        <span className="mt-1 block truncate text-[12px] leading-5 whitespace-nowrap text-muted max-sm:col-start-1 max-sm:row-start-2 max-sm:mt-0 max-sm:self-start max-sm:text-[11px] max-sm:leading-[14px]" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
       </span>
     </>
   );
-  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:items-start max-sm:gap-2 max-sm:rounded-lg max-sm:p-2 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
+  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:grid max-sm:min-h-11 max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-x-2 max-sm:gap-y-0 max-sm:rounded-lg max-sm:px-2.5 max-sm:py-1.5 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
   return href ? <a href={href} className={cls}>{body}</a> : <button type="button" onClick={onClick} className={cls}>{body}</button>;
 }
 
