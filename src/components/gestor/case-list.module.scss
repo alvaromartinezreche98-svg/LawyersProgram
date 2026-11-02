@@ -303,6 +303,11 @@
 // One row that wraps, one 8px gap throughout: views, search (takes the free space), filters, order.
 .toolbar {
   position: relative; // phones: the filter panel opens across the toolbar's width
+
+  // phones: one 36px height for the view chips, the search and the filter and order buttons
+  @media (max-width: 639px) {
+    --control-h: 2.25rem;
+  }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
