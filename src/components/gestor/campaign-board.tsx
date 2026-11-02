@@ -81,7 +81,7 @@ export function CampaignBoard() {
     <>
       <PageTitle>{t.titles.board}</PageTitle>
       <TopBar crumbs={[{ label: t.board.title }]} />
-      <div className="flex flex-col gap-2 px-4 py-2 sm:gap-4 sm:px-6 sm:py-5">
+      <div className="flex flex-col gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-5">
         <DeadlineBanners />
         {/* A working header: no tutorial line (the drag hint is on each card), the page's tools on the right. */}
         <PageHead
@@ -96,7 +96,7 @@ export function CampaignBoard() {
                 title={t.board.onlyAttention}
                 className={cx(
                   // phones: a 32px icon button, white on the grey ground with a clear edge (pressed = copper)
-                  "inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[13.5px] font-medium transition-colors max-sm:size-8 max-sm:justify-center max-sm:px-0",
+                  "inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[13.5px] font-medium transition-colors max-sm:size-9 max-sm:justify-center max-sm:px-0",
                   only ? "border-copper bg-copper-soft text-copper-text" : "border-line-strong bg-surface text-ink hover:bg-hover",
                 )}
               >
@@ -104,7 +104,7 @@ export function CampaignBoard() {
                 <span className="max-sm:sr-only">{t.board.onlyAttention}</span>
               </button>
               {/* phones: the icon alone, 32px, filled navy as the page's main action (as on Cases) */}
-              <ButtonLink href="/clientes" size="sm" aria-label={t.list.invite} className="max-sm:size-8 max-sm:border-accent max-sm:bg-accent max-sm:px-0 max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
+              <ButtonLink href="/clientes" size="sm" aria-label={t.list.invite} className="max-sm:size-9 max-sm:border-accent max-sm:bg-accent max-sm:px-0 max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
                 <UserPlus size={15} aria-hidden="true" />
                 <span className="max-sm:hidden">{t.list.invite}</span>
               </ButtonLink>
@@ -114,7 +114,7 @@ export function CampaignBoard() {
         <CampaignStats all={all} filing={firm.campaign?.filing} />
 
         {/* Phones: one column at a time, tablets two; these tabs show which and jump to another (a swipe works too). */}
-        <div role="tablist" aria-label={t.board.title} className="no-scrollbar flex snap-x snap-mandatory gap-1.5 overflow-x-auto md:grid md:grid-cols-4 md:gap-2 lg:hidden">
+        <div role="tablist" aria-label={t.board.title} className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto md:grid md:grid-cols-4 lg:hidden">
           {STATUSES.map((s, i) => {
             const n = shown.filter((x) => x.exp.status === s.id).length;
             const on = colAt === i;
@@ -127,7 +127,7 @@ export function CampaignBoard() {
                 onClick={() => (board.current?.querySelector(`[data-col="${s.id}"]`) as HTMLElement | null)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" })}
                 title={tr(s.label)}
                 // label and count on one line, the same height whichever tab is on (the count never wraps or squeezes)
-                className={cx("flex h-9 shrink-0 snap-start items-center justify-between gap-2 rounded-lg border pr-1.5 pl-3 text-[13px] font-semibold whitespace-nowrap transition-colors md:h-10 md:min-w-0 md:pr-2", on ? "border-accent bg-accent text-white" : "border-line bg-surface text-ink hover:bg-sunk")}
+                className={cx("flex h-10 shrink-0 snap-start items-center justify-between gap-2 rounded-lg border pr-2 pl-3 text-[13px] font-semibold whitespace-nowrap transition-colors md:h-10 md:min-w-0 md:pr-2", on ? "border-accent bg-accent text-white" : "border-line bg-surface text-ink hover:bg-sunk")}
               >
                 <span className="md:min-w-0 md:truncate">{tr(s.label)}</span>
                 <span className={cx("figures grid h-6 min-w-6 shrink-0 place-items-center rounded-md px-1.5 text-[12px] font-bold max-md:h-5 max-md:min-w-5 max-md:px-1 max-md:text-[11px]", on ? "bg-white text-accent" : COLUMN_TONE[s.id].badge)}>{n}</span>
@@ -368,7 +368,7 @@ function CampaignStats({ all, filing }: { all: Triage[]; filing?: string }) {
       : { icon: CalendarClock, label: k.deadline, value: left < 0 ? k.passed : k.days(left), urgent: left <= 7 },
   ];
   return (
-    <ul className="no-scrollbar flex snap-x snap-mandatory gap-1.5 overflow-x-auto sm:grid sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
+    <ul className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto sm:grid sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
       {tiles.map((x) => {
         const body = (
           <>

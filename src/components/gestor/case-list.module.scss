@@ -10,9 +10,10 @@
   padding: space(5) space(4) space(7);
 
   // phones: a tighter rhythm, so the list starts in the first screen
+  // phones: 12px between the page's rows, so each control stands clear for a finger
   @media (max-width: 639px) {
-    gap: space(2);
-    padding-top: space(2);
+    gap: space(3);
+    padding-top: space(3);
   }
 
   @include from("sm") {
@@ -33,7 +34,7 @@
   gap: space(4);
 
   @media (max-width: 639px) {
-    gap: 6px;
+    gap: space(2);
   }
 }
 
@@ -99,7 +100,7 @@
   // phones: one slim row that snaps card by card, clipped at the page gutter (never past the screen edge)
   @media (max-width: 639px) {
     display: flex;
-    gap: 6px;
+    gap: space(2);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
@@ -304,9 +305,10 @@
 .toolbar {
   position: relative; // phones: the filter panel opens across the toolbar's width
 
-  // phones: one 36px height for the view chips, the search and the filter and order buttons
+  // phones: one 40px touch height for the view chips, the search and the filter and order buttons
   @media (max-width: 639px) {
-    --control-h: 2.25rem;
+    --control-h: 2.5rem;
+    row-gap: space(3);
   }
   display: flex;
   flex-wrap: wrap;
@@ -929,8 +931,8 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
 .foldedOpen {
   @media (max-width: 639px) {
     flex: none;
-    min-height: 32px;
-    padding: 0 space(2) 0 10px;
+    min-height: 36px;
+    padding: 0 space(3) 0 space(3);
     border-radius: radius(md);
     background: var(--copper);
     font-weight: 600;

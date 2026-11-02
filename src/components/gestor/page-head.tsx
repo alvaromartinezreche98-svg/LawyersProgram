@@ -33,7 +33,7 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
       <div className="flex min-w-0 items-center gap-2.5 sm:block">
         {/* phones: back to the panel page this one was opened from (only when there is one) */}
         {from && (
-          <button type="button" onClick={() => router.back()} aria-label={t.errors.back} title={t.errors.back} className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-md border border-line-strong bg-surface text-ink transition-colors hover:bg-hover sm:hidden">
+          <button type="button" onClick={() => router.back()} aria-label={t.errors.back} title={t.errors.back} className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-md border border-line-strong bg-surface text-ink transition-colors hover:bg-hover sm:hidden">
             <ArrowLeft size={16} strokeWidth={2.2} aria-hidden="true" />
           </button>
         )}
@@ -52,10 +52,10 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
 }
 
 /** A set of mutually exclusive views (at most five). */
-/** `scroll`: on phones the views stay on one line that snaps sideways, clipped at the page gutter; 36px (the Cases toolbar sets its search and buttons to the same). */
+/** `scroll`: on phones the views stay on one line that snaps sideways, clipped at the page gutter; 40px touch targets, 8px apart (the Cases toolbar matches). */
 export function Chips({ label, scroll, children }: { label: string; scroll?: boolean; children: ReactNode }) {
   return (
-    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:basis-full max-sm:snap-x max-sm:snap-mandatory max-sm:flex-nowrap max-sm:gap-1.5 max-sm:overflow-x-auto max-sm:[&>*]:h-9 max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start max-sm:[&>*]:px-3 max-sm:[&>*]:text-[13px]")}>
+    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:basis-full max-sm:snap-x max-sm:snap-mandatory max-sm:flex-nowrap max-sm:gap-2 max-sm:overflow-x-auto max-sm:[&>*]:h-10 max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start max-sm:[&>*]:px-3 max-sm:[&>*]:text-[13px]")}>
       {children}
     </div>
   );
