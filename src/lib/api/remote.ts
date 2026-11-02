@@ -259,17 +259,20 @@ const hooks: RemoteHooks = {
     }
   },
   async status(id: string, status: Status) {
-    const e = get(id);
-    if (!e?.remote) return;
-    try {
-      const d = await api.setStatus(id, TO_API_STATUS[status], e.remote.version);
-      remoteStore.patchCase(id, (cur) => caseFromApi(d, cur));
-    } catch (err) {
-      // A 409 means our stored version is stale (a client saved or sent while this case was open). `refresh()` keeps the stored
-      // version, so recovering through it would leave every later status change failing until a reload; a full reload takes
-      // the server's version. Other errors change nothing locally, so there is nothing to recover.
-      if (isApiError(err) && err.kind === "conflict") await loadCase(id, true);
-      throw err;
+    for (let retried = false; ; retried = true) {
+      const e = get(id);
+      if (!e?.remote) return;
+      try {
+        const d = await api.setStatus(id, TO_API_STATUS[status], e.remote.version);
+        remoteStore.patchCase(id, (cur) => caseFromApi(d, cur));
+        return;
+      } catch (err) {
+        // A 409 means our stored version is stale: the client saved or sent while this case was open (`refresh()` keeps the
+        // stored version). Reload to take the server's version, then apply the gestoría's choice once more. Other errors
+        // change nothing locally, so there is nothing to recover.
+        if (retried || !(isApiError(err) && err.kind === "conflict")) throw err;
+        await loadCase(id, true);
+      }
     }
   },
   async message(id: string, text: string, request: boolean) {
