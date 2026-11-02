@@ -363,14 +363,16 @@ export function CaseFile({ id }: { id: string }) {
             {tab === "chat" && (
               <div className="flex flex-col gap-2">
                 <p className="text-[12.5px] text-muted">{t.file.chatAside}</p>
-                <div className="overflow-clip rounded-xl border border-line">
-                  <ChatBox exp={e} side="gestor" height="h-[min(520px,calc(100dvh-330px))] min-h-[280px]" />
+                {/* a white card on the panel's grey ground, the conversation on white inside it */}
+                <div className="overflow-clip rounded-xl border border-line bg-surface shadow-sm">
+                  <ChatBox exp={e} side="gestor" height="h-[min(520px,calc(100dvh-330px))] min-h-[280px] bg-surface" />
                 </div>
               </div>
             )}
 
             {tab === "notes" && (
-              <div className="flex flex-col gap-4">
+              // one white card: the private note, then (under a hairline) what the client wrote
+              <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 shadow-sm">
                 <div>
                   <label htmlFor={"notes-" + e.id} className="flex items-center gap-2 text-[14px] font-semibold">
                     <LockKeyhole size={15} className="text-accent" aria-hidden="true" />
@@ -378,8 +380,8 @@ export function CaseFile({ id }: { id: string }) {
                   </label>
                   <p className="mt-0.5 text-[12.5px] text-muted">{t.file.notesAside}</p>
                 </div>
-                <textarea id={"notes-" + e.id} rows={8} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="field bg-neutral-soft py-2" />
-                <div className="rounded-lg bg-sunk px-3.5 py-3 text-[13px]">
+                <textarea id={"notes-" + e.id} rows={8} value={e.notes} onChange={(ev) => actions.setNotes(e.id, ev.target.value)} placeholder={t.file.notesPh} className="field py-2 max-sm:min-h-32" />
+                <div className="border-t border-line pt-3 text-[13px]">
                   <b className="block text-ink">{t.file.fromClient.trim()}</b>
                   <span className="text-muted">{typeof a.obs === "string" && a.obs ? a.obs : p.rail.fromClientNone}</span>
                 </div>

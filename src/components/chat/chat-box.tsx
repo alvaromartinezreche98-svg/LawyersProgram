@@ -178,7 +178,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
         })}
       </div>
 
-      <div className="@container flex flex-col gap-2 border-t border-line bg-surface p-3 max-sm:p-2">
+      <div className="@container flex flex-col gap-2 border-t border-line bg-surface p-3 max-sm:px-3 max-sm:py-2.5">
         {side === "gestor" && (
           <div className="flex flex-wrap gap-1.5">
             {(firm.replies?.length ? firm.replies : t.chat.quick).filter((q) => q.label.trim()).map((q, i) => (
