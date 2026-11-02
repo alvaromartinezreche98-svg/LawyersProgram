@@ -37,7 +37,7 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
 /** `scroll`: on phones the views stay on one line and scroll sideways (edge to edge) instead of wrapping. */
 export function Chips({ label, scroll, children }: { label: string; scroll?: boolean; children: ReactNode }) {
   return (
-    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:-mx-4 max-sm:basis-[calc(100%+2rem)] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:px-4 max-sm:[&>*]:shrink-0")}>
+    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "max-sm:basis-full max-sm:[&>*]:grow max-sm:[&>*]:justify-center")}>
       {children}
     </div>
   );

@@ -113,8 +113,8 @@ export function CampaignBoard() {
         />
         <CampaignStats all={all} filing={firm.campaign?.filing} />
 
-        {/* Phones: one column at a time, full width; these tabs show which and jump to another (a swipe works too). */}
-        <div role="tablist" aria-label={t.board.title} className="no-scrollbar -mx-4 -mb-1 flex gap-1.5 overflow-x-auto px-4 md:hidden">
+        {/* Phones: one column at a time, tablets two; these tabs show which and jump to another (a swipe works too). */}
+        <div role="tablist" aria-label={t.board.title} className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:hidden">
           {STATUSES.map((s, i) => {
             const n = shown.filter((x) => x.exp.status === s.id).length;
             const on = colAt === i;
@@ -125,10 +125,12 @@ export function CampaignBoard() {
                 role="tab"
                 aria-selected={on}
                 onClick={() => (board.current?.querySelector(`[data-col="${s.id}"]`) as HTMLElement | null)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" })}
-                className={cx("inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors", on ? cx("border-transparent text-white", COLUMN_TONE[s.id].head) : "border-line bg-surface text-muted")}
+                title={tr(s.label)}
+                // label and count on one line, the same height whichever tab is on (the count never wraps or squeezes)
+                className={cx("flex h-10 min-w-0 items-center justify-between gap-2 rounded-lg border pr-2 pl-3 text-[13px] font-semibold transition-colors", on ? "border-accent bg-accent text-white" : "border-line bg-surface text-ink hover:bg-sunk")}
               >
-                {tr(s.label)}
-                <span className={cx("figures grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold", on ? "bg-white text-accent" : COLUMN_TONE[s.id].badge)}>{n}</span>
+                <span className="min-w-0 truncate">{tr(s.label)}</span>
+                <span className={cx("figures grid h-6 min-w-6 shrink-0 place-items-center rounded-md px-1.5 text-[12px] font-bold", on ? "bg-white text-accent" : COLUMN_TONE[s.id].badge)}>{n}</span>
               </button>
             );
           })}
@@ -143,11 +145,11 @@ export function CampaignBoard() {
             const i = Math.min(cols.length - 1, Math.round(el.scrollLeft / step));
             if (i !== colAt) setColAt(i);
           }}
-          className="-mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 max-md:[scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 md:snap-none"
+          className="-mx-4 [container-type:inline-size] snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 pb-2 max-lg:[scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:snap-none"
         >
           {/* Columns with cases get the room; empty ones stay narrow, as a drop target. */}
           <div
-            className="grid w-full gap-3 max-md:w-max max-md:grid-cols-[repeat(4,calc(100vw-2rem))] sm:max-md:grid-cols-[repeat(4,calc(100vw-3rem))] md:grid-cols-(--cols)"
+            className="grid w-full gap-3 max-sm:gap-4 sm:max-lg:gap-6 max-lg:w-max max-md:grid-cols-[repeat(4,100cqw)] md:max-lg:grid-cols-[repeat(4,calc((100cqw-1.5rem)/2))] lg:grid-cols-(--cols)"
             style={{
               "--cols": STATUSES.map((s) => (shown.some((x) => x.exp.status === s.id) ? "minmax(240px, 1fr)" : "minmax(160px, 0.55fr)")).join(" "),
             } as CSSProperties}
@@ -178,7 +180,7 @@ export function CampaignBoard() {
                   )}
                 >
                   {/* The header filled with the status colour, white text; the count on a white pill. */}
-                  <header className={cx("flex items-center gap-2 rounded-lg border bg-surface px-3 py-2.5 shadow-[0_1px_2px_rgb(15_23_42/0.04)] max-md:hidden", tone.rule)} title={tr(s.help)}>
+                  <header className={cx("flex items-center gap-2 rounded-lg border bg-surface px-3 py-2.5 shadow-[0_1px_2px_rgb(15_23_42/0.04)] max-lg:hidden", tone.rule)} title={tr(s.help)}>
                     <h2 className="flex-1 text-[13px] font-semibold tracking-[0.01em] text-ink">{tr(s.label)}</h2>
                     <span className={cx("figures grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[11.5px] font-semibold ring-1", tone.badge)}>{col.length}</span>
                   </header>
@@ -223,7 +225,7 @@ export function CampaignBoard() {
           </p>
           <div className="overflow-hidden rounded-lg border border-line bg-surface">
             <div>
-            <div className="table-head hidden grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] gap-4 whitespace-nowrap sm:grid">
+            <div className="table-head hidden grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] items-end gap-4 sm:grid">
               <span>{t.board.cols.member}</span>
               <span className="text-right">{t.board.cols.cases}</span>
               <span className="text-right">{t.board.cols.attention}</span>
@@ -366,21 +368,21 @@ function CampaignStats({ all, filing }: { all: Triage[]; filing?: string }) {
       : { icon: CalendarClock, label: k.deadline, value: left < 0 ? k.passed : k.days(left), urgent: left <= 7 },
   ];
   return (
-    <ul className="grid grid-cols-2 gap-2 no-scrollbar max-sm:-mx-4 max-sm:flex max-sm:overflow-x-auto max-sm:px-4 max-sm:py-0.5 sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
+    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 2xl:grid-cols-6">
       {tiles.map((x) => {
         const body = (
           <>
-            <IconTile icon={x.icon} size="sm" tone={x.firm ? "copper" : "accent"} className="max-sm:size-7 max-sm:rounded-full" />
-            <span className="flex min-w-0 flex-col max-sm:flex-row max-sm:items-baseline max-sm:gap-1.5">
-              <span className={cx("figures text-[22px] leading-7 font-semibold max-sm:text-[16px] max-sm:leading-6", x.urgent && "text-bad", x.firm && "text-copper-text")}>{x.value}</span>
-              <span className="truncate text-[13px] text-muted max-sm:text-[12.5px] max-sm:overflow-visible">{x.label}</span>
+            <IconTile icon={x.icon} size="sm" tone={x.firm ? "copper" : "accent"} className="max-sm:size-8 max-sm:shrink-0" />
+            <span className="flex min-w-0 flex-col">
+              <span className={cx("figures text-[22px] leading-7 font-semibold max-sm:text-[17px] max-sm:leading-6", x.urgent && "text-bad", x.firm && "text-copper-text")}>{x.value}</span>
+              <span className="truncate text-[13px] text-muted max-sm:line-clamp-2 max-sm:text-[12px] max-sm:leading-4 max-sm:whitespace-normal">{x.label}</span>
             </span>
           </>
         );
-        // Phones: a slim chip (icon · figure · label on one line) in a row that scrolls sideways.
-        const cls = "flex h-full items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet max-sm:gap-2 max-sm:rounded-full max-sm:py-1 max-sm:pr-3.5 max-sm:pl-1 max-sm:whitespace-nowrap";
+        // Phones: two tiles a row (figure over label), so nothing runs off the screen edge.
+        const cls = "flex h-full min-w-0 items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 shadow-sheet max-sm:gap-2.5 max-sm:px-3 max-sm:py-2.5";
         return (
-          <li key={x.label} className="max-sm:shrink-0">
+          <li key={x.label} className="min-w-0">
             {x.href ? <Link href={x.href} className={cx(cls, "transition-colors hover:border-line-strong")}>{body}</Link> : <div className={cls}>{body}</div>}
           </li>
         );

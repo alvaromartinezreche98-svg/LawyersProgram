@@ -96,25 +96,9 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: space(3);
 
-  // phones: one slim row of chips that scrolls sideways (edge to edge), not a 2×2 block
+  // phones: two compact cards a row inside the page gutter (nothing runs off the screen edge)
   @media (max-width: 639px) {
-    display: flex;
     gap: space(2);
-    margin-inline: calc(-1 * #{space(4)});
-    padding: 2px space(4) space(1);
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: space(4);
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    > li {
-      flex: 0 0 auto;
-      scroll-snap-align: start;
-    }
   }
 
   // four across only where every label still fits beside its icon (the sidebar takes room from 1024px)
@@ -144,17 +128,15 @@
   row-gap: 0;
   @include pad("tile");
 
-  // phones: a slim chip, icon · figure · label on one line, no filter mark
+  // phones: compact; icon, figure over label, and the filter mark (✕ while on) on one centred line
   @media (max-width: 639px) {
-    grid-template-columns: auto auto auto;
-    grid-template-areas: "icon n label";
     column-gap: space(2);
-    padding: space(2) space(3) space(2) space(2);
-    border-radius: 999px;
-    white-space: nowrap;
+    padding: space(2) space(2) space(2) space(3);
 
     .cardGo {
-      display: none;
+      width: 24px;
+      height: 24px;
+      align-self: center;
     }
   }
   border: 1px solid var(--line);
@@ -280,6 +262,11 @@
   grid-area: label;
   font-size: 0.8125rem;
   line-height: 1.3;
+
+  @media (max-width: 639px) {
+    font-size: 0.75rem;
+    line-height: 1.25;
+  }
 
   @include from("sm") {
     font-size: 0.875rem;
