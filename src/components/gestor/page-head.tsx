@@ -33,7 +33,7 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
       <div className="flex min-w-0 items-center gap-2.5 sm:block">
         {/* phones: back to the panel page this one was opened from (only when there is one) */}
         {from && (
-          <button type="button" onClick={() => router.back()} aria-label={t.errors.back} title={t.errors.back} className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-md border border-slate-200 bg-slate-100/80 text-ink transition-colors hover:bg-slate-200/80 sm:hidden">
+          <button type="button" onClick={() => router.back()} aria-label={t.errors.back} title={t.errors.back} className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-md border border-line-strong bg-surface text-ink transition-colors hover:bg-hover sm:hidden">
             <ArrowLeft size={16} strokeWidth={2.2} aria-hidden="true" />
           </button>
         )}

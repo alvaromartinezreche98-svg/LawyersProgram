@@ -39,7 +39,8 @@ export function Appointments() {
           intro={t.citas.intro}
           actions={
             !adding && (
-              <Button size="sm" onClick={() => { setAdding(true); setSaved(null); }}>
+              // phones: filled navy and 32px, the page's main action (as on Cases)
+              <Button size="sm" onClick={() => { setAdding(true); setSaved(null); }} className="max-sm:h-8 max-sm:gap-1.5 max-sm:border-accent max-sm:bg-accent max-sm:px-2.5 max-sm:text-[12.5px] max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
                 <CalendarPlus size={15} aria-hidden="true" />
                 {t.citas.newBtn}
               </Button>
@@ -90,18 +91,18 @@ function Row({ e, a }: { e: Expediente; a: Appointment }) {
   return (
     // Phones and tablets: name and status on one line, the kind and date small under it, then one row of
     // controls (time, accountant, confirm and cancel as icon buttons). From lg: three columns.
-    <li className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 max-lg:gap-y-2.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)] lg:items-center">
+    <li className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 max-lg:gap-y-1.5 max-sm:py-2.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)] lg:items-center">
       <div className="flex min-w-0 items-start justify-between gap-3">
         <span className="min-w-0">
-          <Link href={`/expedientes/${e.id}`} className="block truncate font-medium hover:underline">
+          <Link href={`/expedientes/${e.id}`} className="block truncate font-medium hover:underline max-sm:text-[14.5px] max-sm:leading-5">
             {clientName(e) || t.common.unnamedClient}
           </Link>
-          <span className="block truncate text-[12.5px] text-muted">{typeof e.answers.telefono === "string" && e.answers.telefono ? e.answers.telefono : t.citas.requested(fmtTime(a.createdAt, locale))}</span>
+          <span className="block truncate text-[12.5px] text-muted max-sm:text-[12px] max-sm:leading-4">{typeof e.answers.telefono === "string" && e.answers.telefono ? e.answers.telefono : t.citas.requested(fmtTime(a.createdAt, locale))}</span>
         </span>
         <span className="shrink-0 lg:hidden"><Pill tone={AP_TONE[a.status]}>{t.cita.status[a.status]}</Pill></span>
       </div>
       <div className="min-w-0">
-        <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] max-lg:text-[13px] max-lg:text-muted">
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] max-lg:text-[13px] max-lg:text-muted max-sm:text-[12.5px]">
           <span className="inline-flex items-center gap-1.5 max-lg:font-medium max-lg:text-ink">
             {a.kind === "llamada" ? <Phone size={14} aria-hidden="true" /> : <Building2 size={14} aria-hidden="true" />}
             {t.cita.kind[a.kind]}
@@ -114,19 +115,19 @@ function Row({ e, a }: { e: Expediente; a: Appointment }) {
         {a.note && <span className="block text-[13px]">{a.note}</span>}
       </div>
       {a.status === "solicitada" ? (
-        // Phones: time and accountant share the row; if the screen is too narrow for the two icon
-        // buttons as well, they move to a second line on the right instead of squeezing the fields.
-        <div className="flex min-w-0 flex-wrap items-center gap-2 max-lg:gap-1.5 lg:justify-end">
+        // Phones: one row; a fixed-width time, the accountant taking the rest, confirm and cancel as
+        // 32px icon buttons. Tablets: the same, wrapping the buttons to a second line if needed.
+        <div className="flex min-w-0 flex-wrap items-center gap-2 max-lg:gap-1.5 max-sm:mt-1 max-sm:flex-nowrap lg:justify-end">
           <label className="sr-only" htmlFor={`t-${a.id}`}>{t.citas.time}</label>
-          <input id={`t-${a.id}`} type="time" value={time} onChange={(ev) => setTime(ev.target.value)} className={cx(ctl, "max-lg:min-w-[7rem] max-lg:flex-1 max-lg:basis-[7rem] max-lg:px-2.5")} />
+          <input id={`t-${a.id}`} type="time" value={time} onChange={(ev) => setTime(ev.target.value)} className={cx(ctl, "max-lg:min-w-[7rem] max-lg:flex-1 max-lg:basis-[7rem] max-lg:px-2.5 max-sm:h-8 max-sm:min-w-[6.25rem] max-sm:flex-[0_1_6.75rem] max-sm:px-2 max-sm:text-[13px]")} />
           <label className="sr-only" htmlFor={`w-${a.id}`}>{t.citas.assignee}</label>
-          <Select id={`w-${a.id}`} value={who} onChange={setWho} buttonClassName="h-(--control-h-sm) text-[13px]" className="w-auto min-w-44 max-lg:min-w-[8.5rem] max-lg:flex-[1.4] max-lg:basis-[8.5rem]" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
+          <Select id={`w-${a.id}`} value={who} onChange={setWho} buttonClassName="h-(--control-h-sm) text-[13px] max-sm:h-8" className="w-auto min-w-44 max-lg:min-w-[8.5rem] max-lg:flex-[1.4] max-lg:basis-[8.5rem] max-sm:min-w-[5.5rem] max-sm:flex-1 max-sm:basis-0" options={[{ value: "", label: t.list.unassigned }, ...firm.team.map((m) => ({ value: m.id, label: m.name }))]} />
           <span className="flex shrink-0 gap-1.5 max-lg:ml-auto lg:contents">
-          <Button size="sm" variant="primary" disabled={!time} onClick={() => actions.confirmAppointment(e.id, a.id, time, who || null)} aria-label={t.citas.confirm} title={t.citas.confirm} className="max-lg:w-(--control-h-sm) max-lg:px-0">
+          <Button size="sm" variant="primary" disabled={!time} onClick={() => actions.confirmAppointment(e.id, a.id, time, who || null)} aria-label={t.citas.confirm} title={t.citas.confirm} className="max-lg:w-(--control-h-sm) max-lg:px-0 max-sm:size-8">
             <Check size={15} strokeWidth={2.4} aria-hidden="true" className="lg:hidden" />
             <span className="max-lg:sr-only">{t.citas.confirm}</span>
           </Button>
-          <Button size="sm" variant="danger" onClick={() => actions.cancelAppointment(e.id, a.id)} aria-label={t.citas.cancel} title={t.citas.cancel} className="max-lg:w-(--control-h-sm) max-lg:px-0">
+          <Button size="sm" variant="danger" onClick={() => actions.cancelAppointment(e.id, a.id)} aria-label={t.citas.cancel} title={t.citas.cancel} className="max-lg:w-(--control-h-sm) max-lg:px-0 max-sm:size-8">
             <X size={15} strokeWidth={2.4} aria-hidden="true" className="lg:hidden" />
             <span className="max-lg:sr-only">{t.citas.cancel}</span>
           </Button>
