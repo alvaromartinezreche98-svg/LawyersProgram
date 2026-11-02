@@ -68,8 +68,10 @@ export function ClientDocuments() {
         const n = list.reduce((k, x) => k + x.files.length, 0);
         return (
           // Each section on its own card, so the categories read apart
-          <section key={s.slug} aria-labelledby={`docs-${s.slug}`} className="flex flex-col gap-4 rounded-xl border border-line bg-surface pad-card shadow-sheet">
-            <div className="flex items-center justify-between gap-3 border-b border-line pb-3">
+          // Phones: the section is a heading on the page ground and each document its own white card
+          // (one level of box). From sm: one card per section, the documents inside it.
+          <section key={s.slug} aria-labelledby={`docs-${s.slug}`} className="flex flex-col gap-4 rounded-xl border border-line bg-surface pad-card shadow-sheet max-sm:gap-2.5 max-sm:rounded-none max-sm:border-0 max-sm:bg-transparent max-sm:p-0 max-sm:shadow-none">
+            <div className="flex items-center justify-between gap-3 border-b border-line pb-3 max-sm:border-b-0 max-sm:pb-0">
               <h2 id={`docs-${s.slug}`} className="flex min-w-0 items-center gap-3 text-[16px] font-semibold max-sm:gap-2 max-sm:text-[15px]">
                 <IconTile icon={SECTION_ICON[s.slug]} size="sm" className="max-sm:size-7" />
                 <span className="truncate">{tr(s.title)}</span>
@@ -84,8 +86,9 @@ export function ClientDocuments() {
               {list.map((d0, i) => {
                 const href = `/declaracion/${d0.section}#q-${d0.field}${d0.item ? `-${d0.item}` : ""}`;
                 return (
-                  <li key={i} className="flex flex-col gap-2">
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <li key={i} className="flex flex-col gap-2 max-sm:gap-3 max-sm:rounded-lg max-sm:border max-sm:border-line max-sm:bg-surface max-sm:p-4 max-sm:shadow-sm">
+                    {/* phones: the document's name heads its card, over a hairline */}
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 max-sm:items-center max-sm:border-b max-sm:border-line max-sm:pb-2.5">
                       <span className="text-[14.5px] font-semibold text-ink">{tr(d0.label)}</span>
                       {d0.context && <span className="text-[12.5px] text-muted">· {tr(d0.context)}</span>}
                       {!d0.files.length && <Pill tone="warn">{t.common.missing}</Pill>}
