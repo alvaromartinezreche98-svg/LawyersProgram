@@ -2,7 +2,7 @@
 
 import { FEATURES } from "@/lib/features";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, CalendarClock, Check, ChevronDown, ChevronRight, CircleCheck, ClipboardList, FileText, MessageCircle, PenLine, Send, type LucideIcon } from "lucide-react";
 import { SCHEMA, REVIEW_SLUG, SIGN_SLUG } from "@/lib/questionnaire/schema";
 import { collectDocs, overall, progressOf, sectionState } from "@/lib/questionnaire/progress";
@@ -59,6 +59,16 @@ export function ClientHome() {
   const unread = unreadFor(exp, "cliente");
   const lastFromFirm = [...exp.chat].reverse().find((m) => m.from === "gestor" && !m.sys);
   const tasks = openTasks(exp);
+  // Phones: the stage track scrolls sideways; bring the current stage into view (centred) on arrival.
+  const trackRef = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    const el = trackRef.current;
+    const on = el?.querySelector<HTMLElement>("[aria-current=step]");
+    if (!el || !on || el.scrollWidth <= el.clientWidth) return;
+    const a = on.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
+    el.scrollTo({ left: el.scrollLeft + a.left - b.left - (b.width - a.width) / 2 });
+  }, []);
   const requested = new Set(tasks.map((x) => x.target?.section).filter(Boolean));
   const first = clientName(exp).split(" ")[0];
   const sent = exp.status !== "borrador";
@@ -190,7 +200,7 @@ export function ClientHome() {
           {/* 2 · Where the return is: five stages, each with its own fact */}
           <section aria-labelledby="track" className={h.trackWrap}>
             <h2 id="track" className={h.sectionTitle}>{tr_.label}</h2>
-            <ol className={h.track}>
+            <ol ref={trackRef} className={h.track}>
               {stages.map((x) => {
                 const body = (
                   <>
