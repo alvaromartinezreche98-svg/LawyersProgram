@@ -394,20 +394,19 @@ export function CaseFile({ id }: { id: string }) {
           <header className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold break-words max-sm:leading-6">{name}</h1>
-              <StatusPill status={e.status} />
+              <span className="max-sm:hidden"><StatusPill status={e.status} /></span>
               {waiting && <span className="max-sm:hidden"><WaitingLabel who={waiting} /></span>}
             </div>
             <p className="text-[14px] text-muted max-sm:hidden">
               {[e.sentAt && t.home.sentOn(fmtTime(e.sentAt, locale)), t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length), tt.pending > 0 && t.home.answersPending(tt.pending), t.file.docsAside(nDocs, nPend)].filter(Boolean).join(" · ")}
             </p>
-            {/* Phones: one compact summary card, who acts next and when it was sent; the counts are in the cards below.
-                12px of air above it (from the name's letters) and below it (to the tab bar). */}
-            {(waiting || e.sentAt) && (
-              <div className="mb-1 flex min-h-10 items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] shadow-sm sm:hidden">
-                {waiting ? <WaitingLabel who={waiting} /> : <span />}
-                {e.sentAt && <span className="figures truncate text-muted">{t.home.sentOn(fmtTime(e.sentAt, locale))}</span>}
-              </div>
-            )}
+            {/* Phones: one summary card under the name, always both sides filled: on the left when it was
+                sent (or, not sent yet, when it was created), on the right the status with its icon and colour.
+                Same inset whatever the content; 12px of air above (from the name's letters) and below (to the tabs). */}
+            <div className="mb-1 flex min-h-10 items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-2.5 text-[12.5px] shadow-sm sm:hidden">
+              <span className="figures min-w-0 truncate text-muted">{e.sentAt ? t.home.sentOn(fmtTime(e.sentAt, locale)) : `${t.file.created}: ${fmtTime(e.createdAt, locale)}`}</span>
+              <span className="shrink-0"><StatusPill status={e.status} /></span>
+            </div>
           </header>
           {/* Tabs: one part of the case at a time instead of one long page; chat and notes are in the side panel. */}
           <div role="tablist" aria-label={t.file.tabs.label} className="no-scrollbar sticky top-[104px] z-[9] -mx-4 -mt-2 flex gap-1.5 overflow-x-auto border-b border-line bg-surface/95 px-4 py-2.5 backdrop-blur-sm max-sm:border-t max-sm:py-2 sm:-mx-6 sm:px-6 lg:top-12">
