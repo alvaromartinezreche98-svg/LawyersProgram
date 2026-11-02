@@ -95,16 +95,16 @@ export function CampaignBoard() {
                 aria-label={t.board.onlyAttention}
                 title={t.board.onlyAttention}
                 className={cx(
-                  // phones: the icon alone, beside the title (pressed = copper)
-                  "inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[13.5px] font-medium transition-colors max-sm:w-(--control-h-sm) max-sm:justify-center max-sm:px-0",
+                  // phones: a 32px icon button, white on the grey ground with a clear edge (pressed = copper)
+                  "inline-flex h-(--control-h-sm) items-center gap-2 rounded-md border px-3 text-[13.5px] font-medium transition-colors max-sm:size-8 max-sm:justify-center max-sm:px-0",
                   only ? "border-copper bg-copper-soft text-copper-text" : "border-line-strong bg-surface text-ink hover:bg-hover",
                 )}
               >
                 <TriangleAlert size={14} aria-hidden="true" />
                 <span className="max-sm:sr-only">{t.board.onlyAttention}</span>
               </button>
-              {/* phones: the icon alone, beside the title */}
-              <ButtonLink href="/clientes" size="sm" aria-label={t.list.invite} className="max-sm:w-(--control-h-sm) max-sm:px-0">
+              {/* phones: the icon alone, 32px, filled navy as the page's main action (as on Cases) */}
+              <ButtonLink href="/clientes" size="sm" aria-label={t.list.invite} className="max-sm:size-8 max-sm:border-accent max-sm:bg-accent max-sm:px-0 max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
                 <UserPlus size={15} aria-hidden="true" />
                 <span className="max-sm:hidden">{t.list.invite}</span>
               </ButtonLink>
