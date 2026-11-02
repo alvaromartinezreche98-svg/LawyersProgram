@@ -170,27 +170,17 @@
   gap: space(2);
   margin-top: space(1);
 
-  // phones: the actions share one row, the main one wider, both a little lower than on desktop
+  // phones: each button keeps its label on one line and grows to fill the row; when two do not
+  // fit side by side, the second drops under the first, both full width (never a two-line label)
   @media (max-width: 639px) {
-    flex-wrap: nowrap;
     margin-top: 0;
 
     > * {
-      min-width: 0;
+      flex: 1 1 auto;
       height: 44px;
       padding-inline: space(3);
       font-size: 0.875rem;
-    }
-
-    > :first-child {
-      flex: 1.4 1 0;
-    }
-
-    > :nth-child(2) {
-      flex: 1 1 0;
-      white-space: normal;
-      line-height: 1.2;
-      text-align: center;
+      white-space: nowrap;
     }
   }
 }

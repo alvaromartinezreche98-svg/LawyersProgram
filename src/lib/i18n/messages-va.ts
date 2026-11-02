@@ -641,6 +641,7 @@ export const va: Dict = {
     title: "Demanar cita",
     intro: "Si prefereix parlar amb la seua gestoria, demane una visita a l'oficina o una telefonada. Li confirmaran el dia i l'hora.",
     kind: { presencial: "Visita a l'oficina", llamada: "Telefonada" },
+    kindShort: { presencial: "Visita", llamada: "Telefonada" },
     date: "Dia preferit",
     slot: { manana: "Matí", tarde: "Vesprada" },
     slotLabel: "Franja",

@@ -13,7 +13,7 @@ import { DateField } from "@/components/ui/date-field";
 
 export const AP_TONE = { solicitada: "warn", confirmada: "ok", cancelada: "neutral" } as const;
 const today = () => new Date().toISOString().slice(0, 10);
-const seg = (on: boolean) => cx("inline-flex h-(--control-h) items-center gap-2 rounded-md border px-4 text-[14px] font-medium transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-accent hover:bg-accent-soft/40");
+const seg = (on: boolean) => cx("inline-flex h-(--control-h) items-center gap-2 rounded-md border px-4 text-[14px] font-medium whitespace-nowrap transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-accent hover:bg-accent-soft/40");
 
 /** C8 · Pedir cita: request an office visit or a phone call. */
 export function ClientAppointment() {
@@ -53,7 +53,9 @@ export function ClientAppointment() {
               {(["llamada", "presencial"] as const).map((k) => (
                 <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => setKind(k)} className={cx(seg(kind === k), "max-md:justify-center max-md:px-2")}>
                   {k === "llamada" ? <Phone size={15} aria-hidden="true" /> : <Building2 size={15} aria-hidden="true" />}
-                  {t.cita.kind[k]}
+                  {/* the full name where it fits on one line; the short one on narrow phones */}
+                  <span className="max-[400px]:hidden">{t.cita.kind[k]}</span>
+                  <span className="min-[401px]:hidden">{t.cita.kindShort[k]}</span>
                 </button>
               ))}
             </div>

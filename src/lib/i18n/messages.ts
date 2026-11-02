@@ -641,6 +641,8 @@ const es = {
     title: "Pedir cita",
     intro: "Si prefiere hablar con su gestoría, pida una visita a la oficina o una llamada. Le confirmarán el día y la hora.",
     kind: { presencial: "Visita a la oficina", llamada: "Llamada telefónica" },
+    /** On narrow phones, where the full names do not fit two to a row on one line. */
+    kindShort: { presencial: "Visita", llamada: "Llamada" },
     date: "Día preferido",
     slot: { manana: "Mañana", tarde: "Tarde" },
     slotLabel: "Franja",
@@ -1656,6 +1658,7 @@ const en: Dict = {
     title: "Book an appointment",
     intro: "If you would rather talk to your gestoría, ask for an office visit or a phone call. They will confirm the day and time.",
     kind: { presencial: "Office visit", llamada: "Phone call" },
+    kindShort: { presencial: "Visit", llamada: "Call" },
     date: "Preferred day",
     slot: { manana: "Morning", tarde: "Afternoon" },
     slotLabel: "Time of day",
