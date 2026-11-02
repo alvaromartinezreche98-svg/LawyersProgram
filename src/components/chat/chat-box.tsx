@@ -42,7 +42,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
     actions.markSeen(exp.id, side);
     const el = list.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [exp.id, side, count]);
+  }, [exp.id, side, count, exp.remote?.unread]);
 
   const pick = (list: File[]) => {
     const ok = list.filter(isAccepted);
@@ -62,7 +62,10 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
         await putFile(ref.id, f);
         files.push(ref);
       }
-      actions.sendMessage(exp.id, side, text, false, files);
+      if (!await actions.sendMessage(exp.id, side, text, false, files)) {
+        setWarn(t.clients.api.failed);
+        return;
+      }
       setDraft("");
       setAtt([]);
       setWarn("");
@@ -182,7 +185,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
         {side === "gestor" && (
           <div className="flex flex-wrap gap-1.5">
             {(firm.replies?.length ? firm.replies : t.chat.quick).filter((q) => q.label.trim()).map((q, i) => (
-              <button key={i} type="button" onClick={() => { setDraft(q.text); ta.current?.focus(); }} className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-line bg-sunk/60 px-2.5 text-[12px] font-medium text-ink/80 transition-[background-color,border-color,color] hover:border-accent/30 hover:bg-accent-soft hover:text-accent">
+              <button key={i} type="button" disabled={busy} onClick={() => { setDraft(q.text); ta.current?.focus(); }} className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-line bg-sunk/60 px-2.5 text-[12px] font-medium text-ink/80 transition-[background-color,border-color,color] hover:border-accent/30 hover:bg-accent-soft hover:text-accent">
                 <MessageSquareText size={13} className="text-muted" aria-hidden="true" />
                 {q.label}
               </button>
@@ -217,6 +220,8 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
             rows={1}
             aria-label={t.chat.label}
             value={draft}
+            disabled={busy}
+            maxLength={API_MODE ? 5000 : undefined}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {

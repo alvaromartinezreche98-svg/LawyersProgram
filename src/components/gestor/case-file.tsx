@@ -54,6 +54,8 @@ export function CaseFile({ id }: { id: string }) {
   const [tab, setTab] = useState<RailTab>("details");
   const [main, setMain] = useState<MainTab>("overview");
   const [showSecs, setShowSecs] = useState(false);
+  const [statusBusy, setStatusBusy] = useState(false);
+  const [statusFailed, setStatusFailed] = useState(false);
   const order = caseOrder(exps).map((e) => e.id);
   const idx = order.indexOf(id);
   const prevId = idx > 0 ? order[idx - 1] : null;
@@ -135,7 +137,7 @@ export function CaseFile({ id }: { id: string }) {
 
   const a = e.answers;
   const name = clientName(e) || t.common.unnamedClient;
-  const tt = overall(a);
+  const tt = e.remote ? { pct: e.remote.progress.percent, pending: e.remote.progress.total - e.remote.progress.answered } : overall(a);
   const { active: al, reviewed: alDone } = alertsOf(e);
   const docs = collectDocs(a);
   const nDocs = docs.reduce((n, d) => n + d.files.length, 0);
@@ -215,10 +217,21 @@ export function CaseFile({ id }: { id: string }) {
                         id="st-sel"
                         aria-label={t.file.status}
                         value={e.status}
-                        onChange={(v) => actions.setStatus(e.id, v as Status)}
+                        onChange={async (v) => {
+                          if (statusBusy) return;
+                          setStatusBusy(true);
+                          setStatusFailed(false);
+                          try {
+                            setStatusFailed(!await actions.setStatus(e.id, v as Status));
+                          } finally {
+                            setStatusBusy(false);
+                          }
+                        }}
+                        disabled={statusBusy}
                         buttonClassName="h-10 rounded-lg px-3 text-sm font-medium"
                         options={STATUSES.map((s) => ({ value: s.id, label: tr(s.label), icon: STATUS_ICON[s.id] }))}
                       />
+                      {statusFailed && <p role="alert" className="text-sm text-bad">{t.clients.api.failed}</p>}
                     </Prop>
                     <Prop label={t.list.assignee}>
                       <Select

@@ -361,18 +361,38 @@ export const actions = {
   },
 
   /** Gestoría-side change: does not count as client activity, so the case keeps its place in the list. */
-  setStatus(id: string, status: Status) {
-    if (viaApi((r) => r.status(id, status))) return;
+  async setStatus(id: string, status: Status) {
+    if (API_MODE) {
+      try {
+        if (!remote) throw new Error("API connection not ready");
+        await remote.status(id, status);
+        return true;
+      } catch {
+        setSave("failed");
+        return false;
+      }
+    }
     patchExp(id, (e) => (e.status === status ? {} : { status, ...logged(e, { by: "gestor", kind: "status", from: e.status, to: status }) }), false);
+    return true;
   },
 
-  sendMessage(id: string, from: Side, text: string, request = false, files?: FileRef[]) {
-    const msg: ChatMessage = { id: uid(API_MODE ? "tmp-" : "m"), from, text, at: nowIso(), ...(request ? { request: true } : {}), ...(files?.length ? { files } : {}) };
+  async sendMessage(id: string, from: Side, text: string, request = false, files?: FileRef[]) {
+    if (API_MODE) {
+      try {
+        if (!remote) throw new Error("API connection not ready");
+        await remote.message(id, text, request);
+        return true;
+      } catch {
+        setSave("failed");
+        return false;
+      }
+    }
+    const msg: ChatMessage = { id: uid("m"), from, text, at: nowIso(), ...(request ? { request: true } : {}), ...(files?.length ? { files } : {}) };
     patchExp(id, (e) => ({
       chat: [...e.chat, msg],
       ...(from === "cliente" ? { clientSeen: msg.at } : { gestorSeen: msg.at }),
     }));
-    viaApi((r) => r.message(id, text, request));
+    return true;
   },
 
   markSeen(id: string, side: Side) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { FEATURES } from "@/lib/features";
+import { API_MODE } from "@/lib/auth/config";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -118,11 +119,13 @@ export function CaseList() {
   const { t, tr } = useI18n();
   const router = useRouter();
   const params = useSearchParams();
+  const defaultView: View = API_MODE ? "all" : "gestoria";
+  const defaultSort: SortKey = API_MODE ? "recent" : "attention";
   const status: Status | "all" = isStatus(params.get("estado")) ? (params.get("estado") as Status) : "all";
   const rawView = params.get("vista");
-  const view: View = rawView === "todos" ? "all" : isView(rawView) ? rawView : "gestoria";
+  const view: View = rawView === "todos" ? "all" : isView(rawView) ? rawView : defaultView;
   const issue: Issue | null = isIssue(params.get("aviso")) ? (params.get("aviso") as Issue) : null;
-  const sort: SortKey = isSort(params.get("orden")) ? (params.get("orden") as SortKey) : "attention";
+  const sort: SortKey = isSort(params.get("orden")) ? (params.get("orden") as SortKey) : defaultSort;
   const [q, setQ] = useState("");
   const [overviewOpen, setOverviewOpen] = useOverviewPref();
   // Overview tab: the status one when a status filter is on, else the gestoría's pending work.
@@ -171,9 +174,9 @@ export function CaseList() {
     const next = new URLSearchParams(params.toString());
     for (const [k, v] of Object.entries(patch)) {
       if (k === "vista") {
-        if (v === "gestoria") next.delete(k);
+        if (v === defaultView) next.delete(k);
         else next.set(k, v === "all" ? "todos" : v);
-      } else if (!v || v === "all" || (k === "orden" && v === "attention")) next.delete(k);
+      } else if (!v || v === "all" || (k === "orden" && v === defaultSort)) next.delete(k);
       else next.set(k, v);
     }
     const qs = next.toString();
@@ -181,7 +184,7 @@ export function CaseList() {
   };
   const clear = () => {
     setQ("");
-    router.replace(sort === "attention" ? "/expedientes" : `/expedientes?orden=${sort}`, { scroll: false });
+    router.replace(sort === defaultSort ? "/expedientes" : `/expedientes?orden=${sort}`, { scroll: false });
   };
   // The overview filters by status or alert across every case, whoever it waits on.
   const pick = (patch: { estado?: Status | "all"; aviso?: Issue | "all" }) => go({ vista: "all", ...patch });
@@ -189,7 +192,7 @@ export function CaseList() {
   const statusLabel = (st: Status) => tr(STATUSES.find((x) => x.id === st)!.label);
   // Every filter that narrows the list, each removable on its own.
   const active: { key: string; label: string; remove: () => void }[] = [
-    ...(view !== "gestoria" && view !== "all" ? [{ key: "vista", label: view === "cliente" ? t.list.wait.views.cliente : view === "atencion" ? t.list.attentionView : t.list.summary.unread, remove: () => go({ vista: "gestoria" }) }] : []),
+    ...(view !== defaultView && view !== "all" ? [{ key: "vista", label: view === "gestoria" || view === "cliente" ? t.list.wait.views[view] : view === "atencion" ? t.list.attentionView : t.list.summary.unread, remove: () => go({ vista: defaultView }) }] : []),
     ...(status !== "all" ? [{ key: "estado", label: statusLabel(status), remove: () => go({ estado: "all" }) }] : []),
     ...(issue ? [{ key: "aviso", label: t.list.issue[issue], remove: () => go({ aviso: "all" }) }] : []),
     ...(who ? [{ key: "gestor", label: who === "ninguno" ? t.list.unassigned : (teamName(who) ?? who), remove: () => go({ gestor: "all" }) }] : []),
@@ -420,9 +423,9 @@ function CaseRow({ x, assignee }: { x: Triage; assignee?: string | null }) {
   const bad = x.alerts.filter((a) => a.level === "bad");
   const warn = x.alerts.filter((a) => a.level === "warn");
   const signals = [
-    { level: "bad" as const, list: bad, label: t.list.missingN(bad.length) },
-    { level: "warn" as const, list: warn, label: t.list.checkN(warn.length) },
-  ].filter((s) => s.list.length);
+    { level: "bad" as const, list: bad, count: x.bad, label: t.list.missingN(x.bad) },
+    { level: "warn" as const, list: warn, count: x.warn, label: t.list.checkN(x.warn) },
+  ].filter((s) => s.count);
   const contact = [e.answers.email, e.answers.telefono].filter((v): v is string => typeof v === "string" && !!v).join(" · ");
   const name = x.name || t.common.unnamedClient;
 
@@ -470,7 +473,7 @@ function CaseRow({ x, assignee }: { x: Triage; assignee?: string | null }) {
             {signals.map((sg) => {
               const lv = LEVEL[sg.level];
               return (
-                <Link key={sg.level} href={alertHref(e.id, sg.list[0])} title={sg.list.map((a) => tr(a.text)).join("\n")} className={css.signal}>
+                <Link key={sg.level} href={sg.list[0] ? alertHref(e.id, sg.list[0]) : `${href}#avisos`} title={sg.list.map((a) => tr(a.text)).join("\n") || sg.label} className={css.signal}>
                   <lv.icon size={13} className={lv.cls} aria-hidden="true" />
                   {sg.label}
                 </Link>
