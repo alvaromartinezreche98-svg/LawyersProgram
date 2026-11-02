@@ -83,24 +83,25 @@ export function Questionnaire({ slug }: { slug: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 max-sm:gap-4">
       <PageTitle>{section ? tr(section.short) : isSign ? t.sign.short : t.q.review}</PageTitle>
       {/* The save status floats bottom right, always in view (it used to sit in the sheet head). */}
       <SaveToast idle={t.q.autosave} />
       <StepsNav answers={exp.answers} current={slug} onSelect={go} signDone={signDone} requested={new Set(openTasks(exp).map((x) => x.target?.section).filter((x): x is string => !!x))} />
       <section className="min-w-0 rounded-xl border border-line bg-surface shadow-sheet">
         {/* Sheet head: where the client is, the save status, the step's title */}
-        <header className="flex flex-col gap-1 border-b border-line px-4 pt-6 pb-5 sm:px-8 lg:px-10">
+        {/* phones: the same 16px inset as the body and the bar above, the tile level with the title */}
+        <header className="flex flex-col gap-1 border-b border-line px-4 pt-6 pb-5 max-sm:gap-1.5 max-sm:py-4 sm:px-8 lg:px-10">
           <span className="t-eyebrow text-[12.5px] text-accent">
             {section ? t.q.sectionOf(SCHEMA.indexOf(section) + 1, SCHEMA.length) : isSign ? t.sign.short : t.q.review}
           </span>
           {/* The tile takes the section's state: green once complete, terracotta while half done, navy before. */}
           <div className="flex items-center gap-3">
-            <IconTile icon={SECTION_ICON[slug] ?? ClipboardCheck} tone={section ? ({ done: "ok", partial: "copper", empty: "accent" } as const)[sectionState(progressOf(section.fields, exp.answers))] : "accent"} />
-            <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold">{title}</h1>
+            <IconTile className="max-sm:size-9" icon={SECTION_ICON[slug] ?? ClipboardCheck} tone={section ? ({ done: "ok", partial: "copper", empty: "accent" } as const)[sectionState(progressOf(section.fields, exp.answers))] : "accent"} />
+            <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold max-sm:text-[22px]">{title}</h1>
           </div>
         </header>
-        <div className="px-4 pt-6 pb-8 sm:px-8 lg:px-10">
+        <div className="px-4 pt-6 pb-8 max-sm:pt-4 max-sm:pb-6 sm:px-8 lg:px-10">
         <SaveFailed className="mb-5" />
         {/* "Your gestoría has it" once, where the client resends; Home shows it too. Not repeated on every section. */}
         {exp.status !== "borrador" && !section && !isSign && (

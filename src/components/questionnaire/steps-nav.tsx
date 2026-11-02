@@ -107,10 +107,11 @@ export function StepsNav({ answers, current, onSelect, footer, signDone, request
   const stepIdx = Math.max(0, steps.findIndex((x) => x.slug === current));
 
   return (
-    <nav ref={box} aria-label={t.q.stepsLabel} className="relative min-w-0 rounded-xl border border-line bg-surface p-3 shadow-sheet max-[959px]:sticky max-[959px]:top-(--app-header,0px) max-[959px]:z-10 max-[959px]:-mx-4 max-[959px]:rounded-none max-[959px]:border-x-0 max-[959px]:border-t-0 max-[959px]:px-4 min-[960px]:px-5 min-[960px]:py-4">
+    <nav ref={box} aria-label={t.q.stepsLabel} className="relative min-w-0 rounded-xl border border-line bg-surface p-3 shadow-sheet max-[959px]:sticky max-[959px]:top-(--app-header,0px) max-[959px]:z-10 max-[959px]:-mx-4 max-[959px]:rounded-none max-[959px]:border-x-0 max-[959px]:border-t-0 max-[959px]:px-4 max-sm:-mt-4 sm:max-[959px]:-mx-6 sm:max-[959px]:-mt-6 sm:max-[959px]:px-6 min-[960px]:px-5 min-[960px]:py-4">
       {/* Head: where the client is, the progress in words, and the section picker */}
       <div className="flex flex-col gap-2.5 min-[960px]:flex-row min-[960px]:items-center min-[960px]:gap-5">
-        <div className="flex min-w-0 items-center justify-between gap-3 min-[960px]:flex-1 min-[960px]:justify-start">
+        {/* phones and tablets: no "Section 1 of 9" here, the sheet below says it; the bar starts with the picker */}
+        <div className={cx("flex min-w-0 items-center justify-between gap-3 min-[960px]:flex-1 min-[960px]:justify-start", !footer && "max-[959px]:hidden")}>
           <span className="t-eyebrow min-w-0 truncate text-muted">
             <span className="min-[960px]:hidden">{idx >= 0 ? t.q.sectionOf(idx + 1, SCHEMA.length) : curName}</span>
             <span className="max-[959px]:hidden">{t.home.yourReturn}</span>
