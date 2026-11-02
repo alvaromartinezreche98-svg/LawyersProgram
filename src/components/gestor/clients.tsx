@@ -319,8 +319,8 @@ function ApiClients() {
           {items === null ? (
             <Loading />
           ) : (
-            <div className="overflow-clip rounded-lg border border-line bg-surface">
-              <div className="table-head hidden grid-cols-[minmax(0,1fr)_116px_150px_96px_auto] gap-4 md:grid">
+            <div className="@container overflow-clip rounded-lg border border-line bg-surface">
+              <div className="table-head hidden grid-cols-[minmax(0,1fr)_160px_150px_96px_auto] gap-4 @4xl:grid">
                 <span>{c.cols.client}</span>
                 <span>{c.cols.status}</span>
                 <span>{c.link}</span>
@@ -333,7 +333,7 @@ function ApiClients() {
                   const kase = x.cases[0];
                   const st = kase ? FROM_API_STATUS[kase.status as keyof typeof FROM_API_STATUS] : undefined;
                   return (
-                    <li key={x.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 md:grid-cols-[minmax(0,1fr)_116px_150px_96px_auto]">
+                    <li key={x.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-t border-line px-4 py-3 first:border-t-0 @4xl:grid-cols-[minmax(0,1fr)_160px_150px_96px_auto]">
                       <div className="flex min-w-0 items-center gap-3">
                         <span className={cx("grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-semibold", AVATAR[i % AVATAR.length])}>{initials(x.display_name)}</span>
                         {kase ? (
@@ -342,15 +342,15 @@ function ApiClients() {
                           <span className="min-w-0 truncate font-medium">{x.display_name}</span>
                         )}
                       </div>
-                      <span className="justify-self-end md:justify-self-start">{st ? <StatusPill status={st} /> : <Pill>{c.api.noCase}</Pill>}</span>
+                      <span className="justify-self-end @4xl:justify-self-start">{st ? <StatusPill status={st} /> : <Pill>{c.api.noCase}</Pill>}</span>
                       <span className="flex flex-col gap-0.5">
                         <Pill tone={INVITE_TONE[x.invitation.status]} className="self-start">{c.api.state[x.invitation.status]}</Pill>
                         {x.invitation.status === "open" && x.invitation.expires_at && (
                           <span className="text-[12px] text-muted">{c.api.expires(fmtTime(x.invitation.expires_at, locale))}</span>
                         )}
                       </span>
-                      <span className="figures hidden text-[12.5px] text-muted md:block">{fmtTime(x.created_at, locale)}</span>
-                      <span className="col-span-2 flex flex-wrap gap-2 md:col-span-1 md:w-[200px] md:justify-end">
+                      <span className="figures hidden text-[12.5px] text-muted @4xl:block">{fmtTime(x.created_at, locale)}</span>
+                      <span className="col-span-2 flex flex-wrap gap-2 @4xl:col-span-1 @4xl:w-[200px] @4xl:justify-end">
                         {!x.bound && (
                           <Button size="sm" onClick={() => void reissue(x)} disabled={busy}>
                             <RefreshCw size={14} aria-hidden="true" />
@@ -360,7 +360,7 @@ function ApiClients() {
                         {x.invitation.status === "open" && (
                           <Button size="sm" variant="ghost" onClick={() => void revoke(x)} disabled={busy} aria-label={`${c.api.revoke}: ${x.display_name}`}>
                             <X size={14} aria-hidden="true" />
-                            <span className="md:sr-only">{c.api.revoke}</span>
+                            <span className="@4xl:sr-only">{c.api.revoke}</span>
                           </Button>
                         )}
                       </span>
