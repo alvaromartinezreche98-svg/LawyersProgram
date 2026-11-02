@@ -354,10 +354,8 @@ function MobileDrawer({ nav, who, org, isOn }: { nav: NavItem[]; who: string; or
                 })}
               </ul>
               <div className="flex flex-col gap-1.5 border-t border-line px-3 pt-2 pb-[max(10px,env(safe-area-inset-bottom))]">
-                <div className="flex min-h-10 items-center justify-between gap-3 px-3 text-[14px]">
-                  <span className="text-muted">{t.common.language}</span>
-                  <LangSwitch />
-                </div>
+                {/* the same language menu as the sidebars (gestoría panel and this portal's desktop sidebar) */}
+                <LangMenu item={(on) => sideRowCls(on, "light", false)} theme="light" />
                 <button type="button" onClick={signOut} className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-copper bg-surface px-3 text-left text-[14.5px] font-medium text-copper transition-colors hover:bg-[color-mix(in_srgb,var(--copper)_6%,var(--surface))]">
                   <span className="grid size-8 place-items-center" aria-hidden="true"><LogOut size={18} strokeWidth={1.75} /></span>
                   {t.common.signOut}
