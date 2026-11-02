@@ -439,7 +439,8 @@ export function CaseFile({ id }: { id: string }) {
             })}
           </div>
 
-          <div id="main-panel" role="tabpanel" aria-labelledby={`main-${main}`} className="flex flex-col gap-6">
+          {/* phones: 16px between the panel's parts, the same as from the tab bar to the first one */}
+          <div id="main-panel" role="tabpanel" aria-labelledby={`main-${main}`} className="flex flex-col gap-6 max-sm:gap-4">
           {main === "overview" && (
             <>
               {/* The case at a glance: four figures, each a way into its tab */}
