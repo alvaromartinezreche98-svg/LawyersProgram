@@ -79,7 +79,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
   return (
     <div className="flex min-h-0 flex-col">
       {header && (
-        <div className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
+        <div className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3 max-sm:py-2">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent text-[13px] font-semibold text-accent-ink" aria-hidden="true">
             {initials(other)}
           </span>
@@ -90,7 +90,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
         </div>
       )}
 
-      <div ref={list} aria-live="polite" className={cx("flex flex-col gap-1 overflow-y-auto bg-chat px-4 py-4 sm:px-5", height)}>
+      <div ref={list} aria-live="polite" className={cx("flex flex-col gap-1 overflow-y-auto bg-chat px-3 py-3 sm:px-5 sm:py-4", height)}>
         {entries.length === 0 && (
           <div className="m-auto flex flex-col items-center gap-2 text-center">
             <IconTile icon={MessagesSquare} tone="neutral" size="lg" />
@@ -145,7 +145,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
                   {t.chat.sys[typeof m.sys === "string" ? m.sys : "sent"]} · {fmtClock(m.at, locale)}
                 </p>
               ) : (
-                <div className={cx("flex max-w-[min(85%,640px)] items-end gap-2", mine ? "self-end" : "self-start", first && "mt-3")}>
+                <div className={cx("flex max-w-[min(85%,640px)] items-end gap-2 max-sm:max-w-[88%] max-sm:gap-1.5", mine ? "self-end" : "self-start", first && "mt-3 max-sm:mt-2")}>
                   {!mine && (
                     <span className={cx("grid size-7 shrink-0 place-items-center rounded-full bg-surface text-[10.5px] font-semibold text-accent shadow-sm ring-1 ring-line", !first && "invisible")} aria-hidden="true">
                       {initials(other)}
@@ -154,14 +154,14 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
                   <div className={cx("flex min-w-0 flex-col gap-1", mine && "items-end")}>
                     {first && <span className="px-1 text-[11.5px] font-semibold text-muted">{mine ? t.chat.you : other}</span>}
                     {/* the gestoría speaks in the brand's navy; the client on white */}
-                    <div className={cx("rounded-2xl px-3.5 py-2.5 text-[14px] leading-[21px] shadow-[0_1px_2px_rgb(0_0_0/0.06),0_4px_12px_-8px_rgb(0_0_0/0.18)]", mine ? "rounded-br-md" : "rounded-bl-md", m.from === "gestor" ? "bg-accent text-accent-ink" : "border border-line bg-surface text-ink")}>
+                    <div className={cx("rounded-2xl px-3.5 py-2.5 text-[14px] leading-[21px] max-sm:rounded-[18px] max-sm:px-3 max-sm:py-2 max-sm:leading-5 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_4px_12px_-8px_rgb(0_0_0/0.18)]", mine ? "rounded-br-md" : "rounded-bl-md", m.from === "gestor" ? "bg-accent text-accent-ink" : "border border-line bg-surface text-ink")}>
                       {m.text && <p className="break-words whitespace-pre-wrap">{m.text}</p>}
                       {m.files?.length ? (
                         <ul className={cx("flex flex-col gap-1", m.text && "mt-2")}>
                           {m.files.map((f) => <li key={f.id}><Attachment file={f} onBrand={m.from === "gestor"} /></li>)}
                         </ul>
                       ) : null}
-                      <span className={cx("mt-1 flex items-center justify-end gap-1 text-[11px]", m.from === "gestor" ? "text-accent-ink/70" : "text-muted")}>
+                      <span className={cx("mt-1 flex items-center justify-end gap-1 text-[11px] max-sm:mt-0.5", m.from === "gestor" ? "text-accent-ink/70" : "text-muted")}>
                         <time dateTime={m.at}>{fmtClock(m.at, locale)}</time>
                         {mine && (otherSeen && otherSeen >= m.at ? (
                           <CheckCheck size={14} strokeWidth={2.2} role="img" aria-label={t.chat.seen} />
@@ -178,7 +178,7 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
         })}
       </div>
 
-      <div className="@container flex flex-col gap-2 border-t border-line bg-surface p-3">
+      <div className="@container flex flex-col gap-2 border-t border-line bg-surface p-3 max-sm:p-2">
         {side === "gestor" && (
           <div className="flex flex-wrap gap-1.5">
             {(firm.replies?.length ? firm.replies : t.chat.quick).filter((q) => q.label.trim()).map((q, i) => (
@@ -232,7 +232,8 @@ export function ChatBox({ exp, side, height = "h-[340px]", header = side === "cl
             <span className="hidden @[400px]:inline">{t.chat.send}</span>
           </Button>
         </div>
-        <p className="hidden px-1 text-[11.5px] text-muted @[300px]:block">{t.chat.hint}</p>
+        {/* keyboard hint: only with a real keyboard and room for it (not on phones or touch screens) */}
+        <p className="hidden px-1 text-[11.5px] text-muted pointer-fine:sm:@[300px]:block">{t.chat.hint}</p>
       </div>
     </div>
   );
