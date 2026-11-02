@@ -14,5 +14,11 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--copper-text);
+
+    // phones: a slim tag, so the page reaches its content sooner
+    @media (max-width: 639px) {
+      padding: 1px 6px;
+      font-size: 0.625rem;
+    }
   }
 }

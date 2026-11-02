@@ -11,8 +11,8 @@
 
   // phones: a tighter rhythm, so the list starts in the first screen
   @media (max-width: 639px) {
-    gap: space(3);
-    padding-top: space(3);
+    gap: space(2);
+    padding-top: space(2);
   }
 
   @include from("sm") {
@@ -33,7 +33,7 @@
   gap: space(4);
 
   @media (max-width: 639px) {
-    gap: space(2);
+    gap: 6px;
   }
 }
 
@@ -96,9 +96,22 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: space(3);
 
-  // phones: two compact cards a row inside the page gutter (nothing runs off the screen edge)
+  // phones: one slim row that snaps card by card, clipped at the page gutter (never past the screen edge)
   @media (max-width: 639px) {
-    gap: space(2);
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > li {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+    }
   }
 
   // four across only where every label still fits beside its icon (the sidebar takes room from 1024px)
@@ -128,14 +141,18 @@
   row-gap: 0;
   @include pad("tile");
 
-  // phones: compact; icon, figure over label, and the filter mark (✕ while on) on one centred line
+  // phones: a 40px chip; icon, figure, label and the filter mark (✕ while on) on one centred line
   @media (max-width: 639px) {
-    column-gap: space(2);
-    padding: space(2) space(2) space(2) space(3);
+    grid-template-columns: auto auto auto auto;
+    grid-template-areas: "icon n label go";
+    column-gap: 6px;
+    height: 40px;
+    padding: 0 6px 0 6px;
+    white-space: nowrap;
 
     .cardGo {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       align-self: center;
     }
   }
@@ -214,13 +231,13 @@
   grid-area: icon;
 
   @media (max-width: 639px) {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
 
     svg {
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
     }
   }
   place-items: center;
@@ -265,7 +282,7 @@
 
   @media (max-width: 639px) {
     font-size: 0.75rem;
-    line-height: 1.25;
+    line-height: 1;
   }
 
   @include from("sm") {
@@ -383,6 +400,16 @@
   gap: space(2) space(4);
   font-size: 0.875rem;
   color: var(--muted);
+
+  // phones: chips, count and "clear" on one line where they fit
+  @media (max-width: 639px) {
+    gap: 4px space(2);
+    font-size: 0.75rem;
+
+    .textAction {
+      min-height: 26px;
+    }
+  }
 }
 
 .activeList {
@@ -397,6 +424,12 @@
   gap: 6px;
   min-height: 28px;
   padding: 0 space(2) 0 10px;
+
+  @media (max-width: 639px) {
+    min-height: 26px;
+    padding: 0 6px 0 8px;
+    font-size: 0.75rem;
+  }
   border: 1px solid var(--accent);
   border-radius: radius(sm);
   background: var(--accent-soft);
@@ -819,8 +852,8 @@ $cols-assignee: minmax(0, 1.1fr) 150px 176px minmax(0, 1.7fr) 120px 96px;
   @media (max-width: 639px) {
     flex-shrink: 0;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 1px solid var(--line);
     border-radius: radius(md);
     background: var(--surface);
