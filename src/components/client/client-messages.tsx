@@ -36,9 +36,10 @@ export function ClientMessages() {
         <p className="mt-2 text-muted max-md:hidden">{t.msgs.sub}</p>
       </div>
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Phones: the conversation edge to edge, as tall as the screen allows (the keyboard shrinks it, see layout's viewport) */}
-        <Card pad="none" className="overflow-clip max-md:-mx-4 max-md:rounded-none max-md:border-x-0">
-          <ChatBox exp={exp} side="cliente" height="max-md:h-[max(260px,calc(100dvh-330px))] md:h-[clamp(360px,calc(100dvh-450px),640px)]" initialDraft={draft} />
+        {/* Phones: a white card inside the page margins, as tall as the screen allows (the keyboard shrinks it,
+            see layout's viewport); the conversation on white there, so the card reads as one surface */}
+        <Card pad="none" className="overflow-clip max-md:shadow-sm">
+          <ChatBox exp={exp} side="cliente" height="max-md:h-[max(260px,calc(100dvh-340px))] max-md:bg-surface md:h-[clamp(360px,calc(100dvh-450px),640px)]" initialDraft={draft} />
         </Card>
 
         <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)]">
