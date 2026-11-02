@@ -30,8 +30,12 @@
   display: grid;
   width: 100%;
   // phones and tablets: no frame around the page (one level of box: the sign-in card is the
-  // only card); the parts stack on the page ground, 24px apart, so the headline has room
+  // only card); the parts stack on the page ground, 20px apart (16px on phones)
   row-gap: space(5);
+
+  @media (max-width: 639px) {
+    row-gap: space(4);
+  }
 
   @include from("xl") {
     row-gap: 0;
@@ -113,6 +117,12 @@
     gap: space(3);
     @include pad;
 
+    // phones: a tighter inset; 44px field and button
+    @media (max-width: 639px) {
+      padding: space(4);
+      --control-h: 2.75rem;
+    }
+
     @include from("sm") {
       gap: space(4);
     }
@@ -160,6 +170,10 @@
   // the card's title a clear step above its text: larger, bolder and darker; the text quieter
   .panelTitle {
     font-size: clamp(1.625rem, 1.3rem + 1vw, 2.25rem);
+
+    @media (max-width: 639px) {
+      font-size: 1.375rem;
+    }
   }
 
   .lead {
@@ -181,6 +195,10 @@
     flex-direction: column;
     gap: space(3);
 
+    @media (max-width: 639px) {
+      gap: space(2);
+    }
+
     @include from("sm") {
       gap: space(4);
     }
@@ -189,6 +207,11 @@
     button {
       flex: none;
       height: 3.25rem;
+
+      // phones: 44px, the field and the button alike
+      @media (max-width: 639px) {
+        height: 2.75rem;
+      }
 
       @include from("sm") {
         height: 3.5rem;
@@ -212,6 +235,11 @@
   .codeSubmit {
     width: 100%;
     height: 3.25rem;
+    white-space: nowrap;
+
+    @media (max-width: 639px) {
+      height: 2.75rem;
+    }
 
     @include from("sm") {
       height: 3.5rem;
@@ -318,6 +346,13 @@
   // 32px on a 375px phone, ~46px on a tablet, 72px on a large desktop
   font-size: clamp(2rem, 1.2rem + 3.6vw, 4.5rem);
 
+  // phones: 28px, so the headline takes three short lines and the sign-in starts higher
+  @media (max-width: 639px) {
+    margin-top: space(1);
+    font-size: 1.75rem;
+    line-height: 1.12;
+  }
+
   @include from("xl") {
     margin-block: space(4) space(5);
   }
@@ -411,6 +446,11 @@
   @include type("section");
   font-family: var(--font-hero), $font-sans;
   font-size: clamp(1.625rem, 1.3rem + 0.6vw, 1.875rem);
+
+  @media (max-width: 639px) {
+    font-size: 1.375rem;
+  }
+
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.03em;
@@ -422,6 +462,10 @@
   display: flex;
   flex-direction: column;
   gap: space(2);
+
+  @media (max-width: 639px) {
+    gap: 6px;
+  }
 }
 
 
@@ -435,6 +479,12 @@
   align-items: center;
   gap: space(3);
   padding: space(2) space(3);
+
+  // phones: a slimmer row
+  @media (max-width: 639px) {
+    min-height: 48px;
+    padding-block: 6px;
+  }
 
   @include from("sm") {
     padding-inline: space(5);
@@ -509,12 +559,21 @@
   display: flex;
   flex-direction: column;
   gap: space(4);
+
+  @media (max-width: 639px) {
+    gap: space(3);
+  }
 }
 
 .lead {
   @include type("body");
   line-height: 1.6;
   color: var(--muted);
+
+  @media (max-width: 639px) {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
 }
 
 .codeForm {

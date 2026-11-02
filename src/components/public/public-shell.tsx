@@ -53,7 +53,7 @@ export function PublicShell({ children, bare }: { children: ReactNode; bare?: bo
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <header className={cx("sticky top-0 z-20 border-b", bare ? "border-transparent bg-bg" : "border-line bg-surface")}>
-        <div className={cx("mx-auto flex w-full max-w-page items-center gap-3 px-4 sm:gap-6", bare ? cx(f.bareHead, "max-xl:max-w-[calc(36rem+2rem)] xl:px-8") : "sm:px-8", HEADER_BAR)}>
+        <div className={cx("mx-auto flex w-full max-w-page items-center gap-3 px-4 sm:gap-6", bare ? cx(f.bareHead, "max-xl:max-w-[calc(36rem+2rem)] xl:px-8") : "sm:px-8", HEADER_BAR, bare && "max-sm:h-12")}>
           {firmSite ? (
             // The gestoría alone: its mark and name (PreRenta is credited in the footer).
             <Link href="/" className={cx(f.brand, "mr-auto")}>
