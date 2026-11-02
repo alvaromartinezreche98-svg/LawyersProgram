@@ -497,7 +497,16 @@
   cursor: pointer;
   transition:
     background-color duration(fast) ease,
-    border-color duration(fast) ease;
+    border-color duration(fast) ease,
+    box-shadow duration(fast) ease,
+    scale duration(fast) ease;
+
+  // pressed: a small give, so a tap is felt
+  &:active {
+    @include motion-ok {
+      scale: 0.98;
+    }
+  }
 
   @include hover {
     background: var(--hover);
@@ -901,15 +910,36 @@
 }
 
 .demoTrigger {
-  border-style: dashed;
-  background: transparent;
-  box-shadow: none;
+  // phones and tablets: a solid amber edge on white (like its DEMO tag) and a soft lift, so it
+  // reads as a button, not a placeholder; the arrow takes the amber too
+  border-style: solid;
+  border-color: var(--copper);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.04);
 
   .switchIcon {
     background: none;
   }
 
+  // below 1280px only (the navy column keeps its own look)
+  @media (max-width: 1279px) {
+    .switchArrow {
+      color: var(--copper);
+    }
+
+    @include hover {
+      border-color: var(--copper);
+      background: var(--surface);
+      box-shadow: 0 4px 12px -4px rgb(15 23 42 / 0.16);
+
+      .switchArrow {
+        color: var(--copper);
+      }
+    }
+  }
+
   @include from("xl") {
+    border-style: dashed;
     border-color: rgb(255 255 255 / 0.22);
     background: transparent;
     box-shadow: none;
