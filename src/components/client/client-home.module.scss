@@ -18,10 +18,21 @@
   display: flex;
   flex-direction: column;
   gap: space(2);
+
+  // phones: the three lines look evenly spaced. The gaps are set for the ink, not the line boxes:
+  // the serif title carries room above its capitals and below its baseline, so the tag sits 8px
+  // above it and the status line 2px under it (with a tighter line height); about 10px of air each.
+  @media (max-width: 639px) {
+    gap: 0;
+  }
 }
 
 .eyebrow {
   align-self: flex-start;
+
+  @media (max-width: 639px) {
+    margin-bottom: space(2);
+  }
 }
 
 .title {
@@ -33,6 +44,11 @@
 .statusLine {
   @include type("body-lg");
   color: var(--muted);
+
+  @media (max-width: 639px) {
+    margin-top: 2px;
+    line-height: 1.3;
+  }
 }
 
 // ---------- Layout ----------
@@ -80,12 +96,13 @@
   background: var(--surface);
   box-shadow: var(--shadow-sheet-value);
 
-  // from the gestoría: its voice, terracotta
+  // from the gestoría: its voice, terracotta. White like every card, with a clear edge and a soft
+  // lift, so it stands off the grey page (it was a grey ground on grey).
   &[data-kind="request"] {
-    border-color: transparent;
+    border-color: var(--line);
     border-top-color: var(--copper);
-    background: var(--copper-soft);
-    box-shadow: none;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.04);
   }
 }
 
@@ -153,20 +170,17 @@
   gap: space(2);
   margin-top: space(1);
 
-  // Phones: full-width actions, with room for translated labels.
+  // phones: each button keeps its label on one line and grows to fill the row; when two do not
+  // fit side by side, the second drops under the first, both full width (never a two-line label)
   @media (max-width: 639px) {
-    flex-direction: column;
     margin-top: 0;
 
     > * {
-      min-width: 0;
-      min-height: 44px;
-      height: auto;
-      padding-block: space(3);
-      white-space: normal;
-      text-align: center;
+      flex: 1 1 auto;
+      height: 44px;
       padding-inline: space(3);
       font-size: 0.875rem;
+      white-space: nowrap;
     }
   }
 }
@@ -296,12 +310,25 @@
   color: var(--muted);
 }
 
-// Phones (a narrow column): the five stages as one compact stepper row (marker over a short
-// name), the current stage's fact written once under it.
+// Phones (a narrow column): the five stages as one row that scrolls sideways (marker over the
+// name, each stage as wide as its name plus 16px a side, so no name touches a divider or breaks);
+// the current stage's fact written once under it.
 @container track (max-width: 35.99rem) {
   .track {
-    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-columns: max-content;
     grid-auto-flow: column;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .stage {
+    min-width: 6.5rem;
+    scroll-snap-align: start;
   }
 
   .stage + .stage {
@@ -319,7 +346,7 @@
     justify-items: center;
     align-content: start;
     row-gap: 6px;
-    padding: space(3) 2px;
+    padding: space(3) space(4);
     text-align: center;
   }
 
@@ -328,10 +355,9 @@
   }
 
   .stageName {
-    font-size: 0.65625rem;
+    font-size: 0.75rem;
     line-height: 1.25;
-    letter-spacing: -0.01em;
-    hyphens: auto; // a long word breaks at a syllable, with a hyphen (uses <html lang>)
+    white-space: nowrap;
   }
 
   .stageFact {

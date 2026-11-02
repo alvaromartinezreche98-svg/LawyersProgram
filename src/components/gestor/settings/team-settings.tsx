@@ -29,7 +29,7 @@ function RoleChip({ label, value, names, onChange }: { label: string; value: Mem
       value={value}
       onChange={(v) => onChange(v as MemberRole)}
       options={ROLES.map((r) => ({ value: r, label: names[r], icon: ROLE_LOOK[r].icon }))}
-      className="col-start-2 w-[150px] sm:col-start-auto"
+      className="w-[150px]"
       trigger={{
         className: cx("group inline-flex h-8 w-full cursor-pointer items-center gap-1.5 rounded-full border border-transparent px-2.5 text-[13.5px] font-semibold transition-colors hover:border-accent focus-visible:border-focus focus-visible:ring-4 focus-visible:ring-focus/15 focus-visible:outline-none", look.cls),
         content: (open) => (
@@ -71,12 +71,16 @@ export function TeamSettings() {
         {firm.team.length === 0 && <p className="pad-card text-center text-muted">{s.empty}</p>}
         <ul>
           {firm.team.map((m, i) => (
-            <li key={m.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-t border-line pad-x-card py-3 first:border-t-0 sm:grid-cols-[36px_minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto]">
-              <span className={cx("grid size-9 place-items-center rounded-full text-[13px] font-bold", AVATAR[i % AVATAR.length])}>{initials(m.name)}</span>
-              <input aria-label={s.name} value={m.name} onChange={(e) => actions.updateMember(m.id, { name: e.target.value })} className={cx(compact, "font-semibold")} />
-              <input aria-label={s.email} type="email" value={m.email} onChange={(e) => actions.updateMember(m.id, { email: e.target.value })} className={cx(compact, "col-start-2 text-muted sm:col-start-auto")} />
-              <RoleChip label={s.role} value={m.role} names={s.roles} onChange={(role) => actions.updateMember(m.id, { role })} />
-              <button type="button" aria-label={`${s.remove} ${m.name}`} disabled={firm.team.length === 1} onClick={() => actions.removeMember(m.id)} className="row-start-1 grid size-9 place-items-center rounded-lg text-muted transition hover:bg-bad-soft hover:text-bad disabled:opacity-30 disabled:hover:bg-transparent sm:row-start-auto">
+            // Phones: avatar | name | delete on the first line; the email (full width) and the role under the name.
+            // From sm: one row (avatar, name, email, role, delete).
+            <li key={m.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-0.5 border-t border-line pad-x-card py-3 first:border-t-0 sm:grid-cols-[36px_minmax(0,1.2fr)_minmax(0,1.4fr)_150px_auto] sm:gap-y-1">
+              <span className={cx("col-start-1 row-start-1 grid size-9 place-items-center rounded-full text-[13px] font-bold", AVATAR[i % AVATAR.length])}>{initials(m.name)}</span>
+              <input aria-label={s.name} value={m.name} onChange={(e) => actions.updateMember(m.id, { name: e.target.value })} className={cx(compact, "col-start-2 row-start-1 min-w-0 font-semibold")} />
+              <input aria-label={s.email} type="email" value={m.email} onChange={(e) => actions.updateMember(m.id, { email: e.target.value })} className={cx(compact, "col-span-2 col-start-2 row-start-2 min-w-0 text-[13.5px] text-muted sm:col-span-1 sm:col-start-3 sm:row-start-1 sm:text-[14px]")} />
+              <span className="col-start-2 row-start-3 justify-self-start pl-2 pt-1 sm:col-start-4 sm:row-start-1 sm:justify-self-stretch sm:p-0">
+                <RoleChip label={s.role} value={m.role} names={s.roles} onChange={(role) => actions.updateMember(m.id, { role })} />
+              </span>
+              <button type="button" aria-label={`${s.remove} ${m.name}`} disabled={firm.team.length === 1} onClick={() => actions.removeMember(m.id)} className="col-start-3 row-start-1 grid size-9 place-items-center rounded-lg text-muted transition hover:bg-bad-soft hover:text-bad disabled:opacity-30 disabled:hover:bg-transparent sm:col-start-5">
                 <Trash2 size={16} aria-hidden="true" />
               </button>
             </li>

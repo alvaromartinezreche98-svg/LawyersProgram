@@ -222,7 +222,8 @@ export function CaseList() {
           eyebrow={t.list.eyebrow(EJERCICIO)}
           title={t.list.title}
           actions={
-            <ButtonLink href="/clientes" size="sm">
+            // phones: not on this first screen (inviting lives in Clients, from the menu), so the title stands alone
+            <ButtonLink href="/clientes" size="sm" className="max-sm:hidden max-sm:h-9 max-sm:gap-1.5 max-sm:border-accent max-sm:bg-accent max-sm:px-2.5 max-sm:text-[12.5px] max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
               <UserPlus size={15} aria-hidden="true" />
               {t.list.invite}
             </ButtonLink>
@@ -232,8 +233,14 @@ export function CaseList() {
         {/* Overview: real counts only, each one a filter. Folds to one line (remembered per browser). */}
         {!overviewOpen ? (
           <div className={css.overviewFolded}>
-            <span>{t.list.overviewLine(all.length, waitN("gestoria"))}</span>
-            <button type="button" aria-expanded={false} onClick={() => setOverviewOpen(true)} className={css.textAction}>
+            {/* phones: a filter mark, so it reads as the way into the counts and filters */}
+            <span className={css.foldedLead}>
+              <span className={css.foldedIcon} aria-hidden="true">
+                <ListFilter size={15} strokeWidth={2.2} />
+              </span>
+              <span>{t.list.overviewLine(all.length, waitN("gestoria"))}</span>
+            </span>
+            <button type="button" aria-expanded={false} onClick={() => setOverviewOpen(true)} className={cx(css.textAction, css.foldedOpen)}>
               {t.list.overviewShow}
               <ChevronDown size={14} aria-hidden="true" />
             </button>
@@ -546,17 +553,18 @@ export function DeadlineBanners() {
         const urgent = d <= 7;
         const Icon = urgent ? TriangleAlert : CalendarClock;
         return (
-          <div key={id} role={urgent ? "alert" : "status"} className={cx("flex items-center gap-3 rounded-lg border py-2.5 pr-2 pl-3 text-[14px] max-sm:gap-2.5 max-sm:py-1.5 max-sm:pl-2 max-sm:text-[13px]", urgent ? "border-bad/30 border-l-4 border-l-bad bg-bad-soft" : "border-info/20 bg-info-soft")}>
-            <span className={cx("grid size-8 shrink-0 place-items-center rounded-md max-sm:size-7", urgent ? "bg-bad text-surface" : "bg-surface text-info")}>
-              <Icon size={17} strokeWidth={2.2} aria-hidden="true" />
+          <div key={id} role={urgent ? "alert" : "status"} className={cx("flex items-center gap-3 rounded-lg border py-2.5 pr-2 pl-3 text-[14px] max-sm:min-h-0 max-sm:gap-1.5 max-sm:rounded-md max-sm:py-0.5 max-sm:pr-0.5 max-sm:pl-2 max-sm:text-[12px] max-sm:leading-4", urgent ? "border-bad/30 border-l-4 border-l-bad bg-bad-soft" : "border-info/20 bg-info-soft")}>
+            <span className={cx("grid size-8 shrink-0 place-items-center rounded-md max-sm:size-auto max-sm:bg-transparent", urgent ? "bg-bad text-surface max-sm:text-bad" : "bg-surface text-info")}>
+              <Icon size={17} strokeWidth={2.2} aria-hidden="true" className="max-sm:size-3.5" />
             </span>
-            <p className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            {/* phones: one line (the date is left out) */}
+            <p className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5 max-sm:flex-nowrap max-sm:overflow-hidden max-sm:whitespace-nowrap">
               <b className="font-semibold text-ink">{t.list.deadline[k]}</b>
               <span className={cx("figures font-semibold", urgent ? "text-bad" : "text-info")}>{t.list.deadline.days(d)}</span>
-              <span className="figures text-muted">· {fmtDate(iso)}</span>
+              <span className="figures text-muted max-sm:hidden">· {fmtDate(iso)}</span>
             </p>
-            <button type="button" onClick={() => dismiss(id)} aria-label={t.common.close} title={t.common.close} className={cx("grid size-8 shrink-0 cursor-pointer place-items-center rounded-md transition-colors", urgent ? "text-bad hover:bg-bad/10" : "text-muted hover:bg-info/10 hover:text-ink")}>
-              <X size={17} strokeWidth={2.2} aria-hidden="true" />
+            <button type="button" onClick={() => dismiss(id)} aria-label={t.common.close} title={t.common.close} className={cx("grid size-8 shrink-0 cursor-pointer place-items-center rounded-md transition-colors max-sm:size-6", urgent ? "text-bad hover:bg-bad/10" : "text-muted hover:bg-info/10 hover:text-ink")}>
+              <X size={17} strokeWidth={2.2} aria-hidden="true" className="max-sm:size-3.5" />
             </button>
           </div>
         );

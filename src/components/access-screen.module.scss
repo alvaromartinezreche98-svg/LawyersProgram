@@ -30,8 +30,12 @@
   display: grid;
   width: 100%;
   // phones and tablets: no frame around the page (one level of box: the sign-in card is the
-  // only card); the parts stack on the page ground, 24px apart, so the headline has room
+  // only card); the parts stack on the page ground, 20px apart (16px on phones)
   row-gap: space(5);
+
+  @media (max-width: 639px) {
+    row-gap: space(4);
+  }
 
   @include from("xl") {
     row-gap: 0;
@@ -71,8 +75,8 @@
   flex-direction: column;
   justify-content: center;
   gap: space(3);
-  // phones and tablets: the cards sit on the page ground, 8px apart (no navy panel around them)
-  gap: space(2);
+  // phones and tablets: the cards sit on the page ground, 12px apart (no navy panel around them)
+  gap: space(3);
 
   // from 1280px the navy column: two close navies on a diagonal (a touch lighter top left,
   // deeper bottom right), with a faint glow behind the card
@@ -112,6 +116,12 @@
     // phones: a 12px rhythm, so the whole card fits under the headline (the inset comes from the scale)
     gap: space(3);
     @include pad;
+
+    // phones: a tighter inset; 44px field and button
+    @media (max-width: 639px) {
+      padding: space(4);
+      --control-h: 2.75rem;
+    }
 
     @include from("sm") {
       gap: space(4);
@@ -160,6 +170,10 @@
   // the card's title a clear step above its text: larger, bolder and darker; the text quieter
   .panelTitle {
     font-size: clamp(1.625rem, 1.3rem + 1vw, 2.25rem);
+
+    @media (max-width: 639px) {
+      font-size: 1.375rem;
+    }
   }
 
   .lead {
@@ -181,6 +195,10 @@
     flex-direction: column;
     gap: space(3);
 
+    @media (max-width: 639px) {
+      gap: space(2);
+    }
+
     @include from("sm") {
       gap: space(4);
     }
@@ -189,6 +207,11 @@
     button {
       flex: none;
       height: 3.25rem;
+
+      // phones: 44px, the field and the button alike
+      @media (max-width: 639px) {
+        height: 2.75rem;
+      }
 
       @include from("sm") {
         height: 3.5rem;
@@ -212,6 +235,11 @@
   .codeSubmit {
     width: 100%;
     height: 3.25rem;
+    white-space: nowrap;
+
+    @media (max-width: 639px) {
+      height: 2.75rem;
+    }
 
     @include from("sm") {
       height: 3.5rem;
@@ -318,6 +346,13 @@
   // 32px on a 375px phone, ~46px on a tablet, 72px on a large desktop
   font-size: clamp(2rem, 1.2rem + 3.6vw, 4.5rem);
 
+  // phones: 28px, so the headline takes three short lines and the sign-in starts higher
+  @media (max-width: 639px) {
+    margin-top: space(1);
+    font-size: 1.75rem;
+    line-height: 1.12;
+  }
+
   @include from("xl") {
     margin-block: space(4) space(5);
   }
@@ -411,6 +446,11 @@
   @include type("section");
   font-family: var(--font-hero), $font-sans;
   font-size: clamp(1.625rem, 1.3rem + 0.6vw, 1.875rem);
+
+  @media (max-width: 639px) {
+    font-size: 1.375rem;
+  }
+
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.03em;
@@ -422,6 +462,10 @@
   display: flex;
   flex-direction: column;
   gap: space(2);
+
+  @media (max-width: 639px) {
+    gap: 6px;
+  }
 }
 
 
@@ -436,6 +480,12 @@
   gap: space(3);
   padding: space(2) space(3);
 
+  // phones: a slimmer row
+  @media (max-width: 639px) {
+    min-height: 48px;
+    padding-block: 6px;
+  }
+
   @include from("sm") {
     padding-inline: space(5);
   }
@@ -447,7 +497,16 @@
   cursor: pointer;
   transition:
     background-color duration(fast) ease,
-    border-color duration(fast) ease;
+    border-color duration(fast) ease,
+    box-shadow duration(fast) ease,
+    scale duration(fast) ease;
+
+  // pressed: a small give, so a tap is felt
+  &:active {
+    @include motion-ok {
+      scale: 0.98;
+    }
+  }
 
   @include hover {
     background: var(--hover);
@@ -491,6 +550,14 @@
     color: var(--ink);
   }
 
+  // one line each (a longer one is cut with an ellipsis, never wrapped)
+  b,
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   span {
     font-size: 0.8125rem;
     color: var(--muted);
@@ -509,12 +576,21 @@
   display: flex;
   flex-direction: column;
   gap: space(4);
+
+  @media (max-width: 639px) {
+    gap: space(3);
+  }
 }
 
 .lead {
   @include type("body");
   line-height: 1.6;
   color: var(--muted);
+
+  @media (max-width: 639px) {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
 }
 
 .codeForm {
@@ -818,6 +894,9 @@
 // The other role (staff / client): the stronger one — frosted glass on the navy, the icon set
 // straight in (no tile), a bolder title. The demo: an outline only, no ground, the DEMO tag free.
 .switchRole:not(.demoTrigger) {
+  // a firmer edge than the page's hairlines, so the card stands clear on the grey ground
+  border-color: var(--line-strong);
+
   .switchIcon {
     background: none;
 
@@ -842,15 +921,36 @@
 }
 
 .demoTrigger {
-  border-style: dashed;
-  background: transparent;
-  box-shadow: none;
+  // phones and tablets: a solid amber edge on white (like its DEMO tag) and a soft lift, so it
+  // reads as a button, not a placeholder; the arrow takes the amber too
+  border-style: solid;
+  border-color: var(--copper);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.04);
 
   .switchIcon {
     background: none;
   }
 
+  // below 1280px only (the navy column keeps its own look)
+  @media (max-width: 1279px) {
+    .switchArrow {
+      color: var(--copper);
+    }
+
+    @include hover {
+      border-color: var(--copper);
+      background: var(--surface);
+      box-shadow: 0 4px 12px -4px rgb(15 23 42 / 0.16);
+
+      .switchArrow {
+        color: var(--copper);
+      }
+    }
+  }
+
   @include from("xl") {
+    border-style: dashed;
     border-color: rgb(255 255 255 / 0.22);
     background: transparent;
     box-shadow: none;

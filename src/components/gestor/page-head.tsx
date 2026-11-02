@@ -1,6 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { useCameFrom } from "@/lib/gestor/came-from";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { cx } from "@/components/ui/primitives";
@@ -18,26 +21,41 @@ import { cx } from "@/components/ui/primitives";
  */
 export function PageHead({ title, intro, eyebrow, actions }: { title: string; intro?: ReactNode; eyebrow?: string; actions?: ReactNode }) {
   const { t } = useI18n();
+  const router = useRouter();
+  const from = useCameFrom();
   eyebrow ??= t.list.eyebrow(EJERCICIO);
-  // Phones: a grid, so the title and the page's actions share one line (eyebrow above, intro below).
+  // Phones: two columns; the eyebrow tight over the title on the left, the page's actions on the
+  // right, centred on that pair (the intro, if any, runs full width below). The block has the same
+  // space above and below (4px inset plus the page's 8px gap; the title's line box hugs the text).
   // From sm: the title block on the left and the actions at its foot on the right, as before.
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
-      <div className="contents sm:block sm:min-w-0">
-        {eyebrow && <p className="eyebrow-tag col-span-2 mb-0.5 justify-self-start sm:mb-2">{eyebrow}</p>}
-        <h1 className="row-start-2 min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
-        {intro && <p className="col-span-2 row-start-3 max-w-[68ch] text-[13.5px] leading-5 text-muted sm:mt-1 sm:text-[14px] sm:leading-[21px]">{intro}</p>}
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 max-sm:py-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
+      <div className="flex min-w-0 items-center gap-2.5 sm:block">
+        {/* phones: back to the panel page this one was opened from (only when there is one) */}
+        {from && (
+          <button type="button" onClick={() => router.back()} aria-label={t.errors.back} title={t.errors.back} className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-md border border-line-strong bg-surface text-ink transition-colors hover:bg-hover sm:hidden">
+            <ArrowLeft size={16} strokeWidth={2.2} aria-hidden="true" />
+          </button>
+        )}
+        <div className="flex min-w-0 flex-col items-start gap-1 sm:block">
+          {/* phones: no campaign tag, so the title comes up */}
+          {eyebrow && <p className="eyebrow-tag max-sm:hidden sm:mb-2">{eyebrow}</p>}
+          <h1 className="min-w-0 text-[22px] leading-6 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
+          {intro && <p className="max-w-[68ch] text-[14px] leading-[21px] text-muted max-sm:hidden sm:mt-1">{intro}</p>}
+        </div>
       </div>
-      {actions && <div className="col-start-2 row-start-2 flex items-center gap-2 sm:flex-wrap">{actions}</div>}
+      {actions && <div className="flex items-center gap-2 sm:flex-wrap">{actions}</div>}
+      {/* phones: the intro under both columns, full width */}
+      {intro && <p className="col-span-2 text-[13.5px] leading-5 text-muted sm:hidden">{intro}</p>}
     </div>
   );
 }
 
 /** A set of mutually exclusive views (at most five). */
-/** `scroll`: on phones the views stay on one line and scroll sideways (edge to edge) instead of wrapping. */
+/** `scroll`: on phones the views stay on one line that snaps sideways, clipped at the page gutter; 40px touch targets, 8px apart (the Cases toolbar matches). */
 export function Chips({ label, scroll, children }: { label: string; scroll?: boolean; children: ReactNode }) {
   return (
-    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:-mx-4 max-sm:basis-[calc(100%+2rem)] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:px-4 max-sm:[&>*]:shrink-0")}>
+    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:basis-full max-sm:snap-x max-sm:snap-mandatory max-sm:flex-nowrap max-sm:gap-2 max-sm:overflow-x-auto max-sm:[&>*]:h-10 max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start max-sm:[&>*]:px-3 max-sm:[&>*]:text-[13px]")}>
       {children}
     </div>
   );

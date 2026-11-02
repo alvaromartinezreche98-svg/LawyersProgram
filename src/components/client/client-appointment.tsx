@@ -13,7 +13,7 @@ import { DateField } from "@/components/ui/date-field";
 
 export const AP_TONE = { solicitada: "warn", confirmada: "ok", cancelada: "neutral" } as const;
 const today = () => new Date().toISOString().slice(0, 10);
-const seg = (on: boolean) => cx("inline-flex h-(--control-h) items-center gap-2 rounded-md border px-4 text-[14px] font-medium transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-accent hover:bg-accent-soft/40");
+const seg = (on: boolean) => cx("inline-flex h-(--control-h) items-center gap-2 rounded-md border px-4 text-[14px] font-medium whitespace-nowrap transition-colors", on ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface shadow-field hover:border-accent hover:bg-accent-soft/40");
 
 /** C8 · Pedir cita: request an office visit or a phone call. */
 export function ClientAppointment() {
@@ -37,32 +37,35 @@ export function ClientAppointment() {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 max-md:gap-3">
       <PageTitle>{t.titles.cita}</PageTitle>
+      {/* phones: no eyebrow, a smaller title and intro, so the form starts higher */}
       <div>
-        <Eyebrow>{t.nav.cita}</Eyebrow>
-        <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold">{t.cita.title}</h1>
-        <p className="mt-2 max-w-[60ch] text-muted">{t.cita.intro}</p>
+        <span className="max-md:hidden"><Eyebrow>{t.nav.cita}</Eyebrow></span>
+        <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold max-md:mt-0 max-md:text-[20px]">{t.cita.title}</h1>
+        <p className="mt-2 max-w-[60ch] text-muted max-md:mt-1 max-md:text-[13.5px] max-md:leading-5">{t.cita.intro}</p>
       </div>
       {/* Both cards start level under the heading. */}
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <Card >
-          <form onSubmit={submit} className="flex flex-col gap-4">
-            <div role="radiogroup" aria-label={t.cita.title} className="flex flex-wrap gap-2">
+          <form onSubmit={submit} className="flex flex-col gap-4 max-md:gap-3 max-md:[--control-h:2.75rem]">
+            <div role="radiogroup" aria-label={t.cita.title} className="flex flex-wrap gap-2 max-md:grid max-md:grid-cols-2">
               {(["llamada", "presencial"] as const).map((k) => (
-                <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => setKind(k)} className={seg(kind === k)}>
+                <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => setKind(k)} className={cx(seg(kind === k), "max-md:justify-center max-md:px-2")}>
                   {k === "llamada" ? <Phone size={15} aria-hidden="true" /> : <Building2 size={15} aria-hidden="true" />}
-                  {t.cita.kind[k]}
+                  {/* the full name where it fits on one line; the short one on narrow phones */}
+                  <span className="max-[400px]:hidden">{t.cita.kind[k]}</span>
+                  <span className="min-[401px]:hidden">{t.cita.kindShort[k]}</span>
                 </button>
               ))}
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="flex flex-col gap-1.5 text-[14px] font-medium">
+            <div className="grid gap-4 max-md:gap-3 md:grid-cols-2">
+              <label className="flex flex-col gap-1.5 text-[14px] font-medium max-md:gap-1 max-md:text-[13.5px]">
                 {t.cita.date}
                 <DateField min={today()} value={date} onChange={(v) => { setDate(v); setError(""); }} className="font-normal" />
               </label>
               <div className="flex flex-col gap-1.5">
-                <span className="text-[14px] font-medium">{t.cita.slotLabel}</span>
+                <span className="text-[14px] font-medium max-md:text-[13.5px]">{t.cita.slotLabel}</span>
                 <div role="radiogroup" aria-label={t.cita.slotLabel} className="grid grid-cols-2 gap-2">
                   {(["manana", "tarde"] as const).map((s) => (
                     <button key={s} type="button" role="radio" aria-checked={slot === s} onClick={() => setSlot(s)} className={cx(seg(slot === s), "justify-center")}>
@@ -72,13 +75,13 @@ export function ClientAppointment() {
                 </div>
               </div>
             </div>
-            <label className="flex flex-col gap-1.5 text-[14px] font-medium">
+            <label className="flex flex-col gap-1.5 text-[14px] font-medium max-md:gap-1 max-md:text-[13.5px]">
               {t.cita.note}
-              <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} className="field resize-none py-2 font-normal" />
+              <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} className="field resize-none py-2 font-normal max-md:min-h-[4.5rem]" />
             </label>
             {error && <Notice tone="bad">{error}</Notice>}
             {sent && <Notice tone="ok">{t.cita.sent}</Notice>}
-            <Button type="submit" variant="primary" className="self-start">
+            <Button type="submit" variant="primary" className="self-start max-md:w-full max-md:self-stretch">
               <CalendarDays size={16} aria-hidden="true" />
               {t.cita.request}
             </Button>

@@ -3,6 +3,7 @@
 import { FEATURES } from "@/lib/features";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTrackPanelNav } from "@/lib/gestor/came-from";
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Menu, Search, X, CalendarDays, Contact, Inbox, LayoutDashboard, ListChecks, Settings, Wallet, type LucideIcon } from "lucide-react";
 import { unreadFor, useAppState } from "@/lib/data/store";
@@ -46,6 +47,7 @@ export function GestorShell({ children }: { children: ReactNode }) {
   const signOut = useSignOut();
   useSignInRedirect(allowed);
   useRemoteInbox(allowed);
+  useTrackPanelNav();
   // Folded to icons when the person chose it; until then, only on a case page (to give the case more width).
   const onCase = /^\/expedientes\/[^/]+$/.test(usePathname());
   const [pref, setPref] = useSideFold("gestor");

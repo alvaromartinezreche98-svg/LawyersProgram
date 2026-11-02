@@ -21,28 +21,29 @@ export function ClientProfile() {
   const { t, lang, locale } = useI18n();
   const name = clientName(exp);
   return (
-    <div className="flex flex-col gap-5">
+    // phones: 44px fields and a 12px rhythm throughout, so the form reads compact
+    <div className="flex flex-col gap-5 max-md:gap-3 max-md:[--control-h:2.75rem]">
       <PageTitle>{t.titles.profile}</PageTitle>
       <div>
-        <Eyebrow>{t.nav.profile}</Eyebrow>
-        <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold">{t.profile.title}</h1>
+        <span className="max-md:hidden"><Eyebrow>{t.nav.profile}</Eyebrow></span>
+        <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold max-md:mt-0 max-md:text-[20px]">{t.profile.title}</h1>
       </div>
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid items-start gap-5 max-md:gap-3 lg:grid-cols-[minmax(0,1fr)_360px]">
         <Card pad="none" className="overflow-clip">
           {/* Who this is, at a glance: initials, name and email, then the fields in two columns. */}
-          <div className="flex items-center gap-4 border-b border-line bg-sunk/50 pad-card">
-            <span className="grid size-16 shrink-0 place-items-center rounded-full bg-accent text-[22px] font-semibold text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{initialsOf(name)}</span>
+          <div className="flex items-center gap-4 border-b border-line bg-sunk/50 pad-card max-md:gap-3 max-md:py-3">
+            <span className="grid size-16 shrink-0 place-items-center rounded-full bg-accent text-[22px] max-md:size-12 max-md:text-[17px] font-semibold text-accent-ink shadow-[0_1px_2px_rgb(0_0_0/0.16)]" aria-hidden="true">{initialsOf(name)}</span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[18px] font-semibold">{name || "—"}</p>
-              <p className="truncate text-[14px] text-muted">{typeof exp.answers.email === "string" ? exp.answers.email : ""}</p>
+              <p className="truncate text-[18px] font-semibold max-md:text-[16px] max-md:leading-6">{name || "—"}</p>
+              <p className="truncate text-[14px] text-muted max-md:text-[13px]">{typeof exp.answers.email === "string" ? exp.answers.email : ""}</p>
             </div>
             {/* Live: saving… with a spinner while a field changes, then a tick and the time it was saved */}
             <SaveStatus idle={t.profile.autosaved} className="text-[12.5px] max-sm:hidden" />
           </div>
           <div className="pad-card">
-            <h2 className="mb-4 text-[15px] font-semibold">{t.profile.contact}</h2>
-            <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+            <h2 className="mb-4 text-[15px] font-semibold max-md:mb-3">{t.profile.contact}</h2>
+            <div className="grid gap-x-5 gap-y-5 max-md:gap-y-3 sm:grid-cols-2">
               {CONTACT.map((f) => (
                 <div key={f.id} className={cx("min-w-0", f.id === "nombre" && "sm:col-span-2")}>
                   <QuestionnaireForm fields={[f]} answers={exp.answers} idBase="perfil" onChange={(path, v) => actions.setAnswer(exp.id, path, v)} />
@@ -52,13 +53,13 @@ export function ClientProfile() {
           </div>
         </Card>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 max-md:gap-3">
           <Card >
-            <div className="mb-4 flex items-center gap-3">
-              <IconTile icon={Globe} tone="info" />
+            <div className="mb-4 flex items-center gap-3 max-md:mb-3">
+              <IconTile icon={Globe} tone="info" className="max-md:size-8" />
               <h2 className="display-tight text-[15px] font-semibold">{t.common.language}</h2>
             </div>
-            <div role="radiogroup" aria-label={t.common.language} className="grid grid-cols-2 gap-2">
+            <div role="radiogroup" aria-label={t.common.language} className="grid gap-2" style={{ gridTemplateColumns: `repeat(${LANGS.length}, minmax(0, 1fr))` }}>
               {LANGS.map((l) => (
                 <button
                   key={l.id}
@@ -75,8 +76,8 @@ export function ClientProfile() {
           </Card>
 
           <Card >
-            <div className="mb-4 flex items-center gap-3">
-              <IconTile icon={FolderOpen} tone="neutral" />
+            <div className="mb-4 flex items-center gap-3 max-md:mb-3">
+              <IconTile icon={FolderOpen} tone="neutral" className="max-md:size-8" />
               <h2 className="display-tight text-[15px] font-semibold">{t.profile.caseTitle}</h2>
             </div>
             <dl className="flex flex-col text-sm">

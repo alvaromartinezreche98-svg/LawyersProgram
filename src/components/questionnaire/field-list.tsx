@@ -121,7 +121,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       break;
     case "date":
       // dd/mm/yyyy with a calendar; the answer is still stored as yyyy-mm-dd.
-      control = <DateField id={id} disabled={readOnly} value={asText(v)} onChange={(iso) => set(at, iso)} className="max-w-[240px]" />;
+      control = <DateField id={id} disabled={readOnly} value={asText(v)} onChange={(iso) => set(at, iso)} />;
       break;
     case "money":
     case "number":
@@ -164,11 +164,16 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       // check and the side padding) sets the column width, so short options sit three or two a row
       // and long ones take a row each, never breaking onto two lines.
       const optMin = Math.ceil(Math.max(...opts.map(([, l]) => l.length)) * 6.6 + 46);
+      // Columns on a phone (about 290px for the options): three a row when they fit, else two, else one.
+      // With two a row, an odd last option takes the whole row, so no row holds a lone half-width button.
+      const ROW = 290;
+      const cols = x.type === "yn" ? 2 : optMin * 3 + 16 <= ROW ? 3 : optMin * 2 + 8 <= ROW ? 2 : 1;
+      const lastWide = cols > 1 && opts.length % cols === 1;
       control = (
         // Separate option buttons, 48px tall (easy to tap): each reads as a button before it is chosen
         // (white, field border, soft shadow); the chosen one fills navy with a check.
-        <div role="radiogroup" aria-labelledby={id + "-l"} style={{ "--opt-min": `${optMin}px` } as React.CSSProperties} className={cx("max-w-full gap-3 max-sm:grid max-sm:w-full max-sm:gap-2", x.type === "yn" ? "grid w-[300px] grid-cols-2" : "flex flex-wrap max-sm:grid-cols-[repeat(auto-fit,minmax(min(100%,var(--opt-min)),1fr))]")}>
-          {opts.map(([val, l]) => {
+        <div role="radiogroup" aria-labelledby={id + "-l"} style={{ "--opt-cols": cols } as React.CSSProperties} className={cx("max-w-full gap-3 max-sm:grid max-sm:w-full max-sm:gap-2", x.type === "yn" ? "grid w-[300px] grid-cols-2" : "flex flex-wrap max-sm:grid-cols-[repeat(var(--opt-cols),minmax(0,1fr))]")}>
+          {opts.map(([val, l], oi) => {
             const on = v === val;
             return (
               <button
@@ -181,6 +186,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
                 className={cx(
                   "inline-flex h-12 min-w-[112px] items-center justify-center gap-2 rounded-md border px-5 text-[15.5px] font-medium whitespace-nowrap shadow-field max-sm:h-11 max-sm:min-w-0 max-sm:gap-1.5 max-sm:px-3 max-sm:text-[13.5px] transition-[background-color,border-color,color] outline-none focus-visible:ring-4 focus-visible:ring-focus/25 disabled:cursor-default",
                   x.type === "yn" && "w-full",
+                  lastWide && oi === opts.length - 1 && "max-sm:col-span-full",
                   on ? "border-accent bg-accent text-accent-ink" : "border-field-line bg-surface text-ink hover:border-accent hover:bg-accent-soft/50 disabled:hover:border-field-line disabled:hover:bg-surface",
                 )}
               >
@@ -202,7 +208,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
   }
 
   return (
-    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="-mx-3 flex scroll-mt-40 flex-col gap-2 rounded-md px-3 py-4 max-sm:py-3 transition-[background-color,box-shadow] duration-700 first:-mt-4 last:-mb-4 data-[flash]:bg-sunk data-[flash]:shadow-[inset_3px_0_0_var(--copper)] data-[flash]:duration-150 lg:scroll-mt-32">
+    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="-mx-3 flex scroll-mt-40 flex-col gap-2 rounded-md px-3 py-4 max-sm:py-3 transition-[background-color,box-shadow] duration-700 first:-mt-4 last:-mb-4 max-sm:first:-mt-3 max-sm:last:-mb-3 data-[flash]:bg-sunk data-[flash]:shadow-[inset_3px_0_0_var(--copper)] data-[flash]:duration-150 lg:scroll-mt-32">
       {grouped ? (
         <div id={id + "-l"} className={labelCls}>
           {label}
@@ -262,7 +268,7 @@ function Repeater({ field: x, items, path, id }: { field: Field; items: Answers[
         );
       })}
       {!readOnly && (
-        <button type="button" onClick={() => set(path, [...items, { [ITEM_ID]: uid("i-") }])} className="inline-flex h-(--control-h) items-center gap-2 self-start rounded-md bg-accent-soft px-4 font-semibold text-accent transition-colors hover:bg-accent-soft-hover">
+        <button type="button" onClick={() => set(path, [...items, { [ITEM_ID]: uid("i-") }])} className="inline-flex h-(--control-h) items-center gap-2 self-start rounded-md border border-accent/25 bg-accent-soft hover:border-accent/45 px-4 font-semibold text-accent transition-colors hover:bg-accent-soft-hover">
           {t.common.add(item)}
         </button>
       )}
@@ -282,8 +288,9 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
   const [open, setOpen] = useState(() => st !== "done" || (!!itemId && typeof window !== "undefined" && window.location.hash.endsWith(`-${itemId}`)));
   const name = asText(scope.dir) || asText(scope.nombre) || asText(scope.valor);
   return (
-    <div className="rounded-xl border border-line-strong/40 bg-surface pad-x-card pb-2 shadow-sheet">
-      <div className="flex items-center gap-3 py-2.5 max-sm:gap-2 max-sm:py-2">
+    // one inset on all four sides (the card scale's), the open body under a hairline with the same air
+    <div className="rounded-xl border border-line-strong/40 bg-surface pad-card shadow-sheet">
+      <div className="flex items-center gap-3 max-sm:gap-2">
         <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="flex min-w-0 flex-1 items-center gap-3 text-left max-sm:gap-2.5">
           <StepDot n={n} state={st} />
           <span className="min-w-0 flex-1">
@@ -302,7 +309,7 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
           </button>
         )}
       </div>
-      {open && <div className="border-t border-line pt-3">{children}</div>}
+      {open && <div className="mt-4 border-t border-line pt-4">{children}</div>}
     </div>
   );
 }
@@ -451,11 +458,11 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
               <span>{t.upload.reqSize}</span>
             </span>
           </div>
-          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
+          <label htmlFor={id + "-cam"} className={cx(btn, "flex-auto cursor-pointer border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover")}>
             <Camera size={17} aria-hidden="true" />
             {t.upload.camera}
           </label>
-          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}>
+          <label htmlFor={id} className={cx(btn, "flex-auto cursor-pointer border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover")}>
             <Upload size={17} aria-hidden="true" />
             {t.upload.choose}
           </label>
@@ -485,7 +492,7 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
               </span>
               {p.failed && (
                 <span className="flex gap-1">
-                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
+                  <button type="button" onClick={() => retry(p)} className="inline-flex h-(--control-h-sm) items-center gap-1.5 rounded-md border border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover px-3 text-[13.5px] font-medium"><RotateCw size={13} aria-hidden="true" />{t.sync.retry}</button>
                   <button type="button" aria-label={t.common.removeFile(p.file.name)} onClick={() => setPending((l) => l.filter((x) => x.key !== p.key))} className="grid size-8 place-items-center rounded-md text-muted hover:bg-surface hover:text-ink"><X size={16} aria-hidden="true" /></button>
                 </span>
               )}
@@ -512,7 +519,7 @@ function Uploader({ id, files, onUpdate, field, item, listKey }: { id: string; f
                 {later.note && <p className="text-muted">{t.upload.laterNote(later.note)}</p>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-transparent btn-fx btn-fx-soft bg-accent-soft text-accent hover:bg-accent-soft-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
+                <label htmlFor={id + "-cam"} className={cx(btn, "cursor-pointer border-accent/25 btn-fx btn-fx-soft bg-accent-soft hover:border-accent/45 text-accent hover:bg-accent-soft-hover")}><Camera size={17} aria-hidden="true" />{t.upload.uploadNow}</label>
                 <button type="button" onClick={() => { setNote(later.note); setNoting(true); }} className={cx(btn, "border-transparent text-accent hover:bg-accent-soft")}>{t.upload.changeNote}</button>
               </div>
             </div>

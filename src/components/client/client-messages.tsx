@@ -27,17 +27,19 @@ export function ClientMessages() {
   const missing = collectDocs(exp.answers).filter((d) => !d.files.length).length;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 max-md:gap-3">
       <PageTitle>{t.titles.messages}</PageTitle>
+      {/* phones: the title alone, so the conversation gets the screen */}
       <div>
-        <Eyebrow>{t.nav.messages}</Eyebrow>
-        <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold">{t.msgs.title}</h1>
-        <p className="mt-2 text-muted">{t.msgs.sub}</p>
+        <span className="max-md:hidden"><Eyebrow>{t.nav.messages}</Eyebrow></span>
+        <h1 className="display-serif mt-1.5 text-[clamp(22px,2.2vw,26px)] font-semibold max-md:mt-0 max-md:text-[20px]">{t.msgs.title}</h1>
+        <p className="mt-2 text-muted max-md:hidden">{t.msgs.sub}</p>
       </div>
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Phones: the conversation edge to edge, as tall as the screen allows (the keyboard shrinks it, see layout's viewport) */}
-        <Card pad="none" className="overflow-clip max-md:-mx-4 max-md:rounded-none max-md:border-x-0">
-          <ChatBox exp={exp} side="cliente" height="max-md:h-[max(260px,calc(100dvh-400px))] md:h-[clamp(360px,calc(100dvh-450px),640px)]" initialDraft={draft} />
+        {/* Phones: a white card inside the page margins, as tall as the screen allows (the keyboard shrinks it,
+            see layout's viewport); the conversation on white there, so the card reads as one surface */}
+        <Card pad="none" className="overflow-clip max-md:shadow-sm">
+          <ChatBox exp={exp} side="cliente" height="max-md:h-[max(260px,calc(100dvh-340px))] max-md:bg-surface md:h-[clamp(360px,calc(100dvh-450px),640px)]" initialDraft={draft} />
         </Card>
 
         <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(var(--app-header,64px)+1.5rem)]">
