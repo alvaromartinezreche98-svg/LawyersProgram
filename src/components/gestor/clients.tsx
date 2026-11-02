@@ -201,15 +201,17 @@ function ClientRow({ exp: e, i, origin, open, onToggle, locale }: { exp: Expedie
         <div
           id={`inv-${e.id}`}
           inert={!open}
-          className={cx("grid border-line bg-sunk motion-safe:transition-[grid-template-rows,border-color] motion-safe:duration-300 motion-safe:ease-out", expanded ? "grid-rows-[1fr] border-t" : "grid-rows-[0fr] border-t border-transparent")}
+          className={cx("grid border-line bg-surface motion-safe:transition-[grid-template-rows,border-color] motion-safe:duration-300 motion-safe:ease-out", expanded ? "grid-rows-[1fr] border-t" : "grid-rows-[0fr] border-t border-transparent")}
         >
         <div className="min-h-0 overflow-hidden">
-        <div className="flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-start">
-          <QrCode value={link} size={132} downloadName={`invitacion-${e.id}`} downloadLabel={t.clients.downloadQr} />
-          <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-            <span className="text-[13.5px] font-medium">{t.clients.link}</span>
-            <CopyField value={link} label={t.clients.link} copyLabel={t.clients.copy} copiedLabel={t.clients.copied} />
-            <span className="flex flex-wrap gap-2">
+        {/* Two columns at every width: the QR (and its download) on the left, the link and actions beside it;
+            on phones the actions stack full width in that column, so the panel stays short. */}
+        <div className="flex items-start gap-3 px-4 py-4 sm:gap-4">
+          <QrCode value={link} size={132} downloadName={`invitacion-${e.id}`} downloadLabel={t.clients.downloadQr} className="shrink-0 max-sm:[&>div:first-child]:size-[112px]!" />
+          <div className="flex min-w-0 flex-1 flex-col gap-2.5 max-sm:gap-2">
+            <span className="text-[13.5px] font-medium max-sm:text-[13px]">{t.clients.link}</span>
+            <CopyField compact value={link} label={t.clients.link} copyLabel={t.clients.copy} copiedLabel={t.clients.copied} />
+            <span className="flex flex-wrap gap-2 max-sm:flex-col max-sm:[&>*]:justify-center">
               {/* A ready-made email in the gestoría's own mail app: nothing is sent from PreRenta. */}
               <ButtonLink href={`mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent(t.clients.emailSubject(firmName))}&body=${encodeURIComponent(t.clients.emailBody(first, firmName, link))}`} size="sm" variant="outline">
                 <Mail size={14} aria-hidden="true" />
