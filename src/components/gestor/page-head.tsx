@@ -1,6 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { useCameFrom } from "@/lib/gestor/came-from";
 import { EJERCICIO } from "@/lib/questionnaire/schema";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { cx } from "@/components/ui/primitives";
@@ -18,16 +21,26 @@ import { cx } from "@/components/ui/primitives";
  */
 export function PageHead({ title, intro, eyebrow, actions }: { title: string; intro?: ReactNode; eyebrow?: string; actions?: ReactNode }) {
   const { t } = useI18n();
+  const router = useRouter();
+  const from = useCameFrom();
   eyebrow ??= t.list.eyebrow(EJERCICIO);
   // Phones: two columns; the eyebrow tight over the title on the left, the page's actions on the
   // right, centred on that pair (the intro, if any, runs full width below).
   // From sm: the title block on the left and the actions at its foot on the right, as before.
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-3">
-      <div className="flex min-w-0 flex-col items-start gap-1 sm:block">
-        {eyebrow && <p className="eyebrow-tag sm:mb-2">{eyebrow}</p>}
-        <h1 className="min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
-        {intro && <p className="max-w-[68ch] text-[14px] leading-[21px] text-muted max-sm:hidden sm:mt-1">{intro}</p>}
+      <div className="flex min-w-0 items-center gap-2.5 sm:block">
+        {/* phones: back to the panel page this one was opened from (only when there is one) */}
+        {from && (
+          <button type="button" onClick={() => router.back()} aria-label={t.errors.back} title={t.errors.back} className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-md border border-slate-200 bg-slate-100/80 text-ink transition-colors hover:bg-slate-200/80 sm:hidden">
+            <ArrowLeft size={16} strokeWidth={2.2} aria-hidden="true" />
+          </button>
+        )}
+        <div className="flex min-w-0 flex-col items-start gap-1 sm:block">
+          {eyebrow && <p className="eyebrow-tag sm:mb-2">{eyebrow}</p>}
+          <h1 className="min-w-0 text-[22px] leading-7 font-semibold tracking-[-0.01em] sm:text-[24px] sm:leading-[30px]">{title}</h1>
+          {intro && <p className="max-w-[68ch] text-[14px] leading-[21px] text-muted max-sm:hidden sm:mt-1">{intro}</p>}
+        </div>
       </div>
       {actions && <div className="flex items-center gap-2 sm:flex-wrap">{actions}</div>}
       {/* phones: the intro under both columns, full width */}

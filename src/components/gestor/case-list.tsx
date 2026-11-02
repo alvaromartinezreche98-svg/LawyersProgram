@@ -219,8 +219,8 @@ export function CaseList() {
           eyebrow={t.list.eyebrow(EJERCICIO)}
           title={t.list.title}
           actions={
-            // phones: the page's main action, filled navy so it reads as one
-            <ButtonLink href="/clientes" size="sm" className="max-sm:border-accent max-sm:bg-accent max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
+            // phones: the page's main action, filled navy so it reads as one; 32px like the summary's button
+            <ButtonLink href="/clientes" size="sm" className="max-sm:h-8 max-sm:gap-1.5 max-sm:border-accent max-sm:bg-accent max-sm:px-2.5 max-sm:text-[12.5px] max-sm:text-accent-ink max-sm:hover:border-accent-hover max-sm:hover:bg-accent-hover">
               <UserPlus size={15} aria-hidden="true" />
               {t.list.invite}
             </ButtonLink>
