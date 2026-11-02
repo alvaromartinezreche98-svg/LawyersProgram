@@ -88,10 +88,12 @@ export function Questionnaire({ slug }: { slug: string }) {
       {/* The save status floats bottom right, always in view (it used to sit in the sheet head). */}
       <SaveToast idle={t.q.autosave} />
       <StepsNav answers={exp.answers} current={slug} onSelect={go} signDone={signDone} requested={new Set(openTasks(exp).map((x) => x.target?.section).filter((x): x is string => !!x))} />
-      <section className="min-w-0 rounded-xl border border-line bg-surface shadow-sheet">
+      {/* Phones: the sheet (head + questions) is its own closed card, rounded at the foot as at the top,
+          16px above the sticky buttons; the buttons bar is not part of it there */}
+      <section className="min-w-0 rounded-xl border border-line bg-surface shadow-sheet max-sm:rounded-none max-sm:border-0 max-sm:bg-transparent max-sm:shadow-none">
         {/* Sheet head: where the client is, the save status, the step's title */}
         {/* phones: the same 16px inset as the body and the bar above, the tile level with the title */}
-        <header className="flex flex-col gap-1 border-b border-line px-4 pt-6 pb-5 max-sm:gap-1.5 max-sm:py-4 sm:px-8 lg:px-10">
+        <header className="flex flex-col gap-1 border-b border-line px-4 pt-6 pb-5 max-sm:gap-1.5 max-sm:rounded-t-xl max-sm:border max-sm:bg-surface max-sm:py-4 sm:px-8 lg:px-10">
           <span className="t-eyebrow text-[12.5px] text-accent">
             {section ? t.q.sectionOf(SCHEMA.indexOf(section) + 1, SCHEMA.length) : isSign ? t.sign.short : t.q.review}
           </span>
@@ -101,8 +103,7 @@ export function Questionnaire({ slug }: { slug: string }) {
             <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold max-sm:text-[22px]">{title}</h1>
           </div>
         </header>
-        {/* phones: 40px of air after the last question, so the end of the step reads clearly above the sticky buttons */}
-        <div className="px-4 pt-6 pb-8 max-sm:pt-4 max-sm:pb-10 sm:px-8 lg:px-10">
+                <div className="px-4 pt-6 pb-8 max-sm:mb-4 max-sm:rounded-b-xl max-sm:border-x max-sm:border-b max-sm:border-line max-sm:bg-surface max-sm:pt-4 max-sm:pb-6 sm:px-8 lg:px-10">
         <SaveFailed className="mb-5" />
         {/* "Your gestoría has it" once, where the client resends; Home shows it too. Not repeated on every section. */}
         {exp.status !== "borrador" && !section && !isSign && (
