@@ -58,10 +58,10 @@ function waitingOn(e: Expediente, unread: number): Waiting {
  */
 export function triage(e: Expediente): Triage {
   const alerts = alertsOf(e).active;
-  const bad = alerts.filter((a) => a.level === "bad").length;
-  const warn = alerts.filter((a) => a.level === "warn").length;
+  const bad = e.remote ? e.remote.issues : alerts.filter((a) => a.level === "bad").length;
+  const warn = e.remote && !e.remote.loaded ? 0 : alerts.filter((a) => a.level === "warn").length;
   const unread = unreadFor(e, "gestor");
-  const { pct, pending } = e.remote && !e.remote.loaded ? { pct: e.remote.progress.percent, pending: e.remote.progress.total - e.remote.progress.answered } : overall(e.answers);
+  const { pct, pending } = e.remote ? { pct: e.remote.progress.percent, pending: e.remote.progress.total - e.remote.progress.answered } : overall(e.answers);
   const reasons: Reason[] = [];
   if (unread) reasons.push("unread");
   if (bad) reasons.push("missing");
