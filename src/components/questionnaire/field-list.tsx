@@ -121,7 +121,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
       break;
     case "date":
       // dd/mm/yyyy with a calendar; the answer is still stored as yyyy-mm-dd.
-      control = <DateField id={id} disabled={readOnly} value={asText(v)} onChange={(iso) => set(at, iso)} className="max-w-[240px]" />;
+      control = <DateField id={id} disabled={readOnly} value={asText(v)} onChange={(iso) => set(at, iso)} />;
       break;
     case "money":
     case "number":
@@ -202,7 +202,7 @@ function FieldRow({ field: x, scope, path, id, itemId, listKey, depth }: { field
   }
 
   return (
-    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="-mx-3 flex scroll-mt-40 flex-col gap-2 rounded-md px-3 py-4 max-sm:py-3 transition-[background-color,box-shadow] duration-700 first:-mt-4 last:-mb-4 data-[flash]:bg-sunk data-[flash]:shadow-[inset_3px_0_0_var(--copper)] data-[flash]:duration-150 lg:scroll-mt-32">
+    <div id={`q-${x.id}${itemId ? `-${itemId}` : ""}`} className="-mx-3 flex scroll-mt-40 flex-col gap-2 rounded-md px-3 py-4 max-sm:py-3 transition-[background-color,box-shadow] duration-700 first:-mt-4 last:-mb-4 max-sm:first:-mt-3 max-sm:last:-mb-3 data-[flash]:bg-sunk data-[flash]:shadow-[inset_3px_0_0_var(--copper)] data-[flash]:duration-150 lg:scroll-mt-32">
       {grouped ? (
         <div id={id + "-l"} className={labelCls}>
           {label}
@@ -282,8 +282,9 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
   const [open, setOpen] = useState(() => st !== "done" || (!!itemId && typeof window !== "undefined" && window.location.hash.endsWith(`-${itemId}`)));
   const name = asText(scope.dir) || asText(scope.nombre) || asText(scope.valor);
   return (
-    <div className="rounded-xl border border-line-strong/40 bg-surface pad-x-card pb-2 shadow-sheet">
-      <div className="flex items-center gap-3 py-2.5 max-sm:gap-2 max-sm:py-2">
+    // one inset on all four sides (the card scale's), the open body under a hairline with the same air
+    <div className="rounded-xl border border-line-strong/40 bg-surface pad-card shadow-sheet">
+      <div className="flex items-center gap-3 max-sm:gap-2">
         <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="flex min-w-0 flex-1 items-center gap-3 text-left max-sm:gap-2.5">
           <StepDot n={n} state={st} />
           <span className="min-w-0 flex-1">
@@ -302,7 +303,7 @@ function RepeatItem({ n, itemId, label, fields, scope, onRemove, children }: { n
           </button>
         )}
       </div>
-      {open && <div className="border-t border-line pt-3">{children}</div>}
+      {open && <div className="mt-4 border-t border-line pt-4">{children}</div>}
     </div>
   );
 }
