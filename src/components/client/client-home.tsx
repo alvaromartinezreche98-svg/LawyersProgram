@@ -51,8 +51,14 @@ export function ClientHome() {
   const a = exp.answers;
   const firmName = firm.name.trim() || t.home.yourFirm;
   const mark = initials(firmName);
-  const sections = SCHEMA.map((s) => ({ s, p: progressOf(s.fields, a) })).map((x) => ({ ...x, st: sectionState(x.p) }));
-  const ov = overall(a);
+  // API mode: the server's counts (per-section metadata, overall progress); the local ones only in the demo.
+  const rp = exp.remote?.progress;
+  const sections = SCHEMA.map((s) => {
+    const r = exp.remote?.sections?.find((x) => x.key === s.id);
+    const p = r ? { done: r.answered, total: r.total } : progressOf(s.fields, a);
+    return { s, p, st: r ? r.state : sectionState(p) };
+  });
+  const ov = rp ? { pct: rp.percent, pending: rp.total - rp.answered } : overall(a);
   const open = sections.filter((x) => x.st !== "done");
   const docs = collectDocs(a);
   const missing = docs.filter((d) => !d.files.length).length;
@@ -62,6 +68,7 @@ export function ClientHome() {
   const requested = new Set(tasks.map((x) => x.target?.section).filter(Boolean));
   const first = clientName(exp).split(" ")[0];
   const sent = exp.status !== "borrador";
+  const unsent = sent && !!exp.remote?.hasUnsent;
   const approval = FEATURES.resultApproval && awaitingApproval(exp) && exp.result ? exp.result : null;
   const toSign = FEATURES.signing && !signingDone(exp, firm);
   const today = new Date().toISOString().slice(0, 10);
@@ -83,7 +90,7 @@ export function ClientHome() {
     else if (x.closedAt && recent(x.closedAt)) list.push({ key: x.id, kind: "resolved", icon: CircleCheck, label: t.home.resolvedKind, title: tr(x.text), href: hrefOf(x) });
   }
   if (open.length) list.push({ key: "continue", kind: "plain", icon: ClipboardList, label: t.home.continueKind, title: t.home.openSections(open.length), meta: open.map((x) => tr(x.s.short)).join(" · "), href: `/declaracion/${open[0].s.slug}` });
-  else if (!sent) list.push({ key: "send", kind: "plain", icon: Send, label: t.home.continueKind, title: t.home.readyToSend, href: `/declaracion/${REVIEW_SLUG}` });
+  else if (!sent || unsent) list.push({ key: "send", kind: "plain", icon: Send, label: t.home.continueKind, title: sent ? t.home.reviewResend : t.home.readyToSend, href: `/declaracion/${REVIEW_SLUG}` });
   // Answered or resolved requests never lead the page: they are information, not a next step.
   const actionable = list.filter((x) => x.kind !== "sent" && x.kind !== "resolved");
   const lead = actionable[0];
@@ -92,7 +99,7 @@ export function ClientHome() {
   const leadTask = lead?.kind === "request" ? tasks.find((x) => x.id === lead.key) : undefined;
 
   // Five distinct stages, each from its own data: never one blended percentage.
-  const pendingAnswers = sections.reduce((n, x) => n + (x.p.total - x.p.done), 0);
+  const pendingAnswers = rp ? ov.pending : sections.reduce((n, x) => n + (x.p.total - x.p.done), 0);
   const tr_ = t.home.track;
   const stages: Stage[] = [
     {
@@ -137,6 +144,7 @@ export function ClientHome() {
           {t.home.eyebrow(exp.ejercicio)} · {firmName}
         </p>
         <h1 className={h.title}>{first ? t.home.hello(first) : t.titles.home}</h1>
+        {exp.remote && <Pill>{status(exp.status)}</Pill>}
         {current && <p className={h.statusLine}>{tr_.now(tr_.name[current.key])}</p>}
       </header>
 
@@ -212,6 +220,7 @@ export function ClientHome() {
             {/* Phones: the stepper shows names only; the current stage's fact is written here once */}
             {current && <p className={h.currentFact}><b>{tr_.name[current.key]}</b> · {current.fact}</p>}
             {sent && <p className={h.trackNote}>{t.home.sentBody(status(exp.status))}</p>}
+            {unsent && exp.sentAt && <p className={h.trackNote}>{t.changes.pending(fmtTime(exp.sentAt, locale))}</p>}
           </section>
 
           {/* 3 · Waiting for you: requests, messages, answered and resolved items */}
@@ -252,7 +261,9 @@ export function ClientHome() {
                   </SectionRow>
                 );
               })}
-              <SectionRow href={`/declaracion/${REVIEW_SLUG}`} dot={<StepDot state="none" icon={Send} />} name={sent ? t.home.reviewResend : t.home.review} />
+              <SectionRow href={`/declaracion/${REVIEW_SLUG}`} dot={<StepDot state="none" icon={Send} />} name={sent ? t.home.reviewResend : t.home.review} tone={unsent ? "resume" : undefined}>
+                {unsent ? t.q.resend : undefined}
+              </SectionRow>
             </ul>
             {doneN > 0 && (
               <button type="button" aria-expanded={showDone} aria-controls="sec-list" onClick={() => setShowDone(!showDone)} className={h.foldBtn}>

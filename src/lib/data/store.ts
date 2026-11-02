@@ -159,6 +159,7 @@ const setSave = (status: SaveState["status"], at = state.save.at) => {
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 function write() {
+  if (!LOCAL_DATA) return;
   try {
     localStorage.setItem(DATA_KEY, JSON.stringify(state.exps));
     localStorage.setItem(FIRM_KEY, JSON.stringify(state.firm));
@@ -204,12 +205,17 @@ export interface RemoteHooks {
   retry(): void;
 }
 let remote: RemoteHooks | null = null;
+const submissions = new Map<string, Promise<void>>();
 export const setRemoteHooks = (h: RemoteHooks) => {
   remote = h;
 };
 /** Calls the API in API mode; failures surface through the save state or the next refresh. */
 const viaApi = (f: (r: RemoteHooks) => Promise<void> | void) => {
-  if (!API_MODE || !remote) return false;
+  if (!API_MODE) return false;
+  if (!remote) {
+    setSave("failed");
+    return true;
+  }
   void Promise.resolve(f(remote)).catch(() => setSave("failed"));
   return true;
 };
@@ -349,8 +355,21 @@ export const actions = {
     if (before) viaApi((r) => r.answers(id, before, answers));
   },
 
-  sendToGestoria(id: string) {
-    if (viaApi((r) => r.submit(id))) return;
+  async sendToGestoria(id: string): Promise<void> {
+    if (API_MODE) {
+      const pending = submissions.get(id);
+      if (pending) return pending;
+      if (!remote) {
+        setSave("failed");
+        throw new Error("API not ready");
+      }
+      const request = remote.submit(id).catch((err) => {
+        setSave("failed");
+        throw err;
+      }).finally(() => submissions.delete(id));
+      submissions.set(id, request);
+      return request;
+    }
     const at = nowIso();
     patchExp(id, (e) => ({
       status: "enviado",
