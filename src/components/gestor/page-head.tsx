@@ -51,10 +51,10 @@ export function PageHead({ title, intro, eyebrow, actions }: { title: string; in
 }
 
 /** A set of mutually exclusive views (at most five). */
-/** `scroll`: on phones the views stay on one slim line that snaps sideways, clipped at the page gutter. */
+/** `scroll`: on phones the views stay on one line that snaps sideways, clipped at the page gutter (control height, like the search beside them). */
 export function Chips({ label, scroll, children }: { label: string; scroll?: boolean; children: ReactNode }) {
   return (
-    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:basis-full max-sm:snap-x max-sm:snap-mandatory max-sm:flex-nowrap max-sm:gap-1.5 max-sm:overflow-x-auto max-sm:[&>*]:h-9 max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start max-sm:[&>*]:px-3 max-sm:[&>*]:text-[13px]")}>
+    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", scroll && "no-scrollbar max-sm:basis-full max-sm:snap-x max-sm:snap-mandatory max-sm:flex-nowrap max-sm:gap-1.5 max-sm:overflow-x-auto max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start max-sm:[&>*]:px-3 max-sm:[&>*]:text-[13px]")}>
       {children}
     </div>
   );
