@@ -69,10 +69,10 @@ export function ClientDocuments() {
         return (
           // Each section on its own card, so the categories read apart
           <section key={s.slug} aria-labelledby={`docs-${s.slug}`} className="flex flex-col gap-4 rounded-xl border border-line bg-surface pad-card shadow-sheet">
-            <div className="flex items-center justify-between gap-3 border-b border-line pb-3">
+            <div className={cx("flex items-center justify-between gap-3 border-b border-line pb-3", d.folderHeader)}>
               <h2 id={`docs-${s.slug}`} className="flex min-w-0 items-center gap-3 text-[16px] font-semibold max-sm:gap-2 max-sm:text-[15px]">
                 <IconTile icon={SECTION_ICON[s.slug]} size="sm" className="max-sm:size-7" />
-                <span className="truncate">{tr(s.title)}</span>
+                <span className={cx("truncate", d.folderTitle)}>{tr(s.title)}</span>
                 <span className="shrink-0 text-[13px] font-normal text-muted">{t.docs.card.files(n)}</span>
               </h2>
               <Link href={`/declaracion/${s.slug}`} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-accent transition-colors hover:bg-accent-soft">
@@ -90,9 +90,8 @@ export function ClientDocuments() {
                       {d0.context && <span className="text-[12.5px] text-muted">· {tr(d0.context)}</span>}
                       {!d0.files.length && <Pill tone="warn">{t.common.missing}</Pill>}
                     </div>
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3 max-sm:grid-cols-2 max-sm:gap-2">
+                    <div className={cx("grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3 max-sm:grid-cols-2 max-sm:gap-2", d.fileSlots)}>
                       {d0.files.map((f) => <FileCard key={f.id} file={f} replaceHref={href} />)}
-                      {/* the way to add one: a dashed tile that leads to the question; on phones it fills the free slot beside an odd last file, or a slim full-width row */}
                       <Link href={href} className={cx("group/up flex min-h-[120px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-3 text-center transition-colors", d0.files.length % 2 === 0 && "max-sm:col-span-full max-sm:min-h-12 max-sm:flex-row max-sm:gap-2.5 max-sm:py-2", d0.files.length ? "border-line text-muted hover:border-accent/50 hover:bg-accent-soft/40 hover:text-accent" : "border-copper bg-sunk text-warn hover:border-warn hover:bg-warn-soft")}>
                         <span className="grid size-8 place-items-center rounded-full bg-surface shadow-sm transition-transform group-hover/up:scale-110 max-sm:size-7">
                           {d0.files.length ? <Plus size={15} aria-hidden="true" /> : <Upload size={15} aria-hidden="true" />}

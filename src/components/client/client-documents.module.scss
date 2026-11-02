@@ -1,4 +1,5 @@
 // C4 · Documentos: what was asked, what is in, what is missing, and where to upload it.
+@use "sass:map";
 @use "../../styles/abstracts" as *;
 
 // Three figures set like a register, on hairlines.
@@ -59,4 +60,36 @@
   gap: space(2);
   font-size: 0.9375rem;
   color: var(--ok);
+}
+
+@media (max-width: map.get($breakpoints, "sm") - 1px) {
+  .folderHeader {
+    flex-direction: column;
+    align-items: stretch;
+
+    h2 {
+      align-items: flex-start;
+    }
+
+    > a {
+      align-self: flex-start;
+      min-height: 44px;
+    }
+  }
+
+  .folderTitle {
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+  }
+
+  .fileSlots {
+    grid-template-columns: minmax(0, 1fr);
+
+    button,
+    a {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
 }

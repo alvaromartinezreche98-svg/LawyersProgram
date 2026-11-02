@@ -862,3 +862,27 @@
   }
 }
 
+
+@media (width < map.get($breakpoints, "sm")) {
+  .frame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .access {
+    :global(.cl-rootBox),
+    :global(.cl-cardBox),
+    :global(.cl-card) {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    :global(.cl-card) {
+      padding-inline: space(4);
+    }
+  }
+
+  .textBtn {
+    min-height: 44px;
+  }
+}
