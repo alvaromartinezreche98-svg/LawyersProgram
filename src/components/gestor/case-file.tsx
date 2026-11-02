@@ -393,11 +393,18 @@ export function CaseFile({ id }: { id: string }) {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <h1 className="display-serif text-[clamp(24px,2.4vw,28px)] leading-tight font-semibold break-words">{name}</h1>
               <StatusPill status={e.status} />
-              {waiting && <WaitingLabel who={waiting} />}
+              {waiting && <span className="max-sm:hidden"><WaitingLabel who={waiting} /></span>}
             </div>
-            <p className="text-[14px] text-muted max-sm:text-[13px]">
+            <p className="text-[14px] text-muted max-sm:hidden">
               {[e.sentAt && t.home.sentOn(fmtTime(e.sentAt, locale)), t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length), tt.pending > 0 && t.home.answersPending(tt.pending), t.file.docsAside(nDocs, nPend)].filter(Boolean).join(" · ")}
             </p>
+            {/* Phones: one compact summary card, who acts next and when it was sent; the counts are in the cards below */}
+            {(waiting || e.sentAt) && (
+              <div className="flex min-h-10 items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] shadow-sm sm:hidden">
+                {waiting ? <WaitingLabel who={waiting} /> : <span />}
+                {e.sentAt && <span className="figures truncate text-muted">{t.home.sentOn(fmtTime(e.sentAt, locale))}</span>}
+              </div>
+            )}
           </header>
           {/* Tabs: one part of the case at a time instead of one long page; chat and notes are in the side panel. */}
           <div role="tablist" aria-label={t.file.tabs.label} className="no-scrollbar sticky top-[104px] z-[9] -mx-4 -mt-2 flex gap-1.5 overflow-x-auto border-b border-line bg-surface/95 px-4 py-2.5 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:top-12">
@@ -433,7 +440,7 @@ export function CaseFile({ id }: { id: string }) {
           {main === "overview" && (
             <>
               {/* The case at a glance: four figures, each a way into its tab */}
-              <div className="@container"><div className="grid grid-cols-2 gap-2 sm:gap-3 @[680px]:grid-cols-4">
+              <div className="@container"><div className="grid grid-cols-2 gap-3 @[680px]:grid-cols-4">
                 <Kpi icon={ListChecks} tone={tt.pct === 100 ? "ok" : "accent"} label={t.file.kpi.questionnaire} value={`${tt.pct} %`} sub={<Tooltip plain inline text={t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length) + (tt.pending ? ` · ${t.home.answersPending(tt.pending)}` : "")}><span className="cursor-help">{t.file.kpi.sections(SCHEMA.length - openSecs, SCHEMA.length)}</span></Tooltip>} onClick={() => setMain("answers")} />
                 <Kpi icon={FileText} tone="info" zero={!nDocs} label={t.file.kpi.docs} value={String(nDocs)} sub={t.file.kpi.docsOf(nDocs, nPend)} onClick={() => setMain("docs")} />
                 <Kpi icon={TriangleAlert} tone={alBad ? "bad" : alWarn ? "warn" : al.length ? "info" : "ok"} zero={!al.length} label={t.file.kpi.alerts} value={String(al.length)} sub={al.length ? (
@@ -526,12 +533,12 @@ export function CaseFile({ id }: { id: string }) {
           </Block>
 
           {hasSendChanges(e) && (
-            <Block id="cambios" icon={GitCompareArrows} title={t.changes.title} aside={t.changes.aside}>
+            <Block id="cambios" icon={GitCompareArrows} title={t.changes.title} wideAside aside={t.changes.aside}>
               <SendChanges exp={e} />
             </Block>
           )}
 
-          <Block id="peticiones" icon={ClipboardList} title={t.tasks.title} aside={FEATURES.requestTracking ? t.tasks.aside(openTasks(e).length, tasksToCheck(e).length) : undefined}>
+          <Block id="peticiones" icon={ClipboardList} title={t.tasks.title} wideAside aside={FEATURES.requestTracking ? t.tasks.aside(openTasks(e).length, tasksToCheck(e).length) : undefined}>
             <TaskPanel exp={e} />
           </Block>
             </>
@@ -581,7 +588,7 @@ export function CaseFile({ id }: { id: string }) {
           )}
 
           {main === "docs" && (
-          <Block id="documentos" icon={FileText} title={t.file.docs} aside={<span className="flex flex-wrap items-center gap-3">{t.file.docsAside(nDocs, nPend)}<DownloadAll exp={e} /></span>}>
+          <Block id="documentos" icon={FileText} title={t.file.docs} wideAside aside={<span className="flex flex-wrap items-center gap-3">{t.file.docsAside(nDocs, nPend)}<DownloadAll exp={e} /></span>}>
             {docs.length ? (
               <div className="@container -m-5 sm:-m-6">
                 <div className="table-head hidden grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_7.5rem_minmax(0,1.5fr)] gap-4 pad-x-card @2xl:grid">
@@ -625,7 +632,7 @@ export function CaseFile({ id }: { id: string }) {
           )}
 
           {FEATURES.activityLog && main === "activity" && (
-            <Block id="actividad" icon={History} title={t.activity.title} aside={t.activity.aside(e.activity?.length ?? 0)}>
+            <Block id="actividad" icon={History} title={t.activity.title} wideAside aside={t.activity.aside(e.activity?.length ?? 0)}>
               <ActivityLog exp={e} />
             </Block>
           )}
@@ -702,17 +709,17 @@ function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { ico
   const k = KPI_TONE[zero ? "neutral" : tone];
   const body = (
     <>
-      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-9 max-sm:rounded-lg", k.tile)} aria-hidden="true">
-        <Icon size={20} strokeWidth={2} className="max-sm:size-[17px]" />
+      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-8 max-sm:rounded-lg", k.tile)} aria-hidden="true">
+        <Icon size={20} strokeWidth={2} className="max-sm:size-4" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[12.5px] font-medium text-muted max-sm:text-[12px]">{label}</span>
-        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[19px] max-sm:leading-6", k.n)}>{value}</span>
+        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[18px] max-sm:leading-[22px]", k.n)}>{value}</span>
         <span className="mt-1 block truncate max-sm:mt-0.5 max-sm:overflow-visible text-[12px] leading-5 whitespace-nowrap text-muted" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
       </span>
     </>
   );
-  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:gap-2.5 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
+  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:gap-2 max-sm:p-2.5 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
   return href ? <a href={href} className={cls}>{body}</a> : <button type="button" onClick={onClick} className={cls}>{body}</button>;
 }
 
@@ -720,20 +727,27 @@ const foldAll = (open: boolean) => document.querySelectorAll<HTMLDetailsElement>
 
 type RailTab = "details" | "chat" | "notes";
 
-function Block({ id, icon: BlockIcon, title, aside, htmlFor, children }: { id?: string; icon: LucideIcon; title: string; aside?: ReactNode; htmlFor?: string; children: ReactNode }) {
+/** `wideAside`: the aside holds controls (e.g. Download all); on phones it takes its own line under the title. */
+function Block({ id, icon: BlockIcon, title, aside, htmlFor, wideAside, children }: { id?: string; icon: LucideIcon; title: string; aside?: ReactNode; htmlFor?: string; wideAside?: boolean; children: ReactNode }) {
+  // Phones: each block folds from a chevron in its head (open to start), to move between parts quickly.
+  const [open, setOpen] = useState(true);
   return (
     <section id={id} className="scroll-mt-28 rounded-xl border border-line bg-surface lg:scroll-mt-24">
       {/* the aside drops under the title when they do not fit side by side (never over it) */}
-      <h2 className="flex min-h-[52px] flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line pad-x-card py-3 text-[16px] font-semibold max-sm:text-[15px]">
-        <span className="flex min-w-0 shrink-0 items-center gap-2.5">
-          <span className="grid size-7 place-items-center rounded-lg bg-accent-soft text-accent">
+      {/* Phones: title, a short aside and the fold chevron on one line (a wide aside on its own line below) */}
+      <h2 className={cx("flex min-h-[52px] flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line pad-x-card py-3 text-[16px] font-semibold max-sm:min-h-12 max-sm:gap-x-2 max-sm:py-2 max-sm:text-[15px]", !wideAside && "max-sm:flex-nowrap", !open && "max-sm:border-b-0")}>
+        <span className="flex min-w-0 shrink-0 items-center gap-2.5 max-sm:flex-1 max-sm:shrink">
+          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
             <BlockIcon size={15} strokeWidth={2} aria-hidden="true" />
           </span>
-          {htmlFor ? <label htmlFor={htmlFor}>{title}</label> : title}
+          <span className="min-w-0 max-sm:truncate">{htmlFor ? <label htmlFor={htmlFor}>{title}</label> : title}</span>
         </span>
-        {aside != null && <small className="min-w-0 font-sans text-xs font-medium tracking-normal text-muted">{aside}</small>}
+        {aside != null && <small className={cx("min-w-0 font-sans text-xs font-medium tracking-normal text-muted", wideAside ? "max-sm:order-3 max-sm:basis-full" : "max-sm:shrink-0")}>{aside}</small>}
+        <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={title} className="-mr-1.5 grid size-9 shrink-0 cursor-pointer place-items-center rounded-md text-muted hover:bg-sunk hover:text-ink max-sm:order-2 sm:hidden">
+          <ChevronDown size={17} className={cx("transition-transform", open && "rotate-180")} aria-hidden="true" />
+        </button>
       </h2>
-      <div className="flex flex-col gap-4 pad-card">{children}</div>
+      <div className={cx("flex flex-col gap-4 pad-card max-sm:gap-3", !open && "max-sm:hidden")}>{children}</div>
     </section>
   );
 }
