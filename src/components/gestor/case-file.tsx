@@ -440,7 +440,7 @@ export function CaseFile({ id }: { id: string }) {
           {main === "overview" && (
             <>
               {/* The case at a glance: four figures, each a way into its tab */}
-              <div className="@container"><div className="grid grid-cols-2 gap-3 max-sm:gap-2.5 @[680px]:grid-cols-4">
+              <div className="@container"><div className="grid grid-cols-2 gap-3 max-sm:gap-2 @[680px]:grid-cols-4">
                 <Kpi icon={ListChecks} tone={tt.pct === 100 ? "ok" : "accent"} label={t.file.kpi.questionnaire} value={`${tt.pct} %`} sub={<Tooltip plain inline text={t.q.sectionsDone(SCHEMA.length - openSecs, SCHEMA.length) + (tt.pending ? ` · ${t.home.answersPending(tt.pending)}` : "")}><span className="cursor-help">{t.file.kpi.sections(SCHEMA.length - openSecs, SCHEMA.length)}</span></Tooltip>} onClick={() => setMain("answers")} />
                 <Kpi icon={FileText} tone="info" zero={!nDocs} label={t.file.kpi.docs} value={String(nDocs)} sub={t.file.kpi.docsOf(nDocs, nPend)} onClick={() => setMain("docs")} />
                 <Kpi icon={TriangleAlert} tone={alBad ? "bad" : alWarn ? "warn" : al.length ? "info" : "ok"} zero={!al.length} label={t.file.kpi.alerts} value={String(al.length)} sub={al.length ? (
@@ -454,7 +454,7 @@ export function CaseFile({ id }: { id: string }) {
                         text={al.filter((x) => x.level === lv).map((x) => tr(x.title)).join(" · ")}
                         body={<AlertList alerts={al.filter((x) => x.level === lv)} />}
                       >
-                        <span className={cx("inline-flex h-5 cursor-help items-center gap-1 rounded-full px-2 text-[11.5px] leading-none font-semibold max-sm:px-1.5", KPI_CHIP[lv])}>
+                        <span className={cx("inline-flex h-5 cursor-help items-center gap-1 rounded-full px-2 text-[11.5px] leading-none font-semibold max-sm:h-4 max-sm:px-1.5 max-sm:text-[10.5px]", KPI_CHIP[lv])}>
                           <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
                           {n}
                           <span className="sr-only">{t.file.alertLevel[lv]}: {al.filter((x) => x.level === lv).map((x) => tr(x.title)).join("; ")}</span>
@@ -709,17 +709,17 @@ function Kpi({ icon: Icon, tone, label, value, sub, href, onClick, zero }: { ico
   const k = KPI_TONE[zero ? "neutral" : tone];
   const body = (
     <>
-      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-7 max-sm:rounded-md", k.tile)} aria-hidden="true">
-        <Icon size={20} strokeWidth={2} className="max-sm:size-[15px]" />
+      <span className={cx("grid size-11 shrink-0 place-items-center rounded-xl max-sm:size-6 max-sm:rounded-md", k.tile)} aria-hidden="true">
+        <Icon size={20} strokeWidth={2} className="max-sm:size-[13px]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12.5px] font-medium text-muted max-sm:text-[11.5px] max-sm:leading-4">{label}</span>
-        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[17px] max-sm:leading-5", k.n)}>{value}</span>
-        <span className="mt-1 block truncate max-sm:mt-0 max-sm:overflow-visible text-[12px] leading-5 whitespace-nowrap text-muted max-sm:text-[11.5px] max-sm:leading-4" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
+        <span className="block truncate text-[12.5px] font-medium text-muted max-sm:text-[11px] max-sm:leading-[14px]">{label}</span>
+        <span className={cx("figures block text-[22px] leading-7 font-bold max-sm:text-[15px] max-sm:leading-[18px]", k.n)}>{value}</span>
+        <span className="mt-1 block truncate max-sm:mt-0 max-sm:overflow-visible text-[12px] leading-5 whitespace-nowrap text-muted max-sm:text-[11px] max-sm:leading-[14px]" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
       </span>
     </>
   );
-  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:gap-2 max-sm:px-2.5 max-sm:py-2 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
+  const cls = "flex min-w-0 cursor-pointer items-center gap-3.5 rounded-xl border border-line bg-surface pad-tile text-left max-sm:items-start max-sm:gap-2 max-sm:rounded-lg max-sm:p-2 shadow-sm transition-[border-color,box-shadow,translate] hover:border-line-strong/60 hover:shadow-[0_10px_22px_-14px_rgb(var(--accent-rgb)/0.35)] motion-safe:hover:-translate-y-px";
   return href ? <a href={href} className={cls}>{body}</a> : <button type="button" onClick={onClick} className={cls}>{body}</button>;
 }
 
